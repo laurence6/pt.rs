@@ -1,0 +1,9 @@
+[package]
+name = "pt"
+version = "0.0.1"
+authors = ["Laurence Liu <liuxy6@gmail.com>"]
+
+[dependencies]
+rand = "0.3"
+
+[lib]
