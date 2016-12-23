@@ -1,9 +1,10 @@
 use common::Float;
 use vector::Vector;
 
+#[derive(Debug)]
 pub struct Ray {
-    Origin: Vector,
-    Direction: Vector,
+    pub Origin: Vector,
+    pub Direction: Vector,
 }
 
 pub fn NewRay(origin: Vector, direction: Vector) -> Ray {
