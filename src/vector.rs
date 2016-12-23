@@ -5,7 +5,7 @@ extern crate rand;
 
 use common::Float;
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 pub struct Vector {
     pub X: Float,
     pub Y: Float,
