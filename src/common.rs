@@ -1,4 +1,4 @@
-pub type Float = f64;
+pub type Float = f32;
 
-//const INF: Float = 1e9;
-//const EPS: Float = 1e-9;
+//pub const INF: Float = 2e9;
+pub const EPS: Float = 1e-9;
