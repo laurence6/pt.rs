@@ -1,23 +1,36 @@
-use common::Float;
+use bbox::BBox;
 use common::EPS;
-use vector::Vector;
+use common::Float;
+use hit::Hit;
 use material::Color;
 use ray::Ray;
+use shape::Shape;
+use vector::V;
+use vector::Vector;
 
 pub struct Sphere {
     Center: Vector,
     Radius: Float,
+
+    BBox: BBox,
+
     Color: Color,
 }
 
-pub fn NewSphere(center: Vector, radius: Float, color: Color) -> Sphere {
-    //let min = V(center.X - radius, center.Y - radius, center.Z - radius);
-    //let max = V(center.X + radius, center.Y + radius, center.Z + radius);
-    return Sphere { Center: center, Radius: radius, Color: color };
+impl Sphere {
+    pub fn New(center: Vector, radius: Float, color: Color) -> Sphere {
+        let min = V(center.X - radius, center.Y - radius, center.Z - radius);
+        let max = V(center.X + radius, center.Y + radius, center.Z + radius);
+        let bbox = BBox { Min: min, Max: max };
+        return Sphere { Center: center, Radius: radius, BBox: bbox, Color: color };
+    }
 }
 
-impl Sphere {
-    pub fn Intersect(&self, r: &Ray) -> Float {
+impl Shape for Sphere {
+    fn BBox(&self) -> &BBox {
+        return &self.BBox;
+    }
+    fn Intersect(&self, r: &Ray) -> Option<Hit> {
         let to = r.Origin - self.Center;
         let b = to.Dot(&r.Direction);
         let mut d = b * b - (to.Dot(&to) - self.Radius * self.Radius);
@@ -25,13 +38,16 @@ impl Sphere {
             d = d.sqrt();
             let t = -b - d;
             if t > EPS {
-                return t;
+                return Some(Hit::New(self, t));
             }
             let t = -b + d;
             if t > EPS {
-                return t;
+                return Some(Hit::New(self, t));
             }
         }
-        return 0.0;
+        return None;
+    }
+    fn MateralAt(&self) -> Color {
+        return self.Color;
     }
 }
