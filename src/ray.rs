@@ -7,21 +7,22 @@ pub struct Ray {
     pub Direction: Vector,
 }
 
-pub fn NewRay(origin: Vector, direction: Vector) -> Ray {
-    return Ray { Origin: origin, Direction: direction };
-}
 
 impl Ray {
+    pub fn New(origin: Vector, direction: Vector) -> Ray {
+        return Ray { Origin: origin, Direction: direction };
+    }
+
     pub fn Position(&self, t: Float) -> Vector {
         return self.Origin.Add(&self.Direction.MulScalar(t));
     }
 
     pub fn Reflect(&self, i: &Ray) -> Ray {
-        return NewRay(self.Origin, self.Direction.Reflect(&i.Direction));
+        return Ray::New(self.Origin, self.Direction.Reflect(&i.Direction));
     }
 
     pub fn Refract(&self, i: &Ray, n1: Float, n2: Float) -> Ray {
-        return NewRay(self.Origin, self.Direction.Refract(&i.Direction, n1, n2));
+        return Ray::New(self.Origin, self.Direction.Refract(&i.Direction, n1, n2));
     }
 
     pub fn Reflectance(&self, i: &Ray, n1: Float, n2: Float) -> Float {
