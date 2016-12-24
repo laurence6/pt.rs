@@ -1,4 +1,3 @@
-use std::fmt;
 use std::ops;
 
 extern crate rand;
@@ -13,23 +12,21 @@ pub struct Vector {
 }
 
 pub fn V(x: Float, y: Float, z: Float) -> Vector {
-    return Vector { X: x, Y: y, Z: z };
-}
-
-pub fn RandomUnitVector() -> Vector {
-    let x = rand::random::<Float>();
-    let y = rand::random::<Float>();
-    let z = rand::random::<Float>();
-    return V(x, y, z).Normalize();
-}
-
-impl fmt::Display for Vector {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        return write!(f, "({}, {}, {})", self.X, self.Y, self.Z);
-    }
+    return Vector::New(x, y, z);
 }
 
 impl Vector {
+    pub fn New(x: Float, y: Float, z: Float) -> Vector {
+        return Vector { X: x, Y: y, Z: z };
+    }
+
+    pub fn RandomUnitVector() -> Vector {
+        let x = rand::random::<Float>();
+        let y = rand::random::<Float>();
+        let z = rand::random::<Float>();
+        return V(x, y, z).Normalize();
+    }
+
     pub fn Length(&self) -> Float {
         return (self.X * self.X + self.Y * self.Y + self.Z * self.Z).sqrt();
     }
