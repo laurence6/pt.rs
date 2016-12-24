@@ -1,5 +1,4 @@
 use vector::Vector;
-use ray::NewRay;
 use ray::Ray;
 
 //struct Camera {
@@ -7,5 +6,5 @@ use ray::Ray;
 // }
 
 pub fn NewCamera(o: Vector, d: Vector) -> Ray {
-    return NewRay(o, d);
+    return Ray::New(o, d);
 }
