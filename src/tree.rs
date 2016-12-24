@@ -11,7 +11,7 @@ pub struct Tree<'a> {
 
 impl<'a> Tree<'a> {
     pub fn New(shapes: Vec<&'a Shape>) -> Tree {
-        println!("Building k-d tree...");
+        print!("Building k-d tree ({} shapes) ... ", shapes.len());
         let node = Node::New();
         println!("Done");
         return Tree {
@@ -26,38 +26,30 @@ impl<'a> Tree<'a> {
 }
 
 pub enum SplitAxis {
-    NotSplit,
     X,
     Y,
     Z,
 }
 
 pub enum SplitOrShape {
-    Split(Float), // Splite Point
-    Shape(usize), // Shape Index
-}
-
-pub enum ChildOrNShape {
-    Child(usize), // Child Index
-    NShape(u32), // Number of Shapes
+    Split(SplitAxis, Float), // Splite Point
+    NShape(u32),             // Number of Shapes
 }
 
 pub struct Node {
-    pub SplitAxis: SplitAxis,
     pub SplitOrShape: SplitOrShape,
-    pub ChildOrNShape: ChildOrNShape,
+    pub Index: usize, // Child or Shape Index
 }
 
 impl Node {
     pub fn New() -> Node {
         return Node {
-            SplitAxis: SplitAxis::NotSplit,
-            SplitOrShape: SplitOrShape::Shape(0),
-            ChildOrNShape: ChildOrNShape::NShape(1),
+            SplitOrShape: SplitOrShape::NShape(0),
+            Index: 0,
         };
     }
 
-    pub fn InitLeaf() {
+    pub fn InitLeaf(&self) {
 
     }
 }
