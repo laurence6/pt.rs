@@ -15,6 +15,8 @@ pub fn V(x: Float, y: Float, z: Float) -> Vector {
     return Vector::New(x, y, z);
 }
 
+// TODO: Dont use reference. Use Copy.
+
 impl Vector {
     pub fn New(x: Float, y: Float, z: Float) -> Vector {
         return Vector { X: x, Y: y, Z: z };
