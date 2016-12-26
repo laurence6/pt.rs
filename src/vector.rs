@@ -3,6 +3,7 @@ use std::ops;
 extern crate rand;
 
 use common::Float;
+use common::Axis;
 
 #[derive(Copy, Clone, Debug)]
 pub struct Vector {
@@ -22,6 +23,10 @@ impl Vector {
         return Vector { X: x, Y: y, Z: z };
     }
 
+    pub fn ZeroVector() -> Vector {
+        return V(0.0, 0.0, 0.0);
+    }
+
     pub fn RandomUnitVector() -> Vector {
         let x = rand::random::<Float>();
         let y = rand::random::<Float>();
@@ -31,13 +36,6 @@ impl Vector {
 
     pub fn Length(&self) -> Float {
         return (self.X * self.X + self.Y * self.Y + self.Z * self.Z).sqrt();
-    }
-
-    pub fn LengthN(&self, n: Float) -> Float {
-        if n == 2.0 {
-            return self.Length();
-        }
-        return (self.X.powf(n)+self.Y.powf(n)+self.Z.powf(n)).powf(1.0/n);
     }
 
     pub fn Normalize(&self) -> Vector {
@@ -114,9 +112,9 @@ impl Vector {
     pub fn MinAxis(&self) -> Vector {
         let (x, y, z) = (self.X.abs(), self.Y.abs(), self.Z.abs());
         match (x <= y, y <= z) {
-             (true,  true) => { return V(1.0, 0.0, 0.0); },
-             (false, true) => { return V(0.0, 1.0, 0.0); },
-             _             => { return V(0.0, 0.0, 1.0); },
+             (true,  true) => return V(1.0, 0.0, 0.0),
+             (false, true) => return V(0.0, 1.0, 0.0),
+             _             => return V(0.0, 0.0, 1.0),
         }
     }
 
@@ -224,5 +222,16 @@ impl ops::Div<Float> for Vector {
     type Output = Vector;
     fn div(self, s: Float) -> Vector {
         self.DivScalar(s)
+    }
+}
+
+impl ops::Index<Axis> for Vector {
+    type Output = Float;
+    fn index(&self, axis: Axis) -> &Float {
+        match axis {
+            Axis::X => &self.X,
+            Axis::Y => &self.Y,
+            Axis::Z => &self.Z,
+        }
     }
 }
