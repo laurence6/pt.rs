@@ -27,8 +27,8 @@ impl Sphere {
 }
 
 impl Shape for Sphere {
-    fn BBox(&self) -> &BBox {
-        return &self.BBox;
+    fn BBox(&self) -> BBox {
+        return self.BBox;
     }
     fn Intersect(&self, r: &Ray) -> Option<Hit> {
         let to = r.Origin - self.Center;
