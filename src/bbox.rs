@@ -1,6 +1,7 @@
 use vector::Vector;
 use common::Float;
 use common::Axis;
+use shape::Shape;
 
 #[derive(Clone, Copy)]
 pub struct BBox {
@@ -11,6 +12,14 @@ pub struct BBox {
 impl BBox {
     pub fn New(min: Vector, max: Vector) -> BBox {
         return BBox { Min: min, Max: max };
+    }
+
+    pub fn BBoxOfShapes(shapes: &Vec<&Shape>) -> BBox {
+        let mut bbox = BBox::New(Vector::ZeroVector(), Vector::ZeroVector());
+        for shape in shapes {
+            bbox = bbox.Union(&shape.BBox());
+        }
+        return bbox;
     }
 
     pub fn IntersectP(&self) -> bool {
