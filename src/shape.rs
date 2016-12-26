@@ -4,7 +4,7 @@ use material::Color;
 use hit::Hit;
 
 pub trait Shape {
-    fn BBox(&self) -> &BBox {
+    fn BBox(&self) -> BBox {
         unimplemented!()
     }
     fn Intersect(&self, &Ray) -> Option<Hit> {
