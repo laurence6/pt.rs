@@ -1,16 +1,22 @@
 use common::Float;
+use common::FLOAT_MAX;
 use vector::Vector;
 
 #[derive(Debug)]
 pub struct Ray {
     pub Origin: Vector,
     pub Direction: Vector,
+    pub TMax: Float,
 }
 
 
 impl Ray {
     pub fn New(origin: Vector, direction: Vector) -> Ray {
-        return Ray { Origin: origin, Direction: direction };
+        return Ray {
+            Origin: origin,
+            Direction: direction,
+            TMax: FLOAT_MAX,
+        };
     }
 
     pub fn Position(&self, t: Float) -> Vector {
