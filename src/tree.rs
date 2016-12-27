@@ -12,7 +12,7 @@ use shape::Shape;
 pub struct Tree<'a> {
     pub Shapes: Vec<&'a Shape>, // TODO: use slice?
     pub ShapeIndices: Vec<usize>,
-    pub NNode: usize, // TODO: remove?
+
     pub Nodes: Vec<Node>,
 
     bBox: BBox,
@@ -24,10 +24,9 @@ impl<'a> Tree<'a> {
 
         // Compute BBox
         let bbox = BBox::BBoxOfShapes(&shapes);
-        let mut tree = Tree {
+        let tree = Tree {
             Shapes: shapes,
             ShapeIndices: Vec::<usize>::new(),
-            NNode: 0,
             Nodes: Vec::<Node>::new(),
 
             bBox: bbox,
@@ -44,10 +43,7 @@ impl<'a> Tree<'a> {
             (8.0 + 1.3 * (shapes.len() as f32).log(2.0)).round() as u8
         };
 
-
-        let tree = buildTree(tree, shapes, &nodeBBox, 0, maxDepth);
-
-        return tree;
+        return buildTree(tree, shapes, nodeBBox, 0, maxDepth);
     }
 
     pub fn Intersect(&self, r: &Ray) -> Option<Hit> {
@@ -57,8 +53,8 @@ impl<'a> Tree<'a> {
 
 const MAX_SHAPES_IN_NODE: usize = 8;
 const ISECT_COST: Float = 80.0; // TODO
-const TRAV_COST: Float = 1.0; // TODO
-const EMPTY_BONUS: Float = 0.5;
+const TRAV_COST: Float = 1.0;   // TODO
+const EMPTY_BONUS: Float = 0.5; // TODO
 
 #[derive(PartialEq)]
 enum bEdgeType {
@@ -69,13 +65,13 @@ enum bEdgeType {
 // bounding edge
 struct bEdge {
     t: Float,
-    shapeNum: usize,
+    shapeIndex: usize,
     edgeType: bEdgeType,
 }
 
 impl bEdge {
-    fn New(t: Float, shapeNum: usize, edgeType: bEdgeType) -> bEdge {
-        return bEdge { t: t, shapeNum: shapeNum, edgeType: edgeType };
+    fn new(t: Float, shapeIndex: usize, edgeType: bEdgeType) -> bEdge {
+        return bEdge { t: t, shapeIndex: shapeIndex, edgeType: edgeType };
     }
 }
 
@@ -85,89 +81,90 @@ impl bEdge {
 fn buildTree<'a>(
     mut tree: Tree<'a>,
     mut shapes: Vec<usize>,
-    nodeBBox: &BBox,
+    nodeBBox: BBox,
     mut badRefines: u8,
     depth: u8) -> Tree<'a> {
 
+    // Create leaf
     if shapes.len() <= MAX_SHAPES_IN_NODE || depth == 0 {
-        tree.Nodes.push(Node::NewLeaf(&mut shapes, &mut tree.ShapeIndices));
+        tree.Nodes.push(Node::newLeaf(&mut shapes, &mut tree.ShapeIndices));
         return tree;
     }
 
     let d = nodeBBox.Diagonal();
-    let totSA = nodeBBox.SurfaceArea();
-    let invTotSA = 1.0 / totSA;
+    let invTotSA = 1.0 / nodeBBox.SurfaceArea();
+    let oldCost = ISECT_COST * shapes.len() as Float;
 
     let mut bestAxis: Option<Axis> = None;
-    let mut bestIndex = 0;
+    let mut bestIndex: Option<usize> = None;
     let mut bestCost = FLOAT_MAX;
-    let mut oldCost = ISECT_COST * shapes.len() as Float;
-
+    // 0: X 1: Y 2: Z
     let mut edges = [Vec::<bEdge>::new(), Vec::<bEdge>::new(), Vec::<bEdge>::new()];
-    let mut axis = nodeBBox.MaximumExtent();
 
     // try different axes
-    for _ in 0..2 {
-        for i in 0..shapes.len() {
-            let s = tree.Shapes[i];
-            let bbox = s.BBox();
-            // 0: X 1: Y 2: Z
-            edges[axis as usize].push(bEdge::New(bbox.Min[axis], i, bEdgeType::start));
-            edges[axis as usize].push(bEdge::New(bbox.Min[axis], i, bEdgeType::end));
-        }
-        edges[axis as usize].sort_by(|a, b| {
-            match (a.t < b.t, a.t > b.t) {
-                (true, false) => return Ordering::Less,
-                (false, true) => return Ordering::Greater,
-                _ => (),
-            };
-            match (&a.edgeType, &b.edgeType) {
-                (&bEdgeType::start, &bEdgeType::end) => return Ordering::Less,
-                (&bEdgeType::end, &bEdgeType::start) => return Ordering::Greater,
-                _                                    => return Ordering::Equal,
-            };
-        });
-
-        let mut nBelow = 0;
-        let mut nAbove = shapes.len();
-
-        for i in 0..(shapes.len() * 2) {
-            if edges[axis as usize][i].edgeType == bEdgeType::end {
-                nAbove -= 1;
+    {
+        let mut axis = nodeBBox.MaximumExtent();
+        for _ in 0..2 {
+            for i in 0..shapes.len() {
+                let s = tree.Shapes[i];
+                let bbox = s.BBox();
+                edges[axis as usize].push(bEdge::new(bbox.Min[axis], i, bEdgeType::start));
+                edges[axis as usize].push(bEdge::new(bbox.Min[axis], i, bEdgeType::end));
             }
+            edges[axis as usize].sort_by(|a, b| {
+                match (a.t < b.t, a.t > b.t) {
+                    (true, false) => return Ordering::Less,
+                    (false, true) => return Ordering::Greater,
+                    _ => (),
+                };
+                match (&a.edgeType, &b.edgeType) {
+                    (&bEdgeType::start, &bEdgeType::end) => return Ordering::Less,
+                    (&bEdgeType::end, &bEdgeType::start) => return Ordering::Greater,
+                    _                                    => return Ordering::Equal,
+                };
+            });
 
-            let t = edges[axis as usize][i].t;
-            if nodeBBox.Min[axis] < t && t < nodeBBox.Max[axis] {
-                let (pBelow, pAbove) = {
-                    let (axis1, axis2) = axis.OtherAxes();
-                    (
-                        2.0 * (d[axis1] * d[axis2] + (t - nodeBBox.Min[axis]) * (d[axis1] + d[axis2])) * invTotSA,
-                        2.0 * (d[axis1] * d[axis2] + (nodeBBox.Min[axis] - t) * (d[axis1] + d[axis2])) * invTotSA,
-                    )
-                };
-                let bonus = if pBelow < FLOAT_MIN_POS || pAbove < FLOAT_MIN_POS {
-                    EMPTY_BONUS
-                } else {
-                    0.0
-                };
-                let cost = TRAV_COST + ISECT_COST * (1.0 - bonus) * (pBelow * nBelow as Float + pAbove * nAbove as Float);
-                if cost < bestCost {
-                    bestCost = cost;
-                    bestAxis = Some(axis);
-                    bestIndex = i;
+            let mut nBelow = 0;
+            let mut nAbove = shapes.len();
+
+            for i in 0..(shapes.len() * 2) {
+                if edges[axis as usize][i].edgeType == bEdgeType::end {
+                    nAbove -= 1;
+                }
+
+                let t = edges[axis as usize][i].t;
+                if nodeBBox.Min[axis] < t && t < nodeBBox.Max[axis] {
+                    let (pBelow, pAbove) = {
+                        let (axis1, axis2) = axis.OtherAxes();
+                        (
+                            2.0 * (d[axis1] * d[axis2] + (t - nodeBBox.Min[axis]) * (d[axis1] + d[axis2])) * invTotSA,
+                            2.0 * (d[axis1] * d[axis2] + (nodeBBox.Min[axis] - t) * (d[axis1] + d[axis2])) * invTotSA,
+                        )
+                    };
+                    let bonus = if pBelow < FLOAT_MIN_POS || pAbove < FLOAT_MIN_POS {
+                        EMPTY_BONUS
+                    } else {
+                        0.0
+                    };
+                    let cost = TRAV_COST + ISECT_COST * (1.0 - bonus) * (pBelow * nBelow as Float + pAbove * nAbove as Float);
+                    if cost < bestCost {
+                        bestCost = cost;
+                        bestAxis = Some(axis);
+                        bestIndex = Some(i);
+                    }
+                }
+
+                if edges[axis as usize][i].edgeType == bEdgeType::start {
+                    nBelow += 1;
                 }
             }
+            debug_assert!(nBelow == shapes.len() && nAbove == 0);
 
-            if edges[axis as usize][i].edgeType == bEdgeType::start {
-                nBelow += 1;
+            if bestAxis.is_none() {
+                axis = axis.NextAxis();
+            } else {
+                break
             }
-        }
-        debug_assert!(nBelow == shapes.len() && nAbove == 0);
-
-        if bestAxis.is_none() {
-            axis = axis.NextAxis();
-        } else {
-            break
         }
     }
 
@@ -175,17 +172,44 @@ fn buildTree<'a>(
         badRefines += 1;
     }
 
+    // Create leaf
     if (bestCost > 4.0 * oldCost && shapes.len() < 16) || bestAxis.is_none() || badRefines == 3 {
-        tree.Nodes.push(Node::NewLeaf(&mut shapes, &mut tree.ShapeIndices));
+        tree.Nodes.push(Node::newLeaf(&mut shapes, &mut tree.ShapeIndices));
         return tree;
     }
 
-    {
-        let n0 = 0;
-        let n1 = 1;
-    }
+    let bestAxis = bestAxis.unwrap();
+    let bestIndex = bestIndex.unwrap();
+    let t = edges[bestAxis as usize][bestIndex].t;
+    // Classify shapes
+    let (shapesBelow, shapesAbove) = {
+        let mut sBelow = Vec::<usize>::new();
+        let mut sAbove = Vec::<usize>::new();
+        for i in 0..bestIndex {
+            if edges[bestAxis as usize][i].edgeType == bEdgeType::start {
+                sBelow.push(edges[bestAxis as usize][i].shapeIndex);
+            }
+        }
+        for i in (bestIndex + 1)..(shapes.len() * 2) {
+            if edges[bestAxis as usize][i].edgeType == bEdgeType::end {
+                sAbove.push(edges[bestAxis as usize][i].shapeIndex);
+            }
+        }
+        (sBelow, sAbove)
+    };
+    let (bboxBelow, bboxAbove) = {
+        let mut b1 = nodeBBox;
+        let mut b2 = nodeBBox;
+        b1.Max[bestAxis] = t;
+        b2.Min[bestAxis] = t;
+        (b1, b2)
+    };
 
-    return buildTree(tree, shapes, nodeBBox, badRefines, depth-1);
+    let mut tree = buildTree(tree, shapesBelow, bboxBelow, badRefines, depth-1);
+    tree.Nodes.push(Node::newInterior(bestAxis, t));
+    let     tree = buildTree(tree, shapesAbove, bboxAbove, badRefines, depth-1);
+
+    return tree;
 }
 
 
@@ -200,7 +224,7 @@ pub struct Node {
 }
 
 impl Node {
-    pub fn NewInterior(axis: Axis, point: Float) -> Node {
+    fn newInterior(axis: Axis, point: Float) -> Node {
         return Node {
             SplitOrShape: SplitOrShape::Split(axis, point),
             Index: 0,
@@ -208,7 +232,7 @@ impl Node {
     }
 
     // shapes: Indices of shapes
-    pub fn NewLeaf(mut shapes: &mut Vec<usize>, shapeIndices: &mut Vec<usize>) -> Node {
+    fn newLeaf(mut shapes: &mut Vec<usize>, shapeIndices: &mut Vec<usize>) -> Node {
         let (Shape, Index) = match shapes.len() {
             0 => {
                 (SplitOrShape::Shape(0), 0)
@@ -228,7 +252,7 @@ impl Node {
         };
     }
 
-    pub fn IsLeaf(&self) -> bool {
+    fn IsLeaf(&self) -> bool {
         return match self.SplitOrShape {
             SplitOrShape::Split(_, _) => false,
             SplitOrShape::Shape(_) => true,
