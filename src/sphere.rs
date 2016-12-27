@@ -30,7 +30,7 @@ impl Shape for Sphere {
     fn BBox(&self) -> BBox {
         return self.BBox;
     }
-    fn Intersect(&self, r: &Ray) -> Option<Hit> {
+    fn IntersectP(&self, r: &Ray) -> Option<Hit> {
         let to = r.Origin - self.Center;
         let b = to.Dot(&r.Direction);
         let mut d = b * b - (to.Dot(&to) - self.Radius * self.Radius);
