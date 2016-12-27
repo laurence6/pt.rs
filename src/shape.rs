@@ -7,7 +7,7 @@ pub trait Shape {
     fn BBox(&self) -> BBox {
         unimplemented!()
     }
-    fn Intersect(&self, &Ray) -> Option<Hit> {
+    fn IntersectP(&self, &Ray) -> Option<Hit> {
         return None;
     }
     fn MateralAt(&self) -> Color {
