@@ -1,7 +1,10 @@
+use std::mem::swap;
 use vector::Vector;
 use common::Float;
 use common::Axis;
+use common::gamma;
 use shape::Shape;
+use ray::Ray;
 
 #[derive(Clone, Copy)]
 pub struct BBox {
@@ -22,8 +25,32 @@ impl BBox {
         return bbox;
     }
 
-    pub fn IntersectP(&self) -> bool {
-        unimplemented!()
+    pub fn IntersectP(&self, ray: &Ray) -> Option<(Float, Float)> {
+        let mut t0 = 0.0;
+        let mut t1 = ray.TMax;
+
+        let mut axis = Axis::X;
+        for _ in 0..3 {
+            let invRayDir = 1.0 / ray.Direction[axis];
+            let mut tNear = (self.Min[axis] - ray.Origin[axis]) * invRayDir;
+            let mut tFar  = (self.Max[axis] - ray.Origin[axis]) * invRayDir;
+            if tNear > tFar {
+                swap(&mut tNear, &mut tFar);
+            }
+            // to avoid epsilon
+            tFar *= 1.0 + 2.0 * gamma(3.0);
+
+            // notice that tNear and tFar could be NaN
+            t0 = if tNear > t0 { tNear } else { t0 };
+            t1 = if tFar  < t1 { tFar  } else { t1 };
+
+            if t0 > t1 {
+                return None;
+            }
+
+            axis = axis.NextAxis();
+        }
+        return Some((t0, t1));
     }
 
     pub fn Diagonal(&self) -> Vector {
