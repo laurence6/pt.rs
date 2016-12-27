@@ -18,6 +18,16 @@ pub struct Tree<'a> {
     bBox: BBox,
 }
 
+pub struct Node {
+    pub SplitOrShape: SplitOrShape,
+    pub Index: usize, // Child or Shape Index
+}
+
+pub enum SplitOrShape {
+    Split(Axis, Float), // Splite Point
+    Shape(usize),         // Number of Shapes
+}
+
 impl<'a> Tree<'a> {
     pub fn New(shapes: Vec<&'a Shape>, maxDepth: u8) -> Tree {
         print!("Building k-d tree ({} shapes) ... ", shapes.len());
@@ -51,8 +61,117 @@ impl<'a> Tree<'a> {
         if isec.is_none() {
             return None;
         }
-        let (tMin, tMax) = isec.unwrap();
-        unimplemented!()
+        let (mut tMin, mut tMax) = isec.unwrap();
+
+        let invDir = ray.Direction.Inv(); // to save division (TODO remove?)
+
+        let mut todos = [todo::new(); MAX_TODO];
+        let mut todoI = 0;
+
+        let hit: Option<Hit> = None;
+        let mut nodeIndex = 0;
+        loop {
+            if ray.TMax < tMin {
+                break;
+            }
+            let node = &self.Nodes[nodeIndex];
+            match node.SplitOrShape {
+                SplitOrShape::Split(axis, point) => {
+                    let tPlane = (point - ray.Origin[axis]) * invDir[axis];
+                    // below first?
+                    let (child1, child2) = if ray.Origin[axis] < point || ray.Origin[axis] == point && ray.Direction[axis] <= 0.0 {
+                        (nodeIndex+1, node.Index)
+                    } else {
+                        (node.Index, nodeIndex+1)
+                    };
+                    if tPlane > tMax || tPlane <= 0.0 {
+                        nodeIndex = child1;
+                    } else if tPlane < tMin {
+                        nodeIndex = child2;
+                    } else {
+                        nodeIndex = child1;
+                        tMax = tPlane;
+                        // put child2 into todo
+                        todos[todoI].node = child2;
+                        todos[todoI].tMin = tPlane;
+                        todos[todoI].tMax = tMax;
+                        todoI += 1;
+                    }
+                },
+                SplitOrShape::Shape(n) => {
+                    if n == 1 {
+                        let shape = &self.Shapes[node.Index];
+                        let hit = shape.IntersectP(ray);
+                        if hit.is_some() {
+                            return hit;
+                        }
+                    } else {
+                        for i in 0..n {
+                            let shape = &self.Shapes[self.ShapeIndices[node.Index + i]];
+                            let hit = shape.IntersectP(ray);
+                            if hit.is_some() {
+                                return hit;
+                            }
+                        }
+                    }
+
+                    if todoI > 0 {
+                        todoI -= 1;
+                        nodeIndex = todos[todoI].node;
+                        tMin = todos[todoI].tMin;
+                        tMax = todos[todoI].tMax;
+                    } else {
+                        break;
+                    }
+                },
+            }
+        }
+        return hit;
+    }
+}
+
+impl Node {
+    fn newInterior(axis: Axis, point: Float) -> Node {
+        return Node {
+            SplitOrShape: SplitOrShape::Split(axis, point),
+            Index: 0,
+        };
+    }
+
+    // shapes: Indices of shapes
+    fn newLeaf(mut shapes: &mut Vec<usize>, shapeIndices: &mut Vec<usize>) -> Node {
+        let (Shape, Index) = match shapes.len() {
+            0 => {
+                (SplitOrShape::Shape(0), 0)
+            },
+            1 => {
+                (SplitOrShape::Shape(1), shapes[0])
+            },
+            n => {
+                let i = shapeIndices.len();
+                shapeIndices.append(&mut shapes);
+                (SplitOrShape::Shape(n), i)
+            },
+        };
+        return Node {
+            SplitOrShape: Shape,
+            Index: Index,
+        };
+    }
+}
+
+const MAX_TODO: usize = 64;
+
+#[derive(Clone, Copy)]
+struct todo {
+    node: usize,
+    tMin: Float,
+    tMax: Float,
+}
+
+impl todo {
+    fn new() -> todo {
+        return todo { node: 0, tMin: 0.0, tMax: 0.0 };
     }
 }
 
@@ -215,52 +334,4 @@ fn buildTree<'a>(
     let     tree = buildTree(tree, shapesAbove, bboxAbove, badRefines, depth-1);
 
     return tree;
-}
-
-
-pub enum SplitOrShape {
-    Split(Axis, Float), // Splite Point
-    Shape(u32),         // Number of Shapes
-}
-
-pub struct Node {
-    pub SplitOrShape: SplitOrShape,
-    pub Index: usize, // Child or Shape Index
-}
-
-impl Node {
-    fn newInterior(axis: Axis, point: Float) -> Node {
-        return Node {
-            SplitOrShape: SplitOrShape::Split(axis, point),
-            Index: 0,
-        };
-    }
-
-    // shapes: Indices of shapes
-    fn newLeaf(mut shapes: &mut Vec<usize>, shapeIndices: &mut Vec<usize>) -> Node {
-        let (Shape, Index) = match shapes.len() {
-            0 => {
-                (SplitOrShape::Shape(0), 0)
-            },
-            1 => {
-                (SplitOrShape::Shape(1), shapes[0])
-            },
-            n => {
-                let i = shapeIndices.len();
-                shapeIndices.append(&mut shapes);
-                (SplitOrShape::Shape(n as u32), i)
-            },
-        };
-        return Node {
-            SplitOrShape: Shape,
-            Index: Index,
-        };
-    }
-
-    fn IsLeaf(&self) -> bool {
-        return match self.SplitOrShape {
-            SplitOrShape::Split(_, _) => false,
-            SplitOrShape::Shape(_) => true,
-        };
-    }
 }
