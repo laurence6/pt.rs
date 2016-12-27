@@ -46,7 +46,12 @@ impl<'a> Tree<'a> {
         return buildTree(tree, shapes, nodeBBox, 0, maxDepth);
     }
 
-    pub fn Intersect(&self, r: &Ray) -> Option<Hit> {
+    pub fn Intersect(&self, ray: &Ray) -> Option<Hit> {
+        let isec = self.bBox.IntersectP(ray);
+        if isec.is_none() {
+            return None;
+        }
+        let (tMin, tMax) = isec.unwrap();
         unimplemented!()
     }
 }
@@ -104,7 +109,7 @@ fn buildTree<'a>(
     // try different axes
     {
         let mut axis = nodeBBox.MaximumExtent();
-        for _ in 0..2 {
+        for _ in 0..3 {
             for i in 0..shapes.len() {
                 let s = tree.Shapes[i];
                 let bbox = s.BBox();
