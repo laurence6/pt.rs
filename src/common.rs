@@ -3,16 +3,15 @@ macro_rules! DefFloat {
     ($v: ident) => (
         use std::$v;
         pub type Float = $v;
-        pub const FLOAT_MAX: Float = $v::MAX;
-        pub const FLOAT_MIN_POS: Float = $v::MIN_POSITIVE;
+        pub const FLOAT_MAX: Float      = $v::MAX;
+        pub const FLOAT_MIN_POS: Float  = $v::MIN_POSITIVE;
+        pub const EPSILON: Float        = $v::EPSILON;
+        pub const EPSILON_HALF: Float   = EPSILON * 0.5;
+        pub const INFINITY: Float       = $v::INFINITY;
     );
 }
 
 DefFloat!(f32);
-
-// Const
-pub const INF: Float = 2e9;
-pub const EPS: Float = 1e-9;
 
 // Axis
 use std::convert::Into;
@@ -51,6 +50,10 @@ impl Into<usize> for Axis {
 }
 
 // funcs
+pub fn gamma(x: Float) -> Float {
+    return (x * EPSILON_HALF) / (1.0 - x * EPSILON_HALF);
+}
+
 pub fn clamp(x: Float) -> Float {
     if x < 0.0 {
         return 0.0;
