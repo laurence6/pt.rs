@@ -70,20 +70,20 @@ impl Vector {
         return V(self.X - v.X, self.Y - v.Y, self.Z - v.Z);
     }
 
-    pub fn Mul(&self, v: &Vector) -> Vector {
-        return V(self.X * v.X, self.Y * v.Y, self.Z * v.Z);
-    }
+    //pub fn Mul(&self, v: &Vector) -> Vector {
+    //    return V(self.X * v.X, self.Y * v.Y, self.Z * v.Z);
+    // }
 
-    pub fn Div(&self, v: &Vector) -> Vector {
-        return V(self.X / v.X, self.Y / v.Y, self.Z / v.Z);
-    }
+    //pub fn Div(&self, v: &Vector) -> Vector {
+    //    return V(self.X / v.X, self.Y / v.Y, self.Z / v.Z);
+    // }
 
-    pub fn Rem(&self, v: &Vector) -> Vector {
-        let x = self.X - v.X * (self.X / v.X).floor();
-        let y = self.Y - v.Y * (self.Y / v.Y).floor();
-        let z = self.Z - v.Z * (self.Z / v.Z).floor();
-        return V(x, y, z);
-    }
+    //pub fn Rem(&self, v: &Vector) -> Vector {
+    //    let x = self.X - v.X * (self.X / v.X).floor();
+    //    let y = self.Y - v.Y * (self.Y / v.Y).floor();
+    //    let z = self.Z - v.Z * (self.Z / v.Z).floor();
+    //    return V(x, y, z);
+    // }
 
     pub fn AddScalar(&self, s: Float) -> Vector {
         return V(self.X + s, self.Y + s, self.Z + s);
@@ -176,26 +176,26 @@ impl ops::Sub<Vector> for Vector {
     }
 }
 
-impl ops::Mul<Vector> for Vector {
-    type Output = Vector;
-    fn mul(self, v: Vector) -> Vector {
-        self.Mul(&v)
-    }
-}
-
-impl ops::Div<Vector> for Vector {
-    type Output = Vector;
-    fn div(self, v: Vector) -> Vector {
-        self.Div(&v)
-    }
-}
-
-impl ops::Rem<Vector> for Vector {
-    type Output = Vector;
-    fn rem(self, v: Vector) -> Vector {
-        self.Rem(&v)
-    }
-}
+//impl ops::Mul<Vector> for Vector {
+//    type Output = Vector;
+//    fn mul(self, v: Vector) -> Vector {
+//        self.Mul(&v)
+//    }
+// }
+//
+//impl ops::Div<Vector> for Vector {
+//    type Output = Vector;
+//    fn div(self, v: Vector) -> Vector {
+//        self.Div(&v)
+//    }
+// }
+//
+//impl ops::Rem<Vector> for Vector {
+//    type Output = Vector;
+//    fn rem(self, v: Vector) -> Vector {
+//        self.Rem(&v)
+//    }
+// }
 
 impl ops::Add<Float> for Vector {
     type Output = Vector;
@@ -232,6 +232,16 @@ impl ops::Index<Axis> for Vector {
             Axis::X => &self.X,
             Axis::Y => &self.Y,
             Axis::Z => &self.Z,
+        }
+    }
+}
+
+impl ops::IndexMut<Axis> for Vector {
+    fn index_mut<'a>(&'a mut self, axis: Axis) -> &'a mut Float {
+        match axis {
+            Axis::X => &mut self.X,
+            Axis::Y => &mut self.Y,
+            Axis::Z => &mut self.Z,
         }
     }
 }
