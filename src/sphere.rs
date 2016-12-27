@@ -1,5 +1,5 @@
 use bbox::BBox;
-use common::EPS;
+use common::EPSILON;
 use common::Float;
 use hit::Hit;
 use material::Color;
@@ -37,12 +37,12 @@ impl Shape for Sphere {
         if d > 0.0 {
             d = d.sqrt();
             let t = -b - d;
-            if t > EPS {
-                return Some(Hit::New(self, t));
+            if t > EPSILON {
+                return Some(Hit::New(t));
             }
             let t = -b + d;
-            if t > EPS {
-                return Some(Hit::New(self, t));
+            if t > EPSILON {
+                return Some(Hit::New(t));
             }
         }
         return None;
