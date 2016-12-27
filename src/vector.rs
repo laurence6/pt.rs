@@ -47,6 +47,10 @@ impl Vector {
         return V(-self.X, -self.Y, -self.Z);
     }
 
+    pub fn Inv(&self) -> Vector {
+        return V(1.0 / self.X, 1.0 / self.Y, 1.0 / self.Z);
+    }
+
     pub fn Abs(&self) -> Vector {
         return V(self.X.abs(), self.Y.abs(), self.Z.abs());
     }
