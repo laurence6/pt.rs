@@ -3,7 +3,7 @@ use std::ops;
 extern crate rand;
 
 use common::Float;
-use common::Axis;
+use axis::Axis;
 
 #[derive(Clone, Copy, Debug)]
 pub struct Vector {
