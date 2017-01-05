@@ -1,6 +1,6 @@
 use std::cmp::Ordering;
 use bbox::BBox;
-use common::Axis;
+use axis::Axis;
 use common::Float;
 use common::FLOAT_MAX;
 use common::FLOAT_MIN_POS;
