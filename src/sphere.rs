@@ -5,7 +5,6 @@ use hit::Hit;
 use material::Color;
 use ray::Ray;
 use shape::Shape;
-use vector::V;
 use vector::Vector;
 
 pub struct Sphere {
@@ -19,8 +18,8 @@ pub struct Sphere {
 
 impl Sphere {
     pub fn New(center: Vector, radius: Float, color: Color) -> Sphere {
-        let min = V(center.X - radius, center.Y - radius, center.Z - radius);
-        let max = V(center.X + radius, center.Y + radius, center.Z + radius);
+        let min = Vector::New(center.X - radius, center.Y - radius, center.Z - radius);
+        let max = Vector::New(center.X + radius, center.Y + radius, center.Z + radius);
         let bbox = BBox { Min: min, Max: max };
         return Sphere { Center: center, Radius: radius, BBox: bbox, Color: color };
     }
