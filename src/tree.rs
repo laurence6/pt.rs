@@ -9,8 +9,8 @@ use ray::Ray;
 use shape::Shape;
 
 // k-d tree
-pub struct Tree<'a> {
-    pub Shapes: Vec<&'a Shape>, // TODO: use slice?
+pub struct Tree {
+    pub Shapes: Vec<Box<Shape + 'static>>,
     pub ShapeIndices: Vec<usize>,
 
     pub Nodes: Vec<Node>,
@@ -30,8 +30,8 @@ pub enum SplitOrShape {
     Shape(usize),       // Number of Shapes
 }
 
-impl<'a> Tree<'a> {
-    pub fn New(shapes: Vec<&'a Shape>, maxDepth: u8) -> Tree {
+impl Tree {
+    pub fn New(shapes: Vec<Box<Shape>>, maxDepth: u8) -> Tree {
         print!("Building k-d tree ({} shapes) ... ", shapes.len());
 
         // Compute BBox
@@ -206,12 +206,12 @@ impl bEdge {
 // Recursive construction
 //   Decide if the node should be an interior node or leaf
 //   Update the data structures appropriately
-fn buildTree<'a>(
-    mut tree: Tree<'a>,
+fn buildTree(
+    mut tree: Tree,
     mut shapes: Vec<usize>,
     nodeBBox: BBox,
     mut badRefines: u8,
-    depth: u8) -> Tree<'a> {
+    depth: u8) -> Tree {
 
     // Create leaf
     if shapes.len() <= MAX_SHAPES_IN_NODE || depth == 0 {
@@ -234,7 +234,7 @@ fn buildTree<'a>(
         let mut axis = nodeBBox.MaximumExtent();
         for _ in 0..3 {
             for i in 0..shapes.len() {
-                let s = tree.Shapes[i];
+                let s = &tree.Shapes[i];
                 let bbox = s.BBox();
                 edges[axis as usize].push(bEdge::new(bbox.Min[axis], i, bEdgeType::start));
                 edges[axis as usize].push(bEdge::new(bbox.Min[axis], i, bEdgeType::end));
