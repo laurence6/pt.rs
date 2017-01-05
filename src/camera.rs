@@ -1,10 +1,18 @@
 use vector::Vector;
 use ray::Ray;
+use film::Film;
 
-//struct Camera {
-//
-// }
+struct Camera {
+    pub Film: Film,
+}
 
-pub fn NewCamera(o: Vector, d: Vector) -> Ray {
-    return Ray::New(o, d);
+impl Camera {
+    pub fn New(film: Film) -> Camera {
+        return Camera {
+            Film: film,
+        };
+    }
+
+    pub fn GenerateRay() {
+    }
 }
