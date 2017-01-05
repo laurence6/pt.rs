@@ -17,7 +17,7 @@ impl BBox {
         return BBox { Min: min, Max: max };
     }
 
-    pub fn BBoxOfShapes(shapes: &Vec<&Shape>) -> BBox {
+    pub fn BBoxOfShapes(shapes: &Vec<Box<Shape>>) -> BBox {
         let mut bbox = BBox::New(ZERO_VECTOR, ZERO_VECTOR);
         for shape in shapes {
             bbox = bbox.Union(&shape.BBox());
