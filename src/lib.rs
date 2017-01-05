@@ -1,6 +1,8 @@
 #[allow(non_snake_case, non_camel_case_types)]
 pub mod common;
 #[allow(non_snake_case, non_camel_case_types)]
+pub mod axis;
+#[allow(non_snake_case, non_camel_case_types)]
 pub mod vector;
 #[allow(non_snake_case, non_camel_case_types)]
 pub mod matrix;
