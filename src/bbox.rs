@@ -1,8 +1,8 @@
 use std::mem::swap; use vector::Vector;
 use vector::ZERO_VECTOR;
 use common::Float;
-use common::Axis;
-use common::gamma;
+use common::EPSILON_HALF;
+use axis::Axis;
 use shape::Shape;
 use ray::Ray;
 
@@ -83,4 +83,8 @@ impl BBox {
             Max: self.Max.Max(&b.Max),
         };
     }
+}
+
+pub fn gamma(x: Float) -> Float {
+    return (x * EPSILON_HALF) / (1.0 - x * EPSILON_HALF);
 }
