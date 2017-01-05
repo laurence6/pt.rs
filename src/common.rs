@@ -15,7 +15,8 @@ DefFloat!(f32);
 
 // Axis
 use std::convert::Into;
-#[derive(Clone, Copy)]
+
+#[derive(Clone, Copy, Debug)]
 pub enum Axis {
     X,
     Y,
