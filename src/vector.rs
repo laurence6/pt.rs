@@ -5,26 +5,22 @@ extern crate rand;
 use common::Float;
 use common::Axis;
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Clone, Copy, Debug)]
 pub struct Vector {
     pub X: Float,
     pub Y: Float,
     pub Z: Float,
 }
 
-pub fn V(x: Float, y: Float, z: Float) -> Vector {
+pub const ZERO_VECTOR: Vector = Vector { X: 0.0, Y: 0.0, Z: 0.0 };
+
+fn V(x: Float, y: Float, z: Float) -> Vector {
     return Vector::New(x, y, z);
 }
-
-// TODO: Dont use reference. Use Copy.
 
 impl Vector {
     pub fn New(x: Float, y: Float, z: Float) -> Vector {
         return Vector { X: x, Y: y, Z: z };
-    }
-
-    pub fn ZeroVector() -> Vector {
-        return V(0.0, 0.0, 0.0);
     }
 
     pub fn RandomUnitVector() -> Vector {
