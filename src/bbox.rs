@@ -1,5 +1,5 @@
-use std::mem::swap;
-use vector::Vector;
+use std::mem::swap; use vector::Vector;
+use vector::ZERO_VECTOR;
 use common::Float;
 use common::Axis;
 use common::gamma;
@@ -18,7 +18,7 @@ impl BBox {
     }
 
     pub fn BBoxOfShapes(shapes: &Vec<&Shape>) -> BBox {
-        let mut bbox = BBox::New(Vector::ZeroVector(), Vector::ZeroVector());
+        let mut bbox = BBox::New(ZERO_VECTOR, ZERO_VECTOR);
         for shape in shapes {
             bbox = bbox.Union(&shape.BBox());
         }
