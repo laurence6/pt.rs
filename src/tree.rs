@@ -18,14 +18,16 @@ pub struct Tree<'a> {
     bBox: BBox,
 }
 
+#[derive(Debug)]
 pub struct Node {
-    pub SplitOrShape: SplitOrShape,
-    pub Index: usize, // Child or Shape Index
+    pub SplitOrShape: SplitOrShape, // 16B
+    pub Index: usize,               // 8 B Child or Shape Index
 }
 
+#[derive(Debug)]
 pub enum SplitOrShape {
     Split(Axis, Float), // Splite Point
-    Shape(usize),         // Number of Shapes
+    Shape(usize),       // Number of Shapes
 }
 
 impl<'a> Tree<'a> {
@@ -52,6 +54,8 @@ impl<'a> Tree<'a> {
         } else {
             (8.0 + 1.3 * (shapes.len() as f32).log(2.0)).round() as u8
         };
+
+        println!("Done");
 
         return buildTree(tree, shapes, nodeBBox, 0, maxDepth);
     }
