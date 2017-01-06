@@ -38,7 +38,7 @@ impl BBox {
                 swap(&mut tNear, &mut tFar);
             }
             // to avoid epsilon
-            tFar *= 1.0 + 2.0 * gamma(3.0);
+            tFar *= 1.0 + 2.0 * gamma(3.0); // TODO: make as const
 
             // notice that tNear and tFar could be NaN
             t0 = if tNear > t0 { tNear } else { t0 };
@@ -85,6 +85,6 @@ impl BBox {
     }
 }
 
-pub fn gamma(x: Float) -> Float {
+fn gamma(x: Float) -> Float {
     return (x * EPSILON_HALF) / (1.0 - x * EPSILON_HALF);
 }
