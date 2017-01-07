@@ -3,11 +3,13 @@ macro_rules! DefFloat {
     ($v: ident) => (
         use std::$v;
         pub type Float = $v;
-        pub const FLOAT_MAX: Float      = $v::MAX;
-        pub const FLOAT_MIN_POS: Float  = $v::MIN_POSITIVE;
-        pub const EPSILON: Float        = $v::EPSILON;
-        pub const EPSILON_HALF: Float   = EPSILON * 0.5;
-        pub const INFINITY: Float       = $v::INFINITY;
+        pub const FLOAT_MAX: Float     = $v::MAX;
+        pub const FLOAT_MIN_POS: Float = $v::MIN_POSITIVE;
+        pub const EPSILON: Float       = $v::EPSILON * 0.5;
+        pub const INFINITY: Float      = $v::INFINITY;
+
+        // Max number less than 1
+        pub const ONE_MINUS_EPSILON: Float = 1.0 - EPSILON;
     );
 }
 
