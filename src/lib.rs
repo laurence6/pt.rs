@@ -15,6 +15,8 @@ pub mod hit;
 #[allow(non_snake_case, non_camel_case_types)]
 pub mod camera;
 #[allow(non_snake_case, non_camel_case_types)]
+pub mod sampler;
+#[allow(non_snake_case, non_camel_case_types)]
 pub mod film;
 
 #[allow(non_snake_case, non_camel_case_types)]
