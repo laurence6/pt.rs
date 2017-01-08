@@ -23,12 +23,12 @@ impl Vector {
         return Vector { X: x, Y: y, Z: z };
     }
 
-    pub fn RandomUnitVector() -> Vector {
-        let x = rand::random::<Float>();
-        let y = rand::random::<Float>();
-        let z = rand::random::<Float>();
-        return V(x, y, z).Normalize();
-    }
+    //pub fn RandomUnitVector() -> Vector {
+    //    let x = rand::random::<Float>();
+    //    let y = rand::random::<Float>();
+    //    let z = rand::random::<Float>();
+    //    return V(x, y, z).Normalize();
+    // }
 
     pub fn Length(&self) -> Float {
         return (self.X * self.X + self.Y * self.Y + self.Z * self.Z).sqrt();
