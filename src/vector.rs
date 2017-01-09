@@ -1,7 +1,5 @@
 use std::ops;
 
-extern crate rand;
-
 use common::Float;
 use axis::Axis;
 
@@ -128,29 +126,29 @@ impl ops::Sub<Vector> for Vector {
 
 impl ops::Add<Float> for Vector {
     type Output = Vector;
-    fn add(self, s: Float) -> Vector {
-        return V(self.X + s, self.Y + s, self.Z + s);
+    fn add(self, a: Float) -> Vector {
+        return V(self.X + a, self.Y + a, self.Z + a);
     }
 }
 
 impl ops::Sub<Float> for Vector {
     type Output = Vector;
-    fn sub(self, s: Float) -> Vector {
-        return V(self.X - s, self.Y - s, self.Z - s);
+    fn sub(self, a: Float) -> Vector {
+        return V(self.X - a, self.Y - a, self.Z - a);
     }
 }
 
 impl ops::Mul<Float> for Vector {
     type Output = Vector;
-    fn mul(self, s: Float) -> Vector {
-        return V(self.X * s, self.Y * s, self.Z * s);
+    fn mul(self, a: Float) -> Vector {
+        return V(self.X * a, self.Y * a, self.Z * a);
     }
 }
 
 impl ops::Div<Float> for Vector {
     type Output = Vector;
-    fn div(self, s: Float) -> Vector {
-        return V(self.X / s, self.Y / s, self.Z / s);
+    fn div(self, a: Float) -> Vector {
+        return V(self.X / a, self.Y / a, self.Z / a);
     }
 }
 
