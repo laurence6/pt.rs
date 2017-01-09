@@ -2,7 +2,7 @@ use vector::Vector;
 use ray::Ray;
 use film::Film;
 
-struct Camera {
+pub struct Camera {
     pub Film: Film,
 }
 
