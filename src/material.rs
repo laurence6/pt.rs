@@ -1,5 +1,5 @@
 use common::Float;
-use common::clamp;
+use common::Clamp;
 use std::cmp::{min, max};
 
 const GAMMA_CORRECTION: Float = 2.2;
@@ -13,7 +13,8 @@ pub struct Color {
 
 impl Color {
     pub fn New(r: Float, g: Float, b: Float) -> Color {
-        return Color { R: r, G: g, B: b };
+        panic!()
+        //return Color { R: r, G: g, B: b };
     }
 
     pub fn Hex(x: u32) -> Color {
@@ -29,5 +30,5 @@ impl Color {
 }
 
 fn toInt(x: Float) -> u32 {
-    return max(0, min(255, (clamp(x) * 255.0) as u32));
+    return max(0, min(255, (Clamp(x, 0.0, 1.0) * 255.0) as u32));
 }
