@@ -1,6 +1,12 @@
 use common::Float;
 
-pub trait Sampler {
-    fn SamplesPerPixel(&self) -> i64;
-    fn StartPixel(&self);
+// Default sampler
+pub struct Sampler {
+    samplesPerPixel: u32,
+}
+
+impl Sampler {
+    pub fn Sample() {
+
+    }
 }
