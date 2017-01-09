@@ -20,7 +20,7 @@ impl Ray {
     }
 
     pub fn Position(&self, t: Float) -> Vector {
-        return self.Origin.Add(&self.Direction.MulScalar(t));
+        return self.Origin + self.Direction * t;
     }
 
     pub fn Reflect(&self, i: &Ray) -> Ray {
