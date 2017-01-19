@@ -12,10 +12,9 @@ pub struct Color {
 }
 
 impl Color {
-    pub fn New(r: Float, g: Float, b: Float) -> Color {
-        panic!()
-        //return Color { R: r, G: g, B: b };
-    }
+    //pub fn New(r: Float, g: Float, b: Float) -> Color {
+    //    return Color { R: r, G: g, B: b };
+    // }
 
     pub fn Hex(x: u32) -> Color {
         let r = (((x >>16) & 0xff) as Float / 255.0).powf(GAMMA_CORRECTION);
