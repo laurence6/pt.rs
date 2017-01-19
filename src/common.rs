@@ -1,12 +1,12 @@
 // Type Float
-macro_rules! DefFloat {
-    ($f: ident) => (
-        use std::$f;
-        pub type Float = $f;
-        pub const FLOAT_MAX: Float     = $f::MAX;
-        pub const FLOAT_MIN_POS: Float = $f::MIN_POSITIVE;
-        pub const EPSILON: Float       = $f::EPSILON * 0.5;
-        pub const INFINITY: Float      = $f::INFINITY;
+macro_rules! defFloat {
+    ($t: ident) => (
+        use std::$t;
+        pub type Float = $t;
+        pub const FLOAT_MAX: Float     = $t::MAX;
+        pub const FLOAT_MIN_POS: Float = $t::MIN_POSITIVE;
+        pub const EPSILON: Float       = $t::EPSILON * 0.5;
+        pub const INFINITY: Float      = $t::INFINITY;
 
         // Max number less than 1
         pub const ONE_MINUS_EPSILON: Float = 1.0 - EPSILON;
@@ -15,9 +15,9 @@ macro_rules! DefFloat {
 
 // Use f32 by default
 #[cfg(not(feature = "f64"))]
-DefFloat!(f32);
+defFloat!(f32);
 #[cfg(feature = "f64")]
-DefFloat!(f64);
+defFloat!(f64);
 
 // Funcs
 //pub fn Clamp<T: PartialOrd>(x: T, low: T, high: T) -> T {
