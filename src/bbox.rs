@@ -1,4 +1,5 @@
-use std::mem::swap; use vector::Vector;
+use std::mem::swap;
+use vector::Vector;
 use vector::ZERO_VECTOR;
 use common::Float;
 use common::EPSILON;
