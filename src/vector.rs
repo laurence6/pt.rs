@@ -1,4 +1,5 @@
 use std::ops;
+use std::convert;
 
 use common::Float;
 use axis::Axis;
@@ -146,21 +147,85 @@ impl ops::IndexMut<Axis> for Vector3f {
     }
 }
 
-macro_rules! def2 {
-    ($n: ident, $t: ident, $x: ident, $y: ident) => (
+macro_rules! point2 {
+    ($n: ident, $t: ident) => (
         #[derive(Clone, Copy, Debug)]
         pub struct $n {
-            pub $x: $t,
-            pub $y: $t,
+            pub X: $t,
+            pub Y: $t,
         }
 
         impl $n {
             pub fn New(x: $t, y: $t) -> $n {
-                return $n { $x: x, $y: y };
+                return $n { X: x, Y: y };
             }
         }
-    );
+
+        impl ops::Add<$t> for $n {
+            type Output = $n;
+            fn add(self, n: $t) -> $n {
+                return $n {
+                    X: self.X + n,
+                    Y: self.Y + n,
+                }
+            }
+        }
+
+        impl ops::Add<$n> for $n {
+            type Output = $n;
+            fn add(self, p: $n) -> $n {
+                return $n {
+                    X: self.X + p.X,
+                    Y: self.Y + p.Y,
+                }
+            }
+        }
+    )
 }
 
-def2!(Point2i, i32, X, Y);
-def2!(Point2f, Float, X, Y);
+point2!(Point2i, i32);
+point2!(Point2f, Float);
+
+//pub type Point2f = Point2<Float>;
+//pub type Point2i = Point2<i32>;
+//
+//#[derive(Clone, Copy, Debug)]
+//pub struct Point2<T> {
+//    pub X: T,
+//    pub Y: T,
+// }
+//
+//impl<T> Point2<T> {
+//    pub fn New(x: T, y: T) -> Point2<T> {
+//        return Point2{ X: x, Y: y };
+//    }
+// }
+//
+//impl<T: ops::Add<Output = T>> ops::Add<Point2<T>> for Point2<T> {
+//    type Output = Point2<T>;
+//    fn add(self, p: Point2<T>) -> Point2<T> {
+//        return Point2::<T>{
+//            X: self.X + p.X,
+//            Y: self.Y + p.Y,
+//        }
+//    }
+// }
+//
+//impl<T: ops::Add<Output = T> + Copy> ops::Add<T> for Point2<T> {
+//    type Output = Point2<T>;
+//    fn add(self, n: T) -> Point2<T> {
+//        return Point2::<T>{
+//            X: self.X + n,
+//            Y: self.Y + n,
+//        }
+//    }
+// }
+
+impl Point2f {
+    pub fn From(p: Point2i) -> Point2f {
+        return Point2f {
+            X: p.X as f32,
+            Y: p.Y as f32,
+        }
+    }
+}
