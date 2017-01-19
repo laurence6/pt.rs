@@ -1,4 +1,4 @@
-use std::convert::Into;
+use std::convert;
 
 #[derive(Clone, Copy, Debug)]
 pub enum Axis {
@@ -24,7 +24,7 @@ impl Axis {
     }
 }
 
-impl Into<usize> for Axis {
+impl convert::Into<usize> for Axis {
     fn into(self) -> usize {
         match self {
             Axis::X => 0,
