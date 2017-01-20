@@ -4,16 +4,36 @@ use vector::Point2f;
 use camera::CameraSample;
 
 pub trait Sampler {
+    /// Set current pixel. Reset sample number.
     fn StartPixel(&mut self, p: Point2i);
+    /// Start next sample of current pixel.
+    /// Return false if requested samples per pixel have been generated.
     fn StartNextSample(&mut self) -> bool;
-    // Next 1 dimension of current sample
+    /// Return next 1 dimension of current sample.
     fn Get1D(&mut self) -> Float;
-    // Next 2 dimension of current sample
+    /// Return next 2 dimensions of current sample.
     fn Get2D(&mut self) -> Point2f;
-    fn Req1DArray(&mut self, usize);
-    fn Req2DArray(&mut self, usize);
-    fn Get1DArray(&mut self, usize) -> Option<Float>;
-    fn Get2DArray(&mut self, usize) -> Option<Point2f>;
+    /// Request an array of n samples with 1 dimension.
+    fn Req1DArray(&mut self, usize) {
+        unimplemented!()
+    }
+    /// Request an array of n samples with 2 dimensions.
+    fn Req2DArray(&mut self, usize) {
+        unimplemented!()
+    }
+    /// Get an array of samples with 1 dimension.
+    fn Get1DArray(&mut self) -> Option<&[Float]> {
+        unimplemented!()
+    }
+    /// Get an array of samples with 2 dimensions.
+    fn Get2DArray(&mut self) -> Option<&[Point2f]> {
+        unimplemented!()
+    }
+    /// Round to a better size of array.
+    fn RoundCount(n: usize) -> usize {
+        return n;
+    }
+
     fn GetCameraSample(&mut self, pRaster: Point2i) -> CameraSample {
         let pFilm = Point2f::From(pRaster) + self.Get2D();
         let pLens = self.Get2D();
@@ -38,8 +58,9 @@ pub struct HaltonSampler {
     sampleArray1D: Vec<Vec<Float>>,
     sampleArray2D: Vec<Vec<Point2f>>,
 
-    // Next array to be returned
+    /// Next 1d array to be returned
     array1DOffset: usize,
+    /// Next 2d array to be returned
     array2DOffset: usize,
 
     dimension: usize, // Next dimension
@@ -51,11 +72,13 @@ pub struct HaltonSampler {
 
 impl Sampler for HaltonSampler {
     fn StartPixel(&mut self, p: Point2i) {
+        // General sampler
         self.currentPixel = p;
         self.currentPixelSampleIndex = 0;
         self.array1DOffset = 0;
         self.array2DOffset = 0;
 
+        // Global sampler
         self.dimension = 0;
         self.sampleIndex = self.GetIndexForSample(0);
 
@@ -85,20 +108,28 @@ impl Sampler for HaltonSampler {
         self.sampleArray2D.push(Vec::<Point2f>::with_capacity(n));
     }
 
-    fn Get1DArray(&mut self, n: usize) -> Option<Float> {
+    fn Get1DArray(&mut self, n: usize) -> Option<&[Float]> {
         if self.array1DOffset == self.sampleArray1D.len() {
             return None;
         }
-        let ret = Some(self.sampleArray1D[self.array1DOffset][self.currentPixelSampleIndex * n]);
+        let ret = {
+            let i0 = self.currentPixelSampleIndex * n;
+            let i1 = i0 + n;
+            Some(&self.sampleArray1D[self.array1DOffset][i0..i1])
+        };
         self.array1DOffset += 1;
         return ret;
     }
 
-    fn Get2DArray(&mut self, n: usize) -> Option<Point2f> {
+    fn Get2DArray(&mut self, n: usize) -> Option<&[Point2f]> {
         if self.array2DOffset == self.sampleArray2D.len() {
             return None;
         }
-        let ret = Some(self.sampleArray2D[self.array2DOffset][self.currentPixelSampleIndex * n]);
+        let ret = {
+            let i0 = self.currentPixelSampleIndex * n;
+            let i1 = i0 + n;
+            Some(&self.sampleArray2D[self.array2DOffset][i0..i1])
+        };
         self.array2DOffset += 1;
         return ret;
     }
