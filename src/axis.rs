@@ -8,6 +8,7 @@ pub enum Axis {
 }
 
 impl Axis {
+    /// Return next axis.
     pub fn NextAxis(&self) -> Axis {
         match *self {
             Axis::X => Axis::Y,
@@ -15,6 +16,8 @@ impl Axis {
             Axis::Z => Axis::X,
         }
     }
+
+    /// Return other two axes.
     pub fn OtherAxes(&self) -> (Axis, Axis) {
         match *self {
             Axis::X => (Axis::Y, Axis::Z),
@@ -25,6 +28,13 @@ impl Axis {
 }
 
 impl convert::Into<usize> for Axis {
+    /// Convert axis to usize
+    ///
+    /// X -> 0
+    ///
+    /// Y -> 1
+    ///
+    /// Z -> 3
     fn into(self) -> usize {
         match self {
             Axis::X => 0,
@@ -33,4 +43,3 @@ impl convert::Into<usize> for Axis {
         }
     }
 }
-
