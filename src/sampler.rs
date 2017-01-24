@@ -42,9 +42,6 @@ pub trait Sampler {
             pLens: pLens,
         };
     }
-
-    fn GetIndexForSample(&self, sampleNum: usize) -> usize;
-    fn SampleDimension(&self, index: usize, d: usize) -> Float;
 }
 
 pub struct HaltonSampler {
@@ -133,7 +130,9 @@ impl Sampler for HaltonSampler {
         self.array2DOffset += 1;
         return ret;
     }
+}
 
+impl HaltonSampler {
     fn GetIndexForSample(&self, sampleNum: usize) -> usize {
         unimplemented!()
     }
