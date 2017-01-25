@@ -1,5 +1,4 @@
 use std::ops;
-use std::convert;
 
 use common::Float;
 use axis::Axis;
@@ -185,41 +184,6 @@ macro_rules! point2 {
 
 point2!(Point2i, i32);
 point2!(Point2f, Float);
-
-//pub type Point2f = Point2<Float>;
-//pub type Point2i = Point2<i32>;
-//
-//#[derive(Clone, Copy, Debug)]
-//pub struct Point2<T> {
-//    pub X: T,
-//    pub Y: T,
-// }
-//
-//impl<T> Point2<T> {
-//    pub fn New(x: T, y: T) -> Point2<T> {
-//        return Point2{ X: x, Y: y };
-//    }
-// }
-//
-//impl<T: ops::Add<Output = T>> ops::Add<Point2<T>> for Point2<T> {
-//    type Output = Point2<T>;
-//    fn add(self, p: Point2<T>) -> Point2<T> {
-//        return Point2::<T>{
-//            X: self.X + p.X,
-//            Y: self.Y + p.Y,
-//        }
-//    }
-// }
-//
-//impl<T: ops::Add<Output = T> + Copy> ops::Add<T> for Point2<T> {
-//    type Output = Point2<T>;
-//    fn add(self, n: T) -> Point2<T> {
-//        return Point2::<T>{
-//            X: self.X + n,
-//            Y: self.Y + n,
-//        }
-//    }
-// }
 
 impl Point2f {
     pub fn From(p: Point2i) -> Point2f {
