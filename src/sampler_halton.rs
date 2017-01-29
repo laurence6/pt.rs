@@ -1,3 +1,5 @@
+extern crate rand;
+use self::rand::Rng;
 
 use common::{Float, ONE_MINUS_EPSILON};
 use vector::{Point2i, Point2f};
@@ -1270,7 +1272,7 @@ fn RadicalInverse(baseIndex: u64, a: u64) -> Float {
         1021 => radicalInverse(8123, a),
         1022 => radicalInverse(8147, a),
         1023 => radicalInverse(8161, a),
-        _ => panic!("RadicalInverse: baseIndex reachs limit"),
+        _ => panic!("RadicalInverse: baseIndex reaches limit"),
     };
 }
 
@@ -1281,12 +1283,36 @@ fn ComputeRadicalInversePermutations() -> Vec<u16> {
             perms.push(i);
         }
         let l = perms.len();
-        Shuffle(&mut perms, *p as usize, l);
+        Shuffle(perms.as_mut_slice(), *p as usize, l, 1);
     }
     return perms;
 }
 
-/// [start, end)
-fn Shuffle(p: &mut Vec<u16>, start: usize, end: usize) {
-    debug_assert!(start <= end);
+// Shuffle blocks of values of size nDim.
+// start: index of the first element of the first block in slice
+// count: number of blocks
+// nDim: block size
+fn Shuffle(s: &mut [u16], start: usize, count: usize, nDim: usize) {
+    debug_assert_eq!(start % nDim, 0);
+
+    let mut rng = rand::thread_rng();
+    for i in 0..count {
+        let other: usize = rng.gen_range(i, count);
+        for j in 0..nDim {
+            s.swap(
+                start + nDim * i + j,
+                start + nDim * other + j
+            );
+        }
+    }
+}
+
+#[cfg(test)]
+mod sampler_halton_test {
+    #[test]
+    #[should_panic]
+    fn TestShuffleInvalidStart() {
+        let a: &mut [u16] = &mut [0; 32];
+        super::Shuffle(a, 2, 8, 4);
+    }
 }
