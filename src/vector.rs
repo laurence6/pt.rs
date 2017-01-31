@@ -148,7 +148,7 @@ impl ops::IndexMut<Axis> for Vector3f {
 
 macro_rules! point2 {
     ($n: ident, $t: ident) => (
-        #[derive(Clone, Copy, Debug)]
+        #[derive(Clone, Copy, Debug, PartialEq)]
         pub struct $n {
             pub X: $t,
             pub Y: $t,
@@ -182,14 +182,14 @@ macro_rules! point2 {
     )
 }
 
-point2!(Point2i, i32);
+point2!(Point2i, u32);
 point2!(Point2f, Float);
 
 impl Point2f {
     pub fn From(p: Point2i) -> Point2f {
         return Point2f {
-            X: p.X as f32,
-            Y: p.Y as f32,
+            X: p.X as Float,
+            Y: p.Y as Float,
         }
     }
 }
