@@ -5,6 +5,11 @@ use common::{Float, ONE_MINUS_EPSILON};
 use vector::{Point2i, Point2f};
 use sampler::{Sampler, GlobalSampler};
 
+/// Max resoltion of one tile.
+const kMaxResolution: u32 = 128;
+// (x, y, u, v, (u, v)...)
+const arrayStartDim: usize = 4;
+
 pub struct HaltonSampler {
     // General sampler
     samplesPerPixel: usize,
@@ -28,12 +33,39 @@ pub struct HaltonSampler {
     // Index of sample in current pixel
     intervalSampleIndex: usize,
 
-    arrayStartDim: usize, // Default = 4 (x, y, u, v, (u, v)...)
     arrayEndDim: usize,
+
+    // Halton sampler
+    baseScale: Point2i,
+    baseExp: Point2i,
+    sampleStride: usize,
+    pixelForOffset: Point2i,
+    /// First sample in the currentPixel
+    offsetForCurrentPixel: usize,
+    multiInverse: [usize; 2],
 }
 
 impl HaltonSampler {
-    pub fn New() -> HaltonSampler {
+    pub fn New(samplesPerPixel: usize) -> HaltonSampler {
+        //return HaltonSampler {
+        //    samplesPerPixel: samplesPerPixel,
+
+        //    currentPixel: Point2i,
+        //    currentPixelSampleIndex: usize,
+
+        //    sampleArray1DSizes: Vec<usize>,
+        //    sampleArray2DSizes: Vec<usize>,
+        //    sampleArray1D: Vec<Vec<Float>>,
+        //    sampleArray2D: Vec<Vec<Point2f>>,
+
+        //    array1DOffset: usize,
+        //    array2DOffset: usize,
+
+        //    dimension: usize,
+        //    intervalSampleIndex: usize,
+
+        //    arrayEndDim: usize,
+        // };
         unimplemented!()
     }
 }
@@ -47,7 +79,7 @@ impl Sampler for HaltonSampler {
 
         self.dimension = 0;
         self.intervalSampleIndex = self.GetIndexForSample(0);
-        self.arrayEndDim = self.arrayStartDim
+        self.arrayEndDim = arrayStartDim
             + self.sampleArray1D.len()
             + self.sampleArray2D.len() * 2;
 
@@ -56,12 +88,12 @@ impl Sampler for HaltonSampler {
             let nSample = self.sampleArray1DSizes[i] * self.samplesPerPixel;
             for j in 0..nSample {
                 let index = self.GetIndexForSample(j);
-                self.sampleArray1D[i][j] = self.SampleDimension(index, self.arrayStartDim + i);
+                self.sampleArray1D[i][j] = self.SampleDimension(index, arrayStartDim + i);
             }
         }
 
         // Compute 2D array samples
-        let mut dim = self.arrayStartDim + self.sampleArray1D.len();
+        let mut dim = arrayStartDim + self.sampleArray1D.len();
         for i in 0..self.sampleArray2D.len() {
             let nSample = self.sampleArray2DSizes[i] * self.samplesPerPixel;
             for j in 0..nSample {
@@ -80,14 +112,16 @@ impl Sampler for HaltonSampler {
         self.array2DOffset = 0;
 
         self.dimension = 0;
-        self.intervalSampleIndex =
-            self.GetIndexForSample(self.currentPixelSampleIndex + 1);
+        self.intervalSampleIndex = {
+            let nextPixelSampleIndex = self.currentPixelSampleIndex + 1;
+            self.GetIndexForSample(nextPixelSampleIndex)
+        };
 
         return self.currentPixelSampleIndex < self.samplesPerPixel;
     }
 
     fn Get1D(&mut self) -> Float {
-        if self.arrayStartDim <= self.dimension && self.dimension <= self.arrayEndDim {
+        if arrayStartDim <= self.dimension && self.dimension <= self.arrayEndDim {
             self.dimension = self.arrayEndDim;
         }
         self.dimension += 1;
@@ -95,7 +129,7 @@ impl Sampler for HaltonSampler {
     }
 
     fn Get2D(&mut self) -> Point2f {
-        if self.arrayStartDim <= self.dimension + 1 && self.dimension + 1 <= self.arrayEndDim {
+        if arrayStartDim <= self.dimension + 1 && self.dimension + 1 <= self.arrayEndDim {
             self.dimension = self.arrayEndDim;
         }
         let p = Point2f::New(
@@ -144,11 +178,36 @@ impl Sampler for HaltonSampler {
 }
 
 impl GlobalSampler for HaltonSampler {
-    fn GetIndexForSample(&self, sampleNum: usize) -> usize {
-        unimplemented!()
+    fn GetIndexForSample(&mut self, sampleNum: usize) -> usize {
+        if self.pixelForOffset != self.currentPixel {
+            self.offsetForCurrentPixel = 0;
+            if self.sampleStride > 1 {
+                let pm = Point2i {
+                    X: self.currentPixel.X % kMaxResolution,
+                    Y: self.currentPixel.Y % kMaxResolution,
+                };
+
+                self.offsetForCurrentPixel += {
+                    let dimOffset = InverseRadicalInverse(2, pm.X, self.baseExp.X) as usize;
+                    dimOffset * (self.sampleStride / self.baseExp.X as usize) * self.multiInverse[0]
+                };
+                self.offsetForCurrentPixel += {
+                    let dimOffset = InverseRadicalInverse(3, pm.Y, self.baseExp.Y) as usize;
+                    dimOffset * (self.sampleStride / self.baseExp.Y as usize) * self.multiInverse[1]
+                };
+                self.offsetForCurrentPixel %= self.sampleStride;
+            }
+            self.pixelForOffset = self.currentPixel;
+        }
+        return self.offsetForCurrentPixel + sampleNum * self.sampleStride;
     }
 
     fn SampleDimension(&self, index: usize, d: usize) -> Float {
+        //match d {
+        //    0 => RadicalInverse(0, (index >> self.baseExp.X) as u64),
+        //    1 => RadicalInverse(1, (index / self.baseScale.Y) as u64),
+        //    _ => RadicalInverse(d as u64, index as u64),
+        // }
         unimplemented!()
     }
 }
@@ -236,16 +295,17 @@ const PRIMES: [u16; 1000] = [2, 3, 5, 7, 11,
     7829, 7841, 7853, 7867, 7873, 7877, 7879, 7883, 7901, 7907, 7919];
 
 fn radicalInverse(base: u64, mut a: u64) -> Float {
-    let mut reversedDigits = 0;
+    let mut x = 0;
     let mut baseN = 1;
     while a > 0 {
-        reversedDigits = reversedDigits * base + a % base;
+        x = x * base + a % base;
         a /= base;
         baseN *= base;
     }
-    return ONE_MINUS_EPSILON.min(reversedDigits as f32 / baseN as f32);
+    return ONE_MINUS_EPSILON.min(x as Float / baseN as Float);
 }
 
+// FIXME
 fn RadicalInverse(baseIndex: u64, a: u64) -> Float {
     return match baseIndex {
         0 => radicalInverse(2, a),
@@ -1276,6 +1336,16 @@ fn RadicalInverse(baseIndex: u64, a: u64) -> Float {
     };
 }
 
+fn InverseRadicalInverse(base: u32, mut a: u32, nDigits: u32) -> u32 {
+    let mut x = 0;
+    for _ in 0..nDigits {
+        let digit = a % base;
+        a /= base;
+        x = x * base + digit;
+    }
+    return x;
+}
+
 fn ComputeRadicalInversePermutations() -> Vec<u16> {
     let mut perms = Vec::<u16>::new();
     for p in PRIMES.iter() {
@@ -1301,18 +1371,53 @@ fn Shuffle(s: &mut [u16], start: usize, count: usize, nDim: usize) {
         for j in 0..nDim {
             s.swap(
                 start + nDim * i + j,
-                start + nDim * other + j
+                start + nDim * other + j,
             );
         }
+    }
+}
+
+fn MultiplicativeInverse(a: i64, n: i64) -> u64 {
+    let (x, _) = ExtendedGCD(a as u64, n as u64);
+    return (x % n).abs() as u64;
+}
+
+// Extended Euclidean algorithm
+// ExtendedGCD(a, b) -> (x, y) where
+// GCD(a, b) = xa + yb
+fn ExtendedGCD(a: u64, b: u64) -> (i64, i64) {
+    if b == 0 {
+        return (1, 0);
+    } else {
+        let d = (a / b) as i64;
+        let (xp, yp) = ExtendedGCD(b, a % b);
+        return (yp, xp - (d * yp));
     }
 }
 
 #[cfg(test)]
 mod sampler_halton_test {
     #[test]
+    fn TestRadicalInverse() {
+        assert_eq!(super::radicalInverse(10, 0), 0.0);
+        assert_eq!(super::radicalInverse(10, 1), 0.1);
+        assert_eq!(super::radicalInverse(10, 1234), 0.4321);
+    }
+
+    #[test]
     #[should_panic]
     fn TestShuffleInvalidStart() {
         let a: &mut [u16] = &mut [0; 32];
         super::Shuffle(a, 2, 8, 4);
+    }
+
+    #[test]
+    fn TestExtendedGCD() {
+        assert_eq!(super::ExtendedGCD(2, 0), (1, 0));
+        assert_eq!(super::ExtendedGCD(2, 4), (1, 0));
+        assert_eq!(super::ExtendedGCD(4, 6), (-1, 1));
+        assert_eq!(super::ExtendedGCD(8, 6), (1, -1));
+        assert_eq!(super::ExtendedGCD(8, 6), (1, -1));
+        assert_eq!(super::ExtendedGCD(77, 14), (1, -5));
     }
 }
