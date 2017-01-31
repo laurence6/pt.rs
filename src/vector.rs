@@ -182,7 +182,7 @@ macro_rules! point2 {
     )
 }
 
-point2!(Point2i, u32);
+point2!(Point2i, u64);
 point2!(Point2f, Float);
 
 impl Point2f {
