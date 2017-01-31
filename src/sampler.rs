@@ -45,7 +45,7 @@ pub trait Sampler {
 
 pub trait GlobalSampler : Sampler {
     /// Return index to the sample in the overall set of samples based on current pixel and sample index.
-    fn GetIndexForSample(&self, sampleNum: usize) -> usize;
+    fn GetIndexForSample(&mut self, sampleNum: usize) -> usize;
     /// Return sample value for the given dimension of the indexth sample in the overall set of samples.
     fn SampleDimension(&self, index: usize, d: usize) -> Float;
 }
