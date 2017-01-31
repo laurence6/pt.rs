@@ -6,19 +6,19 @@ use vector::{Point2i, Point2f};
 use sampler::{Sampler, GlobalSampler};
 
 /// Max resoltion of one tile.
-const kMaxResolution: u32 = 128;
+const kMaxResolution: u64 = 128;
 // (x, y, u, v, (u, v)...)
-const arrayStartDim: usize = 4;
+const arrayStartDim: u16 = 4;
 
 pub struct HaltonSampler {
     // General sampler
-    samplesPerPixel: usize,
+    samplesPerPixel: u64,
 
     currentPixel: Point2i,
-    currentPixelSampleIndex: usize,
+    currentPixelSampleIndex: u64,
 
-    sampleArray1DSizes: Vec<usize>,
-    sampleArray2DSizes: Vec<usize>,
+    sampleArray1DSizes: Vec<u64>,
+    sampleArray2DSizes: Vec<u64>,
     sampleArray1D: Vec<Vec<Float>>,
     sampleArray2D: Vec<Vec<Point2f>>,
 
@@ -28,21 +28,21 @@ pub struct HaltonSampler {
     array2DOffset: usize,
 
     // Global sampler
-    // Next dimension.
-    dimension: usize,
+    // Next dimension
+    dimension: u16,
     // Index of sample in current pixel
-    intervalSampleIndex: usize,
+    intervalSampleIndex: u64,
 
-    arrayEndDim: usize,
+    arrayEndDim: u16,
 
     // Halton sampler
     baseScale: Point2i,
     baseExp: Point2i,
-    sampleStride: usize,
+    sampleStride: u64,
     pixelForOffset: Point2i,
-    /// First sample in the currentPixel
-    offsetForCurrentPixel: usize,
-    multiInverse: [usize; 2],
+    // First sample in the currentPixel
+    offsetForCurrentPixel: u64,
+    multiInverse: [u64; 2],
 }
 
 impl HaltonSampler {
@@ -80,24 +80,24 @@ impl Sampler for HaltonSampler {
         self.dimension = 0;
         self.intervalSampleIndex = self.GetIndexForSample(0);
         self.arrayEndDim = arrayStartDim
-            + self.sampleArray1D.len()
-            + self.sampleArray2D.len() * 2;
+            + self.sampleArray1D.len() as u16
+            + self.sampleArray2D.len() as u16 * 2;
 
         // Compute 1D array samples
         for i in 0..self.sampleArray1D.len() {
             let nSample = self.sampleArray1DSizes[i] * self.samplesPerPixel;
-            for j in 0..nSample {
-                let index = self.GetIndexForSample(j);
-                self.sampleArray1D[i][j] = self.SampleDimension(index, arrayStartDim + i);
+            for j in 0..nSample as usize {
+                let index = self.GetIndexForSample(j as u64);
+                self.sampleArray1D[i][j] = self.SampleDimension(index, arrayStartDim + i as u16);
             }
         }
 
         // Compute 2D array samples
-        let mut dim = arrayStartDim + self.sampleArray1D.len();
+        let mut dim = arrayStartDim + self.sampleArray1D.len() as u16;
         for i in 0..self.sampleArray2D.len() {
             let nSample = self.sampleArray2DSizes[i] * self.samplesPerPixel;
-            for j in 0..nSample {
-                let index = self.GetIndexForSample(j);
+            for j in 0..nSample as usize {
+                let index = self.GetIndexForSample(j as u64);
                 self.sampleArray2D[i][j].X = self.SampleDimension(index, dim);
                 self.sampleArray2D[i][j].Y = self.SampleDimension(index, dim + 1);
             }
@@ -140,37 +140,37 @@ impl Sampler for HaltonSampler {
         return p;
     }
 
-    fn Req1DArray(&mut self, n: usize) {
+    fn Req1DArray(&mut self, n: u64) {
         self.sampleArray1DSizes.push(n);
-        self.sampleArray1D.push(Vec::<Float>::with_capacity(n));
+        self.sampleArray1D.push(Vec::<Float>::with_capacity(n as usize));
     }
 
-    fn Req2DArray(&mut self, n: usize) {
+    fn Req2DArray(&mut self, n: u64) {
         self.sampleArray2DSizes.push(n);
-        self.sampleArray2D.push(Vec::<Point2f>::with_capacity(n));
+        self.sampleArray2D.push(Vec::<Point2f>::with_capacity(n as usize));
     }
 
-    fn Get1DArray(&mut self, n: usize) -> Option<&[Float]> {
+    fn Get1DArray(&mut self, n: u64) -> Option<&[Float]> {
         if self.array1DOffset == self.sampleArray1D.len() {
             return None;
         }
         let ret = {
             let i0 = self.currentPixelSampleIndex * n;
             let i1 = i0 + n;
-            Some(&self.sampleArray1D[self.array1DOffset][i0..i1])
+            Some(&self.sampleArray1D[self.array1DOffset][i0 as usize..i1 as usize])
         };
         self.array1DOffset += 1;
         return ret;
     }
 
-    fn Get2DArray(&mut self, n: usize) -> Option<&[Point2f]> {
+    fn Get2DArray(&mut self, n: u64) -> Option<&[Point2f]> {
         if self.array2DOffset == self.sampleArray2D.len() {
             return None;
         }
         let ret = {
             let i0 = self.currentPixelSampleIndex * n;
             let i1 = i0 + n;
-            Some(&self.sampleArray2D[self.array2DOffset][i0..i1])
+            Some(&self.sampleArray2D[self.array2DOffset][i0 as usize..i1 as usize])
         };
         self.array2DOffset += 1;
         return ret;
@@ -178,7 +178,7 @@ impl Sampler for HaltonSampler {
 }
 
 impl GlobalSampler for HaltonSampler {
-    fn GetIndexForSample(&mut self, sampleNum: usize) -> usize {
+    fn GetIndexForSample(&mut self, sampleNum: u64) -> u64 {
         if self.pixelForOffset != self.currentPixel {
             self.offsetForCurrentPixel = 0;
             if self.sampleStride > 1 {
@@ -188,12 +188,12 @@ impl GlobalSampler for HaltonSampler {
                 };
 
                 self.offsetForCurrentPixel += {
-                    let dimOffset = InverseRadicalInverse(2, pm.X, self.baseExp.X) as usize;
-                    dimOffset * (self.sampleStride / self.baseExp.X as usize) * self.multiInverse[0]
+                    let dimOffset = InverseRadicalInverse(2, pm.X, self.baseExp.X);
+                    dimOffset * (self.sampleStride / self.baseExp.X) * self.multiInverse[0]
                 };
                 self.offsetForCurrentPixel += {
-                    let dimOffset = InverseRadicalInverse(3, pm.Y, self.baseExp.Y) as usize;
-                    dimOffset * (self.sampleStride / self.baseExp.Y as usize) * self.multiInverse[1]
+                    let dimOffset = InverseRadicalInverse(3, pm.Y, self.baseExp.Y);
+                    dimOffset * (self.sampleStride / self.baseExp.Y) * self.multiInverse[1]
                 };
                 self.offsetForCurrentPixel %= self.sampleStride;
             }
@@ -202,13 +202,12 @@ impl GlobalSampler for HaltonSampler {
         return self.offsetForCurrentPixel + sampleNum * self.sampleStride;
     }
 
-    fn SampleDimension(&self, index: usize, d: usize) -> Float {
-        //match d {
-        //    0 => RadicalInverse(0, (index >> self.baseExp.X) as u64),
-        //    1 => RadicalInverse(1, (index / self.baseScale.Y) as u64),
-        //    _ => RadicalInverse(d as u64, index as u64),
-        // }
-        unimplemented!()
+    fn SampleDimension(&self, index: u64, d: u16) -> Float {
+        match d {
+            0 => RadicalInverse(0, index >> self.baseExp.X as u64),
+            1 => RadicalInverse(1, index / self.baseScale.Y as u64),
+            _ => RadicalInverse(d as u64, index),
+        }
     }
 }
 
@@ -1336,7 +1335,7 @@ fn RadicalInverse(baseIndex: u64, a: u64) -> Float {
     };
 }
 
-fn InverseRadicalInverse(base: u32, mut a: u32, nDigits: u32) -> u32 {
+fn InverseRadicalInverse(base: u64, mut a: u64, nDigits: u64) -> u64 {
     let mut x = 0;
     for _ in 0..nDigits {
         let digit = a % base;
