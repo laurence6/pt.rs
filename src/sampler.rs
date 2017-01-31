@@ -13,23 +13,15 @@ pub trait Sampler {
     /// Return next 2 dimensions of current sample.
     fn Get2D(&mut self) -> Point2f;
     /// Request an array of n samples with 1 dimension.
-    fn Req1DArray(&mut self, usize) {
-        unimplemented!()
-    }
+    fn Req1DArray(&mut self, u64);
     /// Request an array of n samples with 2 dimensions.
-    fn Req2DArray(&mut self, usize) {
-        unimplemented!()
-    }
+    fn Req2DArray(&mut self, u64);
     /// Get an array of samples with 1 dimension.
-    fn Get1DArray(&mut self) -> Option<&[Float]> {
-        unimplemented!()
-    }
+    fn Get1DArray(&mut self, u64) -> Option<&[Float]>;
     /// Get an array of samples with 2 dimensions.
-    fn Get2DArray(&mut self) -> Option<&[Point2f]> {
-        unimplemented!()
-    }
+    fn Get2DArray(&mut self, u64) -> Option<&[Point2f]>;
     /// Round to a better size of array.
-    fn RoundCount(n: usize) -> usize {
+    fn RoundCount(n: u64) -> u64 {
         return n;
     }
 
@@ -45,7 +37,7 @@ pub trait Sampler {
 
 pub trait GlobalSampler : Sampler {
     /// Return index to the sample in the overall set of samples based on current pixel and sample index.
-    fn GetIndexForSample(&mut self, sampleNum: usize) -> usize;
+    fn GetIndexForSample(&mut self, u64) -> u64;
     /// Return sample value for the given dimension of the indexth sample in the overall set of samples.
-    fn SampleDimension(&self, index: usize, d: usize) -> Float;
+    fn SampleDimension(&self, index: u64, d: u16) -> Float;
 }
