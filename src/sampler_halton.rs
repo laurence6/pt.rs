@@ -6,9 +6,9 @@ use vector::{Point2i, Point2f};
 use sampler::{Sampler, GlobalSampler};
 
 /// Max resoltion of one tile.
-const kMaxResolution: u64 = 128;
+const K_MAX_RESOLUTION: u64 = 128;
 // (x, y, u, v, (u, v)...)
-const arrayStartDim: u16 = 4;
+const ARRAY_START_DIM: u16 = 4;
 
 pub struct HaltonSampler {
     // General sampler
@@ -79,7 +79,7 @@ impl Sampler for HaltonSampler {
 
         self.dimension = 0;
         self.intervalSampleIndex = self.GetIndexForSample(0);
-        self.arrayEndDim = arrayStartDim
+        self.arrayEndDim = ARRAY_START_DIM
             + self.sampleArray1D.len() as u16
             + self.sampleArray2D.len() as u16 * 2;
 
@@ -88,12 +88,12 @@ impl Sampler for HaltonSampler {
             let nSample = self.sampleArray1DSizes[i] * self.samplesPerPixel;
             for j in 0..nSample as usize {
                 let index = self.GetIndexForSample(j as u64);
-                self.sampleArray1D[i][j] = self.SampleDimension(index, arrayStartDim + i as u16);
+                self.sampleArray1D[i][j] = self.SampleDimension(index, ARRAY_START_DIM + i as u16);
             }
         }
 
         // Compute 2D array samples
-        let mut dim = arrayStartDim + self.sampleArray1D.len() as u16;
+        let mut dim = ARRAY_START_DIM + self.sampleArray1D.len() as u16;
         for i in 0..self.sampleArray2D.len() {
             let nSample = self.sampleArray2DSizes[i] * self.samplesPerPixel;
             for j in 0..nSample as usize {
@@ -121,7 +121,7 @@ impl Sampler for HaltonSampler {
     }
 
     fn Get1D(&mut self) -> Float {
-        if arrayStartDim <= self.dimension && self.dimension <= self.arrayEndDim {
+        if ARRAY_START_DIM <= self.dimension && self.dimension <= self.arrayEndDim {
             self.dimension = self.arrayEndDim;
         }
         self.dimension += 1;
@@ -129,7 +129,7 @@ impl Sampler for HaltonSampler {
     }
 
     fn Get2D(&mut self) -> Point2f {
-        if arrayStartDim <= self.dimension + 1 && self.dimension + 1 <= self.arrayEndDim {
+        if ARRAY_START_DIM <= self.dimension + 1 && self.dimension + 1 <= self.arrayEndDim {
             self.dimension = self.arrayEndDim;
         }
         let p = Point2f::New(
@@ -183,8 +183,8 @@ impl GlobalSampler for HaltonSampler {
             self.offsetForCurrentPixel = 0;
             if self.sampleStride > 1 {
                 let pm = Point2i {
-                    X: self.currentPixel.X % kMaxResolution,
-                    Y: self.currentPixel.Y % kMaxResolution,
+                    X: self.currentPixel.X % K_MAX_RESOLUTION,
+                    Y: self.currentPixel.Y % K_MAX_RESOLUTION,
                 };
 
                 self.offsetForCurrentPixel += {
@@ -304,7 +304,6 @@ fn radicalInverse(base: u64, mut a: u64) -> Float {
     return ONE_MINUS_EPSILON.min(x as Float / baseN as Float);
 }
 
-// FIXME
 fn RadicalInverse(baseIndex: u64, a: u64) -> Float {
     return match baseIndex {
         0 => radicalInverse(2, a),
