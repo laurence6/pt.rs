@@ -1,4 +1,3 @@
-use vector::Vector;
 use vector::Point2f;
 use ray::Ray;
 use film::Film;
