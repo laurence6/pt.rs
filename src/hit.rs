@@ -1,5 +1,4 @@
 use common::Float;
-use shape::Shape;
 
 //pub struct Hit<'a> {
 //    pub Shape: &'a (Shape + 'a),
