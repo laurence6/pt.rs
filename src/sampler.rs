@@ -22,7 +22,7 @@ pub trait Sampler {
     fn Get2DArray(&mut self, u64) -> Option<&[Point2f]>;
     /// Round to a better size of array.
     fn RoundCount(n: u64) -> u64 {
-        return n;
+        n
     }
 
     fn GetCameraSample(&mut self, pRaster: Point2i) -> CameraSample {
