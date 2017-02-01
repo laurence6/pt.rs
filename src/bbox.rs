@@ -15,7 +15,7 @@ pub struct BBox {
 
 impl BBox {
     pub fn New(min: Vector, max: Vector) -> BBox {
-        return BBox { Min: min, Max: max };
+        BBox { Min: min, Max: max }
     }
 
     pub fn BBoxOfShapes(shapes: &Vec<Box<Shape>>) -> BBox {
@@ -39,7 +39,7 @@ impl BBox {
                 swap(&mut tNear, &mut tFar);
             }
             // to avoid epsilon
-            tFar *= 1.0 + 2.0 * gamma(3.0); // TODO: make as const
+            tFar *= 1.0 + 2.0 * gamma(3.0);
 
             // notice that tNear and tFar could be NaN
             t0 = if tNear > t0 { tNear } else { t0 };
@@ -55,7 +55,7 @@ impl BBox {
     }
 
     pub fn Diagonal(&self) -> Vector {
-        return self.Max - self.Min;
+        self.Max - self.Min
     }
 
     pub fn SurfaceArea(&self) -> Float {
@@ -73,19 +73,19 @@ impl BBox {
     }
 
     pub fn Overlaps(&self, b: &BBox) -> bool {
-        return (self.Max.X >= b.Min.X) && (self.Min.X >= b.Max.X) &&
-               (self.Max.Y >= b.Min.Y) && (self.Min.Y >= b.Max.Y) &&
-               (self.Max.Z >= b.Min.Z) && (self.Min.Z >= b.Max.Z);
+        (self.Max.X >= b.Min.X) && (self.Min.X >= b.Max.X) &&
+        (self.Max.Y >= b.Min.Y) && (self.Min.Y >= b.Max.Y) &&
+        (self.Max.Z >= b.Min.Z) && (self.Min.Z >= b.Max.Z)
     }
 
     pub fn Union(&self, b: &BBox) -> BBox {
-        return BBox {
+        BBox {
             Min: self.Min.Min(&b.Min),
             Max: self.Max.Max(&b.Max),
-        };
+        }
     }
 }
 
 fn gamma(x: Float) -> Float {
-    return (x * EPSILON) / (1.0 - x * EPSILON);
+    (x * EPSILON) / (1.0 - x * EPSILON)
 }
