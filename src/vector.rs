@@ -14,33 +14,33 @@ pub struct Vector3f {
 }
 
 fn V(x: Float, y: Float, z: Float) -> Vector3f {
-    return Vector3f::New(x, y, z);
+    Vector3f::New(x, y, z)
 }
 
 impl Vector3f {
     pub fn New(x: Float, y: Float, z: Float) -> Vector3f {
-        return Vector3f { X: x, Y: y, Z: z };
+        Vector3f { X: x, Y: y, Z: z }
     }
 
     pub fn Length(&self) -> Float {
-        return (self.X * self.X + self.Y * self.Y + self.Z * self.Z).sqrt();
+        (self.X * self.X + self.Y * self.Y + self.Z * self.Z).sqrt()
     }
 
     pub fn Normalize(&self) -> Vector3f {
         let l = self.Length();
-        return V(self.X / l, self.Y / l, self.Z / l);
+        V(self.X / l, self.Y / l, self.Z / l)
     }
 
     pub fn Inv(&self) -> Vector3f {
-        return V(1.0 / self.X, 1.0 / self.Y, 1.0 / self.Z);
+        V(1.0 / self.X, 1.0 / self.Y, 1.0 / self.Z)
     }
 
     pub fn Abs(&self) -> Vector3f {
-        return V(self.X.abs(), self.Y.abs(), self.Z.abs());
+        V(self.X.abs(), self.Y.abs(), self.Z.abs())
     }
 
     pub fn Dot(&self, v: &Vector3f) -> Float {
-        return self.X * v.X + self.Y * v.Y + self.Z * v.Z;
+        self.X * v.X + self.Y * v.Y + self.Z * v.Z
     }
 
     pub fn Cross(&self, v: &Vector3f) -> Vector3f {
@@ -51,11 +51,11 @@ impl Vector3f {
     }
 
     pub fn Min(&self, v: &Vector3f) -> Vector3f {
-        return V(self.X.min(v.X), self.Y.min(v.Y), self.Z.min(v.Z));
+        V(self.X.min(v.X), self.Y.min(v.Y), self.Z.min(v.Z))
     }
 
     pub fn Max(&self, v: &Vector3f) -> Vector3f {
-        return V(self.X.max(v.X), self.Y.max(v.Y), self.Z.max(v.Z));
+        V(self.X.max(v.X), self.Y.max(v.Y), self.Z.max(v.Z))
     }
 
     pub fn MinAxis(&self) -> Vector3f {
@@ -68,60 +68,60 @@ impl Vector3f {
     }
 
     pub fn MinComponent(&self) -> Float {
-        return self.X.min(self.Y).min(self.Z);
+        self.X.min(self.Y).min(self.Z)
     }
 
     pub fn MaxComponent(&self) -> Float {
-        return self.X.max(self.Y).max(self.Z);
+        self.X.max(self.Y).max(self.Z)
     }
 }
 
 impl ops::Neg for Vector3f {
     type Output = Vector3f;
     fn neg(self) -> Vector3f {
-        return V(-self.X, -self.Y, -self.Z);
+        V(-self.X, -self.Y, -self.Z)
     }
 }
 
 impl ops::Add<Vector3f> for Vector3f {
     type Output = Vector3f;
     fn add(self, v: Vector3f) -> Vector3f {
-        return V(self.X + v.X, self.Y + v.Y, self.Z + v.Z);
+        V(self.X + v.X, self.Y + v.Y, self.Z + v.Z)
     }
 }
 
 impl ops::Sub<Vector3f> for Vector3f {
     type Output = Vector3f;
     fn sub(self, v: Vector3f) -> Vector3f {
-        return V(self.X - v.X, self.Y - v.Y, self.Z - v.Z);
+        V(self.X - v.X, self.Y - v.Y, self.Z - v.Z)
     }
 }
 
 impl ops::Add<Float> for Vector3f {
     type Output = Vector3f;
     fn add(self, a: Float) -> Vector3f {
-        return V(self.X + a, self.Y + a, self.Z + a);
+        V(self.X + a, self.Y + a, self.Z + a)
     }
 }
 
 impl ops::Sub<Float> for Vector3f {
     type Output = Vector3f;
     fn sub(self, a: Float) -> Vector3f {
-        return V(self.X - a, self.Y - a, self.Z - a);
+        V(self.X - a, self.Y - a, self.Z - a)
     }
 }
 
 impl ops::Mul<Float> for Vector3f {
     type Output = Vector3f;
     fn mul(self, a: Float) -> Vector3f {
-        return V(self.X * a, self.Y * a, self.Z * a);
+        V(self.X * a, self.Y * a, self.Z * a)
     }
 }
 
 impl ops::Div<Float> for Vector3f {
     type Output = Vector3f;
     fn div(self, a: Float) -> Vector3f {
-        return V(self.X / a, self.Y / a, self.Z / a);
+        V(self.X / a, self.Y / a, self.Z / a)
     }
 }
 
@@ -156,14 +156,14 @@ macro_rules! point2 {
 
         impl $n {
             pub fn New(x: $t, y: $t) -> $n {
-                return $n { X: x, Y: y };
+                $n { X: x, Y: y }
             }
         }
 
         impl ops::Add<$t> for $n {
             type Output = $n;
             fn add(self, n: $t) -> $n {
-                return $n {
+                $n {
                     X: self.X + n,
                     Y: self.Y + n,
                 }
@@ -173,7 +173,7 @@ macro_rules! point2 {
         impl ops::Add<$n> for $n {
             type Output = $n;
             fn add(self, p: $n) -> $n {
-                return $n {
+                $n {
                     X: self.X + p.X,
                     Y: self.Y + p.Y,
                 }
@@ -187,7 +187,7 @@ point2!(Point2f, Float);
 
 impl Point2f {
     pub fn From(p: Point2i) -> Point2f {
-        return Point2f {
+        Point2f {
             X: p.X as Float,
             Y: p.Y as Float,
         }

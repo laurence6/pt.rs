@@ -12,39 +12,39 @@ type XYZ = [Float; 3];
 pub struct RGBSpectrum (Float, Float, Float);
 
 impl RGBSpectrum {
-    pub fn FromRGB(rgb: RGB) -> RGBSpectrum {
+    fn FromRGB(rgb: RGB) -> RGBSpectrum {
         RGBSpectrum(rgb[0], rgb[1], rgb[2])
     }
 
-    pub fn FromXYZ(xyz: XYZ) -> RGBSpectrum {
+    fn FromXYZ(xyz: XYZ) -> RGBSpectrum {
         RGBSpectrum::FromRGB(XYZToRGB(xyz))
     }
 
-    pub fn ToRGB(&self) -> RGB {
+    fn ToRGB(&self) -> RGB {
         [self.0, self.1, self.2]
     }
 
-    pub fn ToXYZ(&self) -> XYZ {
+    fn ToXYZ(&self) -> XYZ {
         RGBToXYZ(self.ToRGB())
     }
 
-    pub fn ToRGBSpectrum(&self) -> RGBSpectrum {
+    fn ToRGBSpectrum(&self) -> RGBSpectrum {
         *self
     }
 
-    pub fn IsBlack(&self) -> bool {
+    fn IsBlack(&self) -> bool {
         self.0 == 0.0 && self.1 == 0.0 && self.2 == 0.0
     }
 
-    pub fn Sqrt(&self) -> RGBSpectrum {
+    fn Sqrt(&self) -> RGBSpectrum {
         RGBSpectrum(self.0.sqrt(), self.1.sqrt(), self.2.sqrt())
     }
 
-    pub fn Lerp(&self, s: &RGBSpectrum, t: Float) -> RGBSpectrum {
+    fn Lerp(&self, s: &RGBSpectrum, t: Float) -> RGBSpectrum {
         *self * (1.0 - t) + *s * t
     }
 
-    pub fn Clamp(&self, low: Float, high: Float) -> RGBSpectrum {
+    fn Clamp(&self, low: Float, high: Float) -> RGBSpectrum {
         RGBSpectrum(
             Clamp(self.0, low, high),
             Clamp(self.1, low, high),
