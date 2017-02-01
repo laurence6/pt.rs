@@ -13,23 +13,23 @@ pub struct RGBSpectrum (Float, Float, Float);
 
 impl RGBSpectrum {
     pub fn FromRGB(rgb: RGB) -> RGBSpectrum {
-        return RGBSpectrum(rgb[0], rgb[1], rgb[2]);
+        RGBSpectrum(rgb[0], rgb[1], rgb[2])
     }
 
     pub fn FromXYZ(xyz: XYZ) -> RGBSpectrum {
-        return RGBSpectrum::FromRGB(XYZToRGB(xyz));
+        RGBSpectrum::FromRGB(XYZToRGB(xyz))
     }
 
     pub fn ToRGB(&self) -> RGB {
-        return [self.0, self.1, self.2];
+        [self.0, self.1, self.2]
     }
 
     pub fn ToXYZ(&self) -> XYZ {
-        return RGBToXYZ(self.ToRGB());
+        RGBToXYZ(self.ToRGB())
     }
 
     pub fn ToRGBSpectrum(&self) -> RGBSpectrum {
-        return *self;
+        *self
     }
 
     pub fn IsBlack(&self) -> bool {
@@ -37,68 +37,68 @@ impl RGBSpectrum {
     }
 
     pub fn Sqrt(&self) -> RGBSpectrum {
-        return RGBSpectrum(self.0.sqrt(), self.1.sqrt(), self.2.sqrt());
+        RGBSpectrum(self.0.sqrt(), self.1.sqrt(), self.2.sqrt())
     }
 
     pub fn Lerp(&self, s: &RGBSpectrum, t: Float) -> RGBSpectrum {
-        return *self * (1.0 - t) + *s * t;
+        *self * (1.0 - t) + *s * t
     }
 
     pub fn Clamp(&self, low: Float, high: Float) -> RGBSpectrum {
-        return RGBSpectrum(
+        RGBSpectrum(
             Clamp(self.0, low, high),
             Clamp(self.1, low, high),
             Clamp(self.2, low, high),
-        );
+        )
     }
 }
 
 impl ops::Neg for RGBSpectrum {
     type Output = RGBSpectrum;
     fn neg(self) -> RGBSpectrum {
-        return RGBSpectrum(-self.0, -self.1, -self.2);
+        RGBSpectrum(-self.0, -self.1, -self.2)
     }
 }
 
 impl ops::Add<RGBSpectrum> for RGBSpectrum {
     type Output = RGBSpectrum;
     fn add(self, s: RGBSpectrum) -> RGBSpectrum {
-        return RGBSpectrum(self.0 + s.0, self.1 + s.1, self.2 + s.2);
+        RGBSpectrum(self.0 + s.0, self.1 + s.1, self.2 + s.2)
     }
 }
 
 impl ops::Sub<RGBSpectrum> for RGBSpectrum {
     type Output = RGBSpectrum;
     fn sub(self, s: RGBSpectrum) -> RGBSpectrum {
-        return RGBSpectrum(self.0 - s.0, self.1 - s.1, self.2 - s.2);
+        RGBSpectrum(self.0 - s.0, self.1 - s.1, self.2 - s.2)
     }
 }
 
 impl ops::Add<Float> for RGBSpectrum {
     type Output = RGBSpectrum;
     fn add(self, a: Float) -> RGBSpectrum {
-        return RGBSpectrum(self.0 + a, self.1 + a, self.2 + a);
+        RGBSpectrum(self.0 + a, self.1 + a, self.2 + a)
     }
 }
 
 impl ops::Sub<Float> for RGBSpectrum {
     type Output = RGBSpectrum;
     fn sub(self, a: Float) -> RGBSpectrum {
-        return RGBSpectrum(self.0 - a, self.1 - a, self.2 - a);
+        RGBSpectrum(self.0 - a, self.1 - a, self.2 - a)
     }
 }
 
 impl ops::Mul<Float> for RGBSpectrum {
     type Output = RGBSpectrum;
     fn mul(self, a: Float) -> RGBSpectrum {
-        return RGBSpectrum(self.0 * a, self.1 * a, self.2 * a);
+        RGBSpectrum(self.0 * a, self.1 * a, self.2 * a)
     }
 }
 
 impl ops::Div<Float> for RGBSpectrum {
     type Output = RGBSpectrum;
     fn div(self, a: Float) -> RGBSpectrum {
-        return RGBSpectrum(self.0 / a, self.1 / a, self.2 / a);
+        RGBSpectrum(self.0 / a, self.1 / a, self.2 / a)
     }
 }
 
