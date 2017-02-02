@@ -26,20 +26,3 @@ impl Axis {
         }
     }
 }
-
-impl convert::Into<usize> for Axis {
-    /// Convert axis to usize
-    ///
-    /// X -> 0
-    ///
-    /// Y -> 1
-    ///
-    /// Z -> 3
-    fn into(self) -> usize {
-        match self {
-            Axis::X => 0,
-            Axis::Y => 1,
-            Axis::Z => 2,
-        }
-    }
-}
