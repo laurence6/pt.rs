@@ -21,7 +21,7 @@ defFloat!(f64);
 
 // Funcs
 //pub fn Clamp<T: PartialOrd>(x: T, low: T, high: T) -> T {
-//    //debug_assert!(low <= high);
+//    debug_assert!(low <= high);
 //    if x < low {
 //        return low;
 //    } else if x > high {
