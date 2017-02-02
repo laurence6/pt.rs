@@ -24,10 +24,10 @@ impl Color {
     }
 
     pub fn RGB(&self) -> (u32, u32, u32) {
-        return (toInt(self.R), toInt(self.G), toInt(self.B));
+        return (ToInt(self.R), ToInt(self.G), ToInt(self.B));
     }
 }
 
-fn toInt(x: Float) -> u32 {
+fn ToInt(x: Float) -> u32 {
     return max(0, min(255, (Clamp(x, 0.0, 1.0) * 255.0) as u32));
 }
