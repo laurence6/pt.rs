@@ -15,7 +15,7 @@ pub const IDENTITY_MATRIX: Matrix = Matrix {
     m41: 0.0, m42: 0.0, m43: 0.0, m44: 1.0,
 };
 
-pub fn Translate(v: &Vector) -> Matrix {
+pub fn Translate(v: Vector) -> Matrix {
     return Matrix {
         m11: 1.0, m12: 0.0, m13: 0.0, m14: v.X,
         m21: 0.0, m22: 1.0, m23: 0.0, m24: v.Y,
@@ -24,7 +24,7 @@ pub fn Translate(v: &Vector) -> Matrix {
     };
 }
 //
-//pub fn Scale(v: &Vector) -> Matrix {
+//pub fn Scale(v: Vector) -> Matrix {
 //    return Matrix {
 //        m11: v.X, m12: 0.0, m13: 0.0, m14: 0.0,
 //        m21: 0.0, m22: v.Y, m23: 0.0, m24: 0.0,
@@ -33,7 +33,7 @@ pub fn Translate(v: &Vector) -> Matrix {
 //    };
 // }
 //
-//pub fn Rotate(v: &Vector, a: Float) -> Matrix {
+//pub fn Rotate(v: Vector, a: Float) -> Matrix {
 //    let v = v.Normalize();
 //    let s = a.sin();
 //    let c = a.cos();
