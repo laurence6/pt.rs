@@ -29,10 +29,11 @@ impl Shape for Sphere {
     fn BBox(&self) -> BBox {
         return self.BBox;
     }
+
     fn IntersectP(&self, r: &Ray) -> Option<Hit> {
         let to = r.Origin - self.Center;
-        let b = to.Dot(&r.Direction);
-        let mut d = b * b - (to.Dot(&to) - self.Radius * self.Radius);
+        let b = to.Dot(r.Direction);
+        let mut d = b * b - (to.Dot(to) - self.Radius * self.Radius);
         if d > 0.0 {
             d = d.sqrt();
             let t = -b - d;
@@ -46,6 +47,7 @@ impl Shape for Sphere {
         }
         return None;
     }
+
     fn MateralAt(&self) -> Color {
         return self.Color;
     }
