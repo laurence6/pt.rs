@@ -39,22 +39,22 @@ impl Vector3f {
         V(self.X.abs(), self.Y.abs(), self.Z.abs())
     }
 
-    pub fn Dot(&self, v: &Vector3f) -> Float {
+    pub fn Dot(&self, v: Vector3f) -> Float {
         self.X * v.X + self.Y * v.Y + self.Z * v.Z
     }
 
-    pub fn Cross(&self, v: &Vector3f) -> Vector3f {
+    pub fn Cross(&self, v: Vector3f) -> Vector3f {
         let x = self.Y * v.Z - self.Z * v.Y;
         let y = self.Z * v.X - self.X * v.Z;
         let z = self.X * v.Y - self.Y * v.X;
         return V(x, y, z);
     }
 
-    pub fn Min(&self, v: &Vector3f) -> Vector3f {
+    pub fn Min(&self, v: Vector3f) -> Vector3f {
         V(self.X.min(v.X), self.Y.min(v.Y), self.Z.min(v.Z))
     }
 
-    pub fn Max(&self, v: &Vector3f) -> Vector3f {
+    pub fn Max(&self, v: Vector3f) -> Vector3f {
         V(self.X.max(v.X), self.Y.max(v.Y), self.Z.max(v.Z))
     }
 
