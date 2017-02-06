@@ -80,8 +80,8 @@ impl BBox {
 
     pub fn Union(&self, b: &BBox) -> BBox {
         BBox {
-            Min: self.Min.Min(&b.Min),
-            Max: self.Max.Max(&b.Max),
+            Min: self.Min.Min(b.Min),
+            Max: self.Max.Max(b.Max),
         }
     }
 }
