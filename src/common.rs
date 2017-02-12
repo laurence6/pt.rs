@@ -1,4 +1,3 @@
-// Type Float
 macro_rules! defFloat {
     ($t: ident) => (
         use std::$t;
@@ -7,8 +6,7 @@ macro_rules! defFloat {
         pub const FLOAT_MIN_POS: Float = $t::MIN_POSITIVE;
         pub const EPSILON: Float       = $t::EPSILON * 0.5;
         pub const INFINITY: Float      = $t::INFINITY;
-
-        // Max number less than 1
+        /// Max number less than 1.
         pub const ONE_MINUS_EPSILON: Float = 1.0 - EPSILON;
     );
 }
