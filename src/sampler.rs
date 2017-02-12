@@ -21,7 +21,7 @@ pub trait Sampler {
     /// Get an array of samples with 2 dimensions.
     fn Get2DArray(&mut self, u64) -> Option<&[Point2f]>;
     /// Round to a better size of array.
-    fn RoundCount(n: u64) -> u64 {
+    fn RoundCount(&self, n: u64) -> u64 {
         n
     }
 
