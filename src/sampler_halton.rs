@@ -141,19 +141,23 @@ impl Sampler for HaltonSampler {
     }
 
     fn Req1DArray(&mut self, n: u64) {
+        debug_assert_eq!(self.RoundCount(n), n);
         self.sampleArray1DSizes.push(n);
-        self.sampleArray1D.push(Vec::<Float>::with_capacity(n as usize));
+        self.sampleArray1D.push(Vec::<Float>::with_capacity((n * self.samplesPerPixel) as usize));
     }
 
     fn Req2DArray(&mut self, n: u64) {
+        debug_assert_eq!(self.RoundCount(n), n);
         self.sampleArray2DSizes.push(n);
-        self.sampleArray2D.push(Vec::<Point2f>::with_capacity(n as usize));
+        self.sampleArray2D.push(Vec::<Point2f>::with_capacity((n * self.samplesPerPixel) as usize));
     }
 
     fn Get1DArray(&mut self, n: u64) -> Option<&[Float]> {
         if self.array1DOffset == self.sampleArray1D.len() {
             return None;
         }
+        debug_assert_eq!(self.sampleArray1DSizes[self.array1DOffset], n);
+        debug_assert!(self.currentPixelSampleIndex < self.samplesPerPixel);
         let ret = {
             let i0 = self.currentPixelSampleIndex * n;
             let i1 = i0 + n;
@@ -167,6 +171,8 @@ impl Sampler for HaltonSampler {
         if self.array2DOffset == self.sampleArray2D.len() {
             return None;
         }
+        debug_assert_eq!(self.sampleArray2DSizes[self.array2DOffset], n);
+        debug_assert!(self.currentPixelSampleIndex < self.samplesPerPixel);
         let ret = {
             let i0 = self.currentPixelSampleIndex * n;
             let i1 = i0 + n;
