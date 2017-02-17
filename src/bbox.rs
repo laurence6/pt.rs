@@ -1,11 +1,11 @@
-use std::mem::swap;
-use vector::Vector;
-use vector::ZERO_VECTOR;
-use common::Float;
-use common::EPSILON;
 use axis::Axis;
-use shape::Shape;
+use common::EPSILON;
+use common::Float;
 use ray::Ray;
+use shape::Shape;
+use std::mem::swap;
+use vector::{Vector, Point2f};
+use vector::ZERO_VECTOR;
 
 #[derive(Clone, Copy)]
 pub struct BBox {
@@ -88,4 +88,10 @@ impl BBox {
 
 fn Gamma(x: Float) -> Float {
     (x * EPSILON) / (1.0 - x * EPSILON)
+}
+
+#[derive(Clone, Copy)]
+pub struct BBox2f {
+    pub Min: Point2f,
+    pub Max: Point2f,
 }
