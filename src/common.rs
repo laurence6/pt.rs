@@ -1,13 +1,16 @@
 macro_rules! defFloat {
     ($t: ident) => (
-        use std::$t;
         pub type Float = $t;
+
+        use std::$t;
         pub const FLOAT_MAX: Float     = $t::MAX;
         pub const FLOAT_MIN_POS: Float = $t::MIN_POSITIVE;
         pub const EPSILON: Float       = $t::EPSILON * 0.5;
         pub const INFINITY: Float      = $t::INFINITY;
         /// Max number less than 1.
         pub const ONE_MINUS_EPSILON: Float = 1.0 - EPSILON;
+
+        pub const PI: Float = $t::consts::PI;
     );
 }
 
@@ -37,4 +40,8 @@ pub fn Clamp(x: Float, low: Float, high: Float) -> Float {
     } else {
         return x;
     }
+}
+
+pub fn Radians(deg: Float) -> Float {
+    PI / 180.0 * deg
 }
