@@ -21,7 +21,7 @@ impl Vector {
         Vector { X: x, Y: y, Z: z }
     }
 
-    pub fn Length(&self) -> Float {
+    fn Length(&self) -> Float {
         (self.X * self.X + self.Y * self.Y + self.Z * self.Z).sqrt()
     }
 
@@ -31,10 +31,10 @@ impl Vector {
     }
 
     pub fn Inv(&self) -> Vector {
-        V(1.0 / self.X, 1.0 / self.Y, 1.0 / self.Z)
+        V(1 as Float / self.X, 1 as Float / self.Y, 1 as Float / self.Z)
     }
 
-    pub fn Abs(&self) -> Vector {
+    fn Abs(&self) -> Vector {
         V(self.X.abs(), self.Y.abs(), self.Z.abs())
     }
 
@@ -57,7 +57,7 @@ impl Vector {
         V(self.X.max(v.X), self.Y.max(v.Y), self.Z.max(v.Z))
     }
 
-    pub fn MinAxis(&self) -> Vector {
+    fn MinAxis(&self) -> Vector {
         let (x, y, z) = (self.X.abs(), self.Y.abs(), self.Z.abs());
         match (x <= y, y <= z) {
              (true,  true) => return V(1.0, 0.0, 0.0),
@@ -66,11 +66,11 @@ impl Vector {
         }
     }
 
-    pub fn MinComponent(&self) -> Float {
+    fn MinComponent(&self) -> Float {
         self.X.min(self.Y).min(self.Z)
     }
 
-    pub fn MaxComponent(&self) -> Float {
+    fn MaxComponent(&self) -> Float {
         self.X.max(self.Y).max(self.Z)
     }
 }
@@ -145,44 +145,40 @@ impl ops::IndexMut<Axis> for Vector {
     }
 }
 
-macro_rules! point2 {
-    ($n: ident, $t: ident) => (
-        #[derive(Clone, Copy, Debug, PartialEq)]
-        pub struct $n {
-            pub X: $t,
-            pub Y: $t,
-        }
-
-        impl $n {
-            pub fn New(x: $t, y: $t) -> $n {
-                $n { X: x, Y: y }
-            }
-        }
-
-        impl ops::Add<$t> for $n {
-            type Output = $n;
-            fn add(self, n: $t) -> $n {
-                $n {
-                    X: self.X + n,
-                    Y: self.Y + n,
-                }
-            }
-        }
-
-        impl ops::Add<$n> for $n {
-            type Output = $n;
-            fn add(self, p: $n) -> $n {
-                $n {
-                    X: self.X + p.X,
-                    Y: self.Y + p.Y,
-                }
-            }
-        }
-    )
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct Vector2<T> where T: Copy + ops::Add<Output = T> {
+    pub X: T,
+    pub Y: T,
 }
 
-point2!(Point2i, u64);
-point2!(Point2f, Float);
+impl<T> Vector2<T> where T: Copy + ops::Add<Output = T> {
+    pub fn New(x: T, y: T) -> Vector2<T> {
+        Vector2::<T>{ X: x, Y: y }
+    }
+}
+
+impl<T> ops::Add<T> for Vector2<T> where T: Copy + ops::Add<Output = T> {
+    type Output = Vector2<T>;
+    fn add(self, n: T) -> Vector2<T> {
+        Vector2::<T>{
+            X: self.X + n,
+            Y: self.Y + n,
+        }
+    }
+}
+
+impl<T> ops::Add<Vector2<T>> for Vector2<T> where T: Copy + ops::Add<Output = T> {
+    type Output = Vector2<T>;
+    fn add(self, p: Vector2<T>) -> Vector2<T> {
+        Vector2::<T>{
+            X: self.X + p.X,
+            Y: self.Y + p.Y,
+        }
+    }
+}
+
+pub type Point2i = Vector2<u64>;
+pub type Point2f = Vector2<Float>;
 
 impl Point2f {
     pub fn From(p: Point2i) -> Point2f {
