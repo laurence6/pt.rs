@@ -2,7 +2,7 @@ extern crate rand;
 use self::rand::Rng;
 
 use common::{Float, ONE_MINUS_EPSILON};
-use vector::{Point2i, Point2f};
+use vector::{Point2u, Point2f};
 use sampler::{Sampler, GlobalSampler};
 
 /// Max resoltion of one tile.
@@ -14,7 +14,7 @@ pub struct HaltonSampler {
     // General sampler
     samplesPerPixel: u64,
 
-    currentPixel: Point2i,
+    currentPixel: Point2u,
     currentPixelSampleIndex: u64,
 
     sampleArray1DSizes: Vec<u64>,
@@ -36,10 +36,10 @@ pub struct HaltonSampler {
     arrayEndDim: u16,
 
     // Halton sampler
-    baseScale: Point2i,
-    baseExp: Point2i,
+    baseScale: Point2u,
+    baseExp: Point2u,
     sampleStride: u64,
-    pixelForOffset: Point2i,
+    pixelForOffset: Point2u,
     // First sample in the currentPixel
     offsetForCurrentPixel: u64,
     multiInverse: [u64; 2],
@@ -50,7 +50,7 @@ impl HaltonSampler {
         //return HaltonSampler {
         //    samplesPerPixel: samplesPerPixel,
 
-        //    currentPixel: Point2i,
+        //    currentPixel: Point2u,
         //    currentPixelSampleIndex: usize,
 
         //    sampleArray1DSizes: Vec<usize>,
@@ -71,7 +71,7 @@ impl HaltonSampler {
 }
 
 impl Sampler for HaltonSampler {
-    fn StartPixel(&mut self, p: Point2i) {
+    fn StartPixel(&mut self, p: Point2u) {
         self.currentPixel = p;
         self.currentPixelSampleIndex = 0;
         self.array1DOffset = 0;
@@ -188,7 +188,7 @@ impl GlobalSampler for HaltonSampler {
         if self.pixelForOffset != self.currentPixel {
             self.offsetForCurrentPixel = 0;
             if self.sampleStride > 1 {
-                let pm = Point2i {
+                let pm = Point2u {
                     X: self.currentPixel.X % K_MAX_RESOLUTION,
                     Y: self.currentPixel.Y % K_MAX_RESOLUTION,
                 };
