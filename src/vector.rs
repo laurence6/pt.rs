@@ -177,11 +177,11 @@ impl<T> ops::Add<Vector2<T>> for Vector2<T> where T: Copy + ops::Add<Output = T>
     }
 }
 
-pub type Point2i = Vector2<u64>;
+pub type Point2u = Vector2<u64>;
 pub type Point2f = Vector2<Float>;
 
 impl Point2f {
-    pub fn From(p: Point2i) -> Point2f {
+    pub fn From(p: Point2u) -> Point2f {
         Point2f {
             X: p.X as Float,
             Y: p.Y as Float,
