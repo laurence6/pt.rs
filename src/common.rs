@@ -21,17 +21,7 @@ defFloat!(f32);
 defFloat!(f64);
 
 // Funcs
-//pub fn Clamp<T: PartialOrd>(x: T, low: T, high: T) -> T {
-//    debug_assert!(low <= high);
-//    if x < low {
-//        return low;
-//    } else if x > high {
-//        return high;
-//    } else {
-//        return x;
-//    }
-// }
-pub fn Clamp(x: Float, low: Float, high: Float) -> Float {
+pub fn Clamp<T: PartialOrd>(x: T, low: T, high: T) -> T {
     debug_assert!(low <= high);
     if x < low {
         return low;
