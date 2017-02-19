@@ -1,10 +1,10 @@
 use common::Float;
-use vector::{Point2i, Point2f};
+use vector::{Point2u, Point2f};
 use camera::CameraSample;
 
 pub trait Sampler {
     /// Set current pixel. Reset sample number.
-    fn StartPixel(&mut self, p: Point2i);
+    fn StartPixel(&mut self, p: Point2u);
     /// Start next sample of current pixel.
     /// Return false if requested samples per pixel have been generated.
     fn StartNextSample(&mut self) -> bool;
@@ -25,7 +25,7 @@ pub trait Sampler {
         n
     }
 
-    fn GetCameraSample(&mut self, pRaster: Point2i) -> CameraSample {
+    fn GetCameraSample(&mut self, pRaster: Point2u) -> CameraSample {
         let pFilm = Point2f::From(pRaster) + self.Get2D();
         let pLens = self.Get2D();
         return CameraSample {
