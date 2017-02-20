@@ -1,6 +1,7 @@
 use film::Film;
 use ray::Ray;
 use vector::Point2f;
+use matrix::Transform;
 
 /// Records the position on Film that Camera should generate corresponding ray.
 pub struct CameraSample {
@@ -8,27 +9,35 @@ pub struct CameraSample {
     pub pLens: Point2f,
 }
 
-pub struct Camera {
-    pub Film: Film,
+pub trait Camera {
+    /// Generate the world space ray corresponding to a sample position on the film plane.
+    fn GenerateRay(&self, sample: &CameraSample) -> Ray;
+
+    /// Generate the world space ray corresponding to a sample position on the film plane,
+    /// and compute the information about the image area.
+    fn GenerateRayDifferential(&self);
 }
 
-impl Camera {
-    pub fn New(film: Film) -> Camera {
-        return Camera {
-            Film: film,
+pub struct CameraBase {
+    cameraToWorld: Transform,
+    film: Film,
+}
+
+impl CameraBase {
+    pub fn New(cameraToWorld: Transform, film: Film) -> CameraBase {
+        return CameraBase {
+            cameraToWorld: cameraToWorld,
+            film: film,
         };
     }
 }
 
-impl Camera {
-    /// Generate the world space ray corresponding to a sample position on the film plane.
-    pub fn GenerateRay(sample: CameraSample) -> Ray {
+impl CameraBase {
+    pub fn GenerateRay(&self, sample: &CameraSample) -> Ray {
         unimplemented!()
     }
 
-    /// Generate the world space ray corresponding to a sample position on the film plane,
-    /// and compute the information about the image area.
-    pub fn GenerateRayDifferential() {
+    pub fn GenerateRayDifferential(&self) {
 
     }
 }
