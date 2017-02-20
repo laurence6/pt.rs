@@ -1,9 +1,10 @@
+use std::mem::swap;
+
 use axis::Axis;
 use common::EPSILON;
 use common::Float;
 use ray::Ray;
 use shape::Shape;
-use std::mem::swap;
 use vector::{Vector, Point2f};
 use vector::ZERO_VECTOR;
 
