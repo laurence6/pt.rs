@@ -61,6 +61,19 @@ impl Tree {
     }
 
     pub fn Intersect(&self, ray: &Ray) -> Option<Hit> {
+        #[derive(Clone, Copy)]
+        struct todo {
+            node: usize,
+            tMin: Float,
+            tMax: Float,
+        }
+
+        impl todo {
+            fn new() -> todo {
+                return todo { node: 0, tMin: 0.0, tMax: 0.0 };
+            }
+        }
+
         let isec = self.bBox.IntersectP(ray);
         if isec.is_none() {
             return None;
@@ -165,19 +178,6 @@ impl Node {
 }
 
 const MAX_TODO: usize = 64;
-
-#[derive(Clone, Copy)]
-struct todo {
-    node: usize,
-    tMin: Float,
-    tMax: Float,
-}
-
-impl todo {
-    fn new() -> todo {
-        return todo { node: 0, tMin: 0.0, tMax: 0.0 };
-    }
-}
 
 const MAX_SHAPES_IN_NODE: usize = 8;
 const ISECT_COST: Float = 80.0; // TODO
