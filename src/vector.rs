@@ -146,12 +146,12 @@ impl ops::IndexMut<Axis> for Vector {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
-pub struct Vector2<T> where T: Copy + ops::Add<Output = T> {
+pub struct Vector2<T> where T: Copy {
     pub X: T,
     pub Y: T,
 }
 
-impl<T> Vector2<T> where T: Copy + ops::Add<Output = T> {
+impl<T> Vector2<T> where T: Copy {
     pub fn New(x: T, y: T) -> Vector2<T> {
         Vector2::<T>{ X: x, Y: y }
     }
