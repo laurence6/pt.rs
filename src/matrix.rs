@@ -200,6 +200,20 @@ impl Transform {
         }
     }
 
+    /// Compute perspective transformation from field-of-view angel, distance to near a near z
+    /// plane and a far z plane.
+    pub fn Perspective(fov: Float, n: Float, f: Float) -> Transform {
+        let p = M(
+            1.0, 0.0, 0.0, 0.0,
+            0.0, 1.0, 0.0, 0.0,
+            0.0, 0.0, f / (f - n), - f * n / (f - n),
+            0.0, 0.0, 1.0, 0.0,
+        );
+        let invTanAng = 1.0 / (Radians(fov) / 2.0).tan();
+        return Transform::Scale(Vector::New(invTanAng, invTanAng, 1.0))
+            * Transform::FromSingleMat(p.m);
+    }
+
     /// Compute look-at transformation from camera position, a point camera looks at and up
     /// direction in world space coordinates.
     fn LookAt(pos: Vector, look: Vector, up: Vector) -> Transform {
