@@ -1,7 +1,8 @@
 use film::Film;
 use ray::Ray;
-use vector::Point2f;
+use vector::{Point2f, Vector, ZERO_VECTOR};
 use matrix::Transform;
+use common::Float;
 
 /// Records the position on Film that Camera should generate corresponding ray.
 pub struct CameraSample {
@@ -11,33 +12,43 @@ pub struct CameraSample {
 
 pub trait Camera {
     /// Generate the world space ray corresponding to a sample position on the film plane.
-    fn GenerateRay(&self, sample: &CameraSample) -> Ray;
+    fn GenerateRay(&self, &CameraSample) -> Ray;
 
-    /// Generate the world space ray corresponding to a sample position on the film plane,
-    /// and compute the information about the image area.
-    fn GenerateRayDifferential(&self);
+    ///// Generate the world space ray corresponding to a sample position on the film plane,
+    ///// and compute the information about the image area.
+    //fn GenerateRayDifferential(&self);
 }
 
-pub struct CameraBase {
-    cameraToWorld: Transform,
+pub struct PerspectiveCamera {
     film: Film,
+    cameraToWorld: Transform,
+
+    cameraToScreen: Transform,
+    rasterToCamera: Transform,
+
+    screenToRaster: Transform,
+    rasterToScreen: Transform,
 }
 
-impl CameraBase {
-    pub fn New(cameraToWorld: Transform, film: Film) -> CameraBase {
-        return CameraBase {
-            cameraToWorld: cameraToWorld,
-            film: film,
-        };
-    }
-}
-
-impl CameraBase {
-    pub fn GenerateRay(&self, sample: &CameraSample) -> Ray {
+impl PerspectiveCamera {
+    pub fn New(cameraToWorld: Transform, film: Film, fov: Float) -> PerspectiveCamera {
         unimplemented!()
+        //return PerspectiveCamera {
+        //    film: film,
+        //    cameraToWorld: cameraToWorld,
+        // };
     }
+}
 
-    pub fn GenerateRayDifferential(&self) {
+impl Camera for PerspectiveCamera {
+    fn GenerateRay(&self, sample: &CameraSample) -> Ray {
+        let pFilm = Vector::New(sample.pFilm.X, sample.pFilm.Y, 0.0);
+        let pCamera = self.rasterToCamera.ApplyPoint(pFilm);
 
+        let ray = Ray::New(ZERO_VECTOR, pCamera);
+
+        // TODO: FOV
+
+        return self.cameraToWorld.ApplyRay(&ray);
     }
 }
