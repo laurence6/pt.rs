@@ -35,3 +35,7 @@ pub fn Clamp<T: PartialOrd>(x: T, low: T, high: T) -> T {
 pub fn Radians(deg: Float) -> Float {
     PI / 180.0 * deg
 }
+
+pub fn Lerp(t: Float, v1: Float, v2: Float) -> Float {
+    (1.0 - t) * v1 + t * v2
+}
