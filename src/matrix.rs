@@ -47,7 +47,37 @@ impl Matrix {
     }
 
     fn Inverse(&self) -> Matrix {
-        unimplemented!()
+        let mut r = ZERO_MATRIX;
+
+        r[0][0] = self[1][2] * self[2][3] * self[3][1] - self[1][3] * self[2][2] * self[3][1] + self[1][3] * self[2][1] * self[3][2] - self[1][1] * self[2][3] * self[3][2] - self[1][2] * self[2][1] * self[3][3] + self[1][1] * self[2][2] * self[3][3];
+        r[0][1] = self[0][3] * self[2][2] * self[3][1] - self[0][2] * self[2][3] * self[3][1] - self[0][3] * self[2][1] * self[3][2] + self[0][1] * self[2][3] * self[3][2] + self[0][2] * self[2][1] * self[3][3] - self[0][1] * self[2][2] * self[3][3];
+        r[0][2] = self[0][2] * self[1][3] * self[3][1] - self[0][3] * self[1][2] * self[3][1] + self[0][3] * self[1][1] * self[3][2] - self[0][1] * self[1][3] * self[3][2] - self[0][2] * self[1][1] * self[3][3] + self[0][1] * self[1][2] * self[3][3];
+        r[0][3] = self[0][3] * self[1][2] * self[2][1] - self[0][2] * self[1][3] * self[2][1] - self[0][3] * self[1][1] * self[2][2] + self[0][1] * self[1][3] * self[2][2] + self[0][2] * self[1][1] * self[2][3] - self[0][1] * self[1][2] * self[2][3];
+        r[1][0] = self[1][3] * self[2][2] * self[3][0] - self[1][2] * self[2][3] * self[3][0] - self[1][3] * self[2][0] * self[3][2] + self[1][0] * self[2][3] * self[3][2] + self[1][2] * self[2][0] * self[3][3] - self[1][0] * self[2][2] * self[3][3];
+        r[1][1] = self[0][2] * self[2][3] * self[3][0] - self[0][3] * self[2][2] * self[3][0] + self[0][3] * self[2][0] * self[3][2] - self[0][0] * self[2][3] * self[3][2] - self[0][2] * self[2][0] * self[3][3] + self[0][0] * self[2][2] * self[3][3];
+        r[1][2] = self[0][3] * self[1][2] * self[3][0] - self[0][2] * self[1][3] * self[3][0] - self[0][3] * self[1][0] * self[3][2] + self[0][0] * self[1][3] * self[3][2] + self[0][2] * self[1][0] * self[3][3] - self[0][0] * self[1][2] * self[3][3];
+        r[1][3] = self[0][2] * self[1][3] * self[2][0] - self[0][3] * self[1][2] * self[2][0] + self[0][3] * self[1][0] * self[2][2] - self[0][0] * self[1][3] * self[2][2] - self[0][2] * self[1][0] * self[2][3] + self[0][0] * self[1][2] * self[2][3];
+        r[2][0] = self[1][1] * self[2][3] * self[3][0] - self[1][3] * self[2][1] * self[3][0] + self[1][3] * self[2][0] * self[3][1] - self[1][0] * self[2][3] * self[3][1] - self[1][1] * self[2][0] * self[3][3] + self[1][0] * self[2][1] * self[3][3];
+        r[2][1] = self[0][3] * self[2][1] * self[3][0] - self[0][1] * self[2][3] * self[3][0] - self[0][3] * self[2][0] * self[3][1] + self[0][0] * self[2][3] * self[3][1] + self[0][1] * self[2][0] * self[3][3] - self[0][0] * self[2][1] * self[3][3];
+        r[2][2] = self[0][1] * self[1][3] * self[3][0] - self[0][3] * self[1][1] * self[3][0] + self[0][3] * self[1][0] * self[3][1] - self[0][0] * self[1][3] * self[3][1] - self[0][1] * self[1][0] * self[3][3] + self[0][0] * self[1][1] * self[3][3];
+        r[2][3] = self[0][3] * self[1][1] * self[2][0] - self[0][1] * self[1][3] * self[2][0] - self[0][3] * self[1][0] * self[2][1] + self[0][0] * self[1][3] * self[2][1] + self[0][1] * self[1][0] * self[2][3] - self[0][0] * self[1][1] * self[2][3];
+        r[3][0] = self[1][2] * self[2][1] * self[3][0] - self[1][1] * self[2][2] * self[3][0] - self[1][2] * self[2][0] * self[3][1] + self[1][0] * self[2][2] * self[3][1] + self[1][1] * self[2][0] * self[3][2] - self[1][0] * self[2][1] * self[3][2];
+        r[3][1] = self[0][1] * self[2][2] * self[3][0] - self[0][2] * self[2][1] * self[3][0] + self[0][2] * self[2][0] * self[3][1] - self[0][0] * self[2][2] * self[3][1] - self[0][1] * self[2][0] * self[3][2] + self[0][0] * self[2][1] * self[3][2];
+        r[3][2] = self[0][2] * self[1][1] * self[3][0] - self[0][1] * self[1][2] * self[3][0] - self[0][2] * self[1][0] * self[3][1] + self[0][0] * self[1][2] * self[3][1] + self[0][1] * self[1][0] * self[3][2] - self[0][0] * self[1][1] * self[3][2];
+        r[3][3] = self[0][1] * self[1][2] * self[2][0] - self[0][2] * self[1][1] * self[2][0] + self[0][2] * self[1][0] * self[2][1] - self[0][0] * self[1][2] * self[2][1] - self[0][1] * self[1][0] * self[2][2] + self[0][0] * self[1][1] * self[2][2];
+
+        let d =
+              self[0][3] * self[1][2] * self[2][1] * self[3][0] - self[0][2] * self[1][3] * self[2][1] * self[3][0] - self[0][3] * self[1][1] * self[2][2] * self[3][0] + self[0][1] * self[1][3] * self[2][2] * self[3][0]
+            + self[0][2] * self[1][1] * self[2][3] * self[3][0] - self[0][1] * self[1][2] * self[2][3] * self[3][0] - self[0][3] * self[1][2] * self[2][0] * self[3][1] + self[0][2] * self[1][3] * self[2][0] * self[3][1]
+            + self[0][3] * self[1][0] * self[2][2] * self[3][1] - self[0][0] * self[1][3] * self[2][2] * self[3][1] - self[0][2] * self[1][0] * self[2][3] * self[3][1] + self[0][0] * self[1][2] * self[2][3] * self[3][1]
+            + self[0][3] * self[1][1] * self[2][0] * self[3][2] - self[0][1] * self[1][3] * self[2][0] * self[3][2] - self[0][3] * self[1][0] * self[2][1] * self[3][2] + self[0][0] * self[1][3] * self[2][1] * self[3][2]
+            + self[0][1] * self[1][0] * self[2][3] * self[3][2] - self[0][0] * self[1][1] * self[2][3] * self[3][2] - self[0][2] * self[1][1] * self[2][0] * self[3][3] + self[0][1] * self[1][2] * self[2][0] * self[3][3]
+            + self[0][2] * self[1][0] * self[2][1] * self[3][3] - self[0][0] * self[1][2] * self[2][1] * self[3][3] - self[0][1] * self[1][0] * self[2][2] * self[3][3] + self[0][0] * self[1][1] * self[2][2] * self[3][3];
+        debug_assert!(d != 0.0);
+
+        r = r / d;
+
+        return r;
     }
 
     fn ApplyPoint(&self, p: Vector) -> Vector {
@@ -85,6 +115,19 @@ impl ops::Mul<Matrix> for Matrix {
                     self[i][1] * m[1][j] +
                     self[i][2] * m[2][j] +
                     self[i][3] * m[3][j];
+            }
+        }
+        return r;
+    }
+}
+
+impl ops::Div<Float> for Matrix {
+    type Output = Matrix;
+    fn div(self, n: Float) -> Matrix {
+        let mut r = ZERO_MATRIX;
+        for i in 0..4 {
+            for j in 0..4 {
+                r[i][j] = self[i][j] / n;
             }
         }
         return r;
