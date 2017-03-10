@@ -2,6 +2,7 @@ use film::Film;
 use ray::Ray;
 use vector::{Point2f, Vector, ZERO_VECTOR};
 use matrix::Transform;
+use bbox::BBox2f;
 use common::Float;
 
 /// Records the position on Film that Camera should generate corresponding ray.
@@ -31,12 +32,26 @@ pub struct PerspectiveCamera {
 }
 
 impl PerspectiveCamera {
-    pub fn New(cameraToWorld: Transform, film: Film, fov: Float) -> PerspectiveCamera {
-        unimplemented!()
-        //return PerspectiveCamera {
-        //    film: film,
-        //    cameraToWorld: cameraToWorld,
-        // };
+    pub fn New(cameraToWorld: Transform, screenWindow: BBox2f, film: Film, fov: Float) -> PerspectiveCamera {
+        let cameraToScreen = Transform::Perspective(fov, 1.0e-2, 1000.0);
+
+        let screenToRaster = Transform::Scale(Vector::New(film.Resolution.X as Float, film.Resolution.Y as Float, 1.0))
+                           * Transform::Scale(Vector::New(1.0 / (screenWindow.Max.X - screenWindow.Min.Y), 1.0 / (screenWindow.Max.Y - screenWindow.Min.Y), 1.0))
+                           * Transform::Translate(Vector::New(-screenWindow.Min.X, -screenWindow.Max.Y, 0.0));
+        let rasterToScreen = screenToRaster.Inverse();
+
+        let rasterToCamera = cameraToScreen.Inverse() * rasterToScreen;
+
+        return PerspectiveCamera {
+            film: film,
+            cameraToWorld: cameraToWorld,
+
+            cameraToScreen: cameraToScreen,
+            rasterToCamera: rasterToCamera,
+
+            screenToRaster: screenToRaster,
+            rasterToScreen: rasterToScreen,
+        };
     }
 }
 
@@ -46,8 +61,6 @@ impl Camera for PerspectiveCamera {
         let pCamera = self.rasterToCamera.ApplyPoint(pFilm);
 
         let ray = Ray::New(ZERO_VECTOR, pCamera);
-
-        // TODO: FOV
 
         return self.cameraToWorld.ApplyRay(&ray);
     }
