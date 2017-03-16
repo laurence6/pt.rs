@@ -3,61 +3,59 @@ use std::ops;
 use common::Float;
 use axis::Axis;
 
-pub const ZERO_VECTOR: Vector = Vector { X: 0.0, Y: 0.0, Z: 0.0 };
-
-#[derive(Clone, Copy, Debug)]
-pub struct Vector {
+#[derive(Default, Clone, Copy, Debug)]
+pub struct Vector3f {
     pub X: Float,
     pub Y: Float,
     pub Z: Float,
 }
 
-fn V(x: Float, y: Float, z: Float) -> Vector {
-    Vector::New(x, y, z)
+fn V(x: Float, y: Float, z: Float) -> Vector3f {
+    Vector3f::New(x, y, z)
 }
 
-impl Vector {
-    pub fn New(x: Float, y: Float, z: Float) -> Vector {
-        Vector { X: x, Y: y, Z: z }
+impl Vector3f {
+    pub fn New(x: Float, y: Float, z: Float) -> Vector3f {
+        Vector3f { X: x, Y: y, Z: z }
     }
 
     fn Length(&self) -> Float {
         (self.X * self.X + self.Y * self.Y + self.Z * self.Z).sqrt()
     }
 
-    pub fn Normalize(&self) -> Vector {
+    pub fn Normalize(&self) -> Vector3f {
         let l = self.Length();
         V(self.X / l, self.Y / l, self.Z / l)
     }
 
-    pub fn Inv(&self) -> Vector {
+    pub fn Inv(&self) -> Vector3f {
         V(1 as Float / self.X, 1 as Float / self.Y, 1 as Float / self.Z)
     }
 
-    fn Abs(&self) -> Vector {
+    fn Abs(&self) -> Vector3f {
         V(self.X.abs(), self.Y.abs(), self.Z.abs())
     }
 
-    pub fn Dot(&self, v: Vector) -> Float {
+    pub fn Dot(&self, v: Vector3f) -> Float {
         self.X * v.X + self.Y * v.Y + self.Z * v.Z
     }
 
-    pub fn Cross(&self, v: Vector) -> Vector {
+    pub fn Cross(&self, v: Vector3f) -> Vector3f {
         let x = self.Y * v.Z - self.Z * v.Y;
         let y = self.Z * v.X - self.X * v.Z;
         let z = self.X * v.Y - self.Y * v.X;
         return V(x, y, z);
     }
 
-    pub fn Min(&self, v: Vector) -> Vector {
+    pub fn Min(&self, v: Vector3f) -> Vector3f {
         V(self.X.min(v.X), self.Y.min(v.Y), self.Z.min(v.Z))
     }
 
-    pub fn Max(&self, v: Vector) -> Vector {
+    pub fn Max(&self, v: Vector3f) -> Vector3f {
         V(self.X.max(v.X), self.Y.max(v.Y), self.Z.max(v.Z))
     }
 
-    fn MinAxis(&self) -> Vector {
+    fn MinAxis(&self) -> Vector3f {
         let (x, y, z) = (self.X.abs(), self.Y.abs(), self.Z.abs());
         match (x <= y, y <= z) {
              (true,  true) => return V(1.0, 0.0, 0.0),
@@ -75,56 +73,56 @@ impl Vector {
     }
 }
 
-impl ops::Neg for Vector {
-    type Output = Vector;
-    fn neg(self) -> Vector {
+impl ops::Neg for Vector3f {
+    type Output = Vector3f;
+    fn neg(self) -> Vector3f {
         V(-self.X, -self.Y, -self.Z)
     }
 }
 
-impl ops::Add<Vector> for Vector {
-    type Output = Vector;
-    fn add(self, v: Vector) -> Vector {
+impl ops::Add<Vector3f> for Vector3f {
+    type Output = Vector3f;
+    fn add(self, v: Vector3f) -> Vector3f {
         V(self.X + v.X, self.Y + v.Y, self.Z + v.Z)
     }
 }
 
-impl ops::Sub<Vector> for Vector {
-    type Output = Vector;
-    fn sub(self, v: Vector) -> Vector {
+impl ops::Sub<Vector3f> for Vector3f {
+    type Output = Vector3f;
+    fn sub(self, v: Vector3f) -> Vector3f {
         V(self.X - v.X, self.Y - v.Y, self.Z - v.Z)
     }
 }
 
-impl ops::Add<Float> for Vector {
-    type Output = Vector;
-    fn add(self, a: Float) -> Vector {
+impl ops::Add<Float> for Vector3f {
+    type Output = Vector3f;
+    fn add(self, a: Float) -> Vector3f {
         V(self.X + a, self.Y + a, self.Z + a)
     }
 }
 
-impl ops::Sub<Float> for Vector {
-    type Output = Vector;
-    fn sub(self, a: Float) -> Vector {
+impl ops::Sub<Float> for Vector3f {
+    type Output = Vector3f;
+    fn sub(self, a: Float) -> Vector3f {
         V(self.X - a, self.Y - a, self.Z - a)
     }
 }
 
-impl ops::Mul<Float> for Vector {
-    type Output = Vector;
-    fn mul(self, a: Float) -> Vector {
+impl ops::Mul<Float> for Vector3f {
+    type Output = Vector3f;
+    fn mul(self, a: Float) -> Vector3f {
         V(self.X * a, self.Y * a, self.Z * a)
     }
 }
 
-impl ops::Div<Float> for Vector {
-    type Output = Vector;
-    fn div(self, a: Float) -> Vector {
+impl ops::Div<Float> for Vector3f {
+    type Output = Vector3f;
+    fn div(self, a: Float) -> Vector3f {
         V(self.X / a, self.Y / a, self.Z / a)
     }
 }
 
-impl ops::Index<Axis> for Vector {
+impl ops::Index<Axis> for Vector3f {
     type Output = Float;
     fn index(&self, axis: Axis) -> &Float {
         match axis {
@@ -135,7 +133,7 @@ impl ops::Index<Axis> for Vector {
     }
 }
 
-impl ops::IndexMut<Axis> for Vector {
+impl ops::IndexMut<Axis> for Vector3f {
     fn index_mut(&mut self, axis: Axis) -> &mut Float {
         match axis {
             Axis::X => &mut self.X,
@@ -145,7 +143,16 @@ impl ops::IndexMut<Axis> for Vector {
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+pub type Vector = Vector3f;
+pub type Point3f = Vector3f;
+
+impl Point3f {
+    pub fn Distance(self, p: Point3f) -> Float {
+        (self - p).Length()
+    }
+}
+
+#[derive(Default, PartialEq, Clone, Copy, Debug)]
 pub struct Vector2<T> where T: Copy {
     pub X: T,
     pub Y: T,

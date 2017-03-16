@@ -1,6 +1,6 @@
 use film::Film;
 use ray::Ray;
-use vector::{Point2f, Vector, ZERO_VECTOR};
+use vector::{Point2f, Vector};
 use matrix::Transform;
 use bbox::BBox2f;
 use common::Float;
@@ -60,7 +60,7 @@ impl Camera for PerspectiveCamera {
         let pFilm = Vector::New(sample.pFilm.X, sample.pFilm.Y, 0.0);
         let pCamera = self.rasterToCamera.ApplyPoint(pFilm);
 
-        let ray = Ray::New(ZERO_VECTOR, pCamera);
+        let ray = Ray::New(Vector::default(), pCamera);
 
         return self.cameraToWorld.ApplyRay(&ray);
     }
