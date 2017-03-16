@@ -5,8 +5,7 @@ use common::EPSILON;
 use common::Float;
 use ray::Ray;
 use shape::Shape;
-use vector::{Vector, Point2f};
-use vector::ZERO_VECTOR;
+use vector::{Vector, Point2f, Point3f};
 
 #[derive(Clone, Copy)]
 pub struct BBox {
@@ -20,11 +19,58 @@ impl BBox {
     }
 
     pub fn BBoxOfShapes(shapes: &Vec<Box<Shape>>) -> BBox {
-        let mut bbox = BBox::New(ZERO_VECTOR, ZERO_VECTOR);
+        let mut bbox = BBox::New(Vector::default(), Vector::default());
         for shape in shapes {
             bbox = bbox.Union(&shape.BBox());
         }
         return bbox;
+    }
+
+    pub fn Diagonal(&self) -> Vector {
+        self.Max - self.Min
+    }
+
+    pub fn SurfaceArea(&self) -> Float {
+        let d = self.Diagonal();
+        return (d.X * d.Y + d.X * d.Z + d.Y * d.Z) * 2.0;
+    }
+
+    pub fn MaximumExtent(&self) -> Axis {
+        let d = self.Diagonal();
+        match (d.X <= d.Y, d.Y <= d.Z) {
+            (true,  true) => return Axis::X,
+            (false, true) => return Axis::Y,
+            _             => return Axis::Z,
+        }
+    }
+
+    pub fn BoundingSphere(&self) -> (Point3f, Float) {
+        let center = (self.Min + self.Max) / 2.0;
+        let radius = if self.PointInside(center) {
+            center.Distance(self.Max)
+        } else {
+            0.0
+        };
+        return (center, radius);
+    }
+
+    pub fn Overlaps(&self, b: &BBox) -> bool {
+        (b.Min.X <= self.Max.X) && (self.Min.X <= b.Max.X) &&
+        (b.Min.Y <= self.Max.Y) && (self.Min.Y <= b.Max.Y) &&
+        (b.Min.Z <= self.Max.Z) && (self.Min.Z <= b.Max.Z)
+    }
+
+    pub fn PointInside(&self, p: Point3f) -> bool {
+        (self.Min.X <= p.X) && (p.X <= self.Max.X) &&
+        (self.Min.Y <= p.Y) && (p.Y <= self.Max.Y) &&
+        (self.Min.Z <= p.Z) && (p.Z <= self.Max.Z)
+    }
+
+    pub fn Union(&self, b: &BBox) -> BBox {
+        BBox {
+            Min: self.Min.Min(b.Min),
+            Max: self.Max.Max(b.Max),
+        }
     }
 
     pub fn IntersectP(&self, ray: &Ray) -> Option<(Float, Float)> {
@@ -53,37 +99,6 @@ impl BBox {
             axis = axis.NextAxis();
         }
         return Some((t0, t1));
-    }
-
-    pub fn Diagonal(&self) -> Vector {
-        self.Max - self.Min
-    }
-
-    pub fn SurfaceArea(&self) -> Float {
-        let d = self.Diagonal();
-        return (d.X * d.Y + d.X * d.Z + d.Y * d.Z) * 2.0;
-    }
-
-    pub fn MaximumExtent(&self) -> Axis {
-        let d = self.Diagonal();
-        match (d.X <= d.Y, d.Y <= d.Z) {
-            (true,  true) => return Axis::X,
-            (false, true) => return Axis::Y,
-            _             => return Axis::Z,
-        }
-    }
-
-    pub fn Overlaps(&self, b: &BBox) -> bool {
-        (self.Max.X >= b.Min.X) && (self.Min.X >= b.Max.X) &&
-        (self.Max.Y >= b.Min.Y) && (self.Min.Y >= b.Max.Y) &&
-        (self.Max.Z >= b.Min.Z) && (self.Min.Z >= b.Max.Z)
-    }
-
-    pub fn Union(&self, b: &BBox) -> BBox {
-        BBox {
-            Min: self.Min.Min(b.Min),
-            Max: self.Max.Max(b.Max),
-        }
     }
 }
 
