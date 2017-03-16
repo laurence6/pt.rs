@@ -5,7 +5,6 @@ use vector::Vector;
 use ray::Ray;
 use bbox::BBox;
 
-const ZERO_MATRIX: Matrix = Matrix { m: [[0.0; 4]; 4] };
 const IDENTITY_MATRIX: Matrix = Matrix { m: [
     [1.0, 0.0, 0.0, 0.0],
     [0.0, 1.0, 0.0, 0.0],
@@ -13,7 +12,7 @@ const IDENTITY_MATRIX: Matrix = Matrix { m: [
     [0.0, 0.0, 0.0, 1.0],
 ] };
 
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Default, Clone, Copy, PartialEq)]
 struct Matrix {
     m: [[Float; 4]; 4],
 }
@@ -47,7 +46,7 @@ impl Matrix {
     }
 
     fn Inverse(&self) -> Matrix {
-        let mut r = ZERO_MATRIX;
+        let mut r = Matrix::default();
 
         r[0][0] = self[1][2] * self[2][3] * self[3][1] - self[1][3] * self[2][2] * self[3][1] + self[1][3] * self[2][1] * self[3][2] - self[1][1] * self[2][3] * self[3][2] - self[1][2] * self[2][1] * self[3][3] + self[1][1] * self[2][2] * self[3][3];
         r[0][1] = self[0][3] * self[2][2] * self[3][1] - self[0][2] * self[2][3] * self[3][1] - self[0][3] * self[2][1] * self[3][2] + self[0][1] * self[2][3] * self[3][2] + self[0][2] * self[2][1] * self[3][3] - self[0][1] * self[2][2] * self[3][3];
@@ -107,7 +106,7 @@ impl Matrix {
 impl ops::Mul<Matrix> for Matrix {
     type Output = Matrix;
     fn mul(self, m: Matrix) -> Matrix {
-        let mut r = ZERO_MATRIX;
+        let mut r = Matrix::default();
         for i in 0..4 {
             for j in 0..4 {
                 r[i][j] =
@@ -124,7 +123,7 @@ impl ops::Mul<Matrix> for Matrix {
 impl ops::Div<Float> for Matrix {
     type Output = Matrix;
     fn div(self, n: Float) -> Matrix {
-        let mut r = ZERO_MATRIX;
+        let mut r = Matrix::default();
         for i in 0..4 {
             for j in 0..4 {
                 r[i][j] = self[i][j] / n;
