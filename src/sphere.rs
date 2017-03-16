@@ -2,7 +2,6 @@ use bbox::BBox;
 use common::EPSILON;
 use common::Float;
 use hit::Hit;
-use material::Color;
 use ray::Ray;
 use shape::Shape;
 use vector::Vector;
@@ -12,16 +11,14 @@ pub struct Sphere {
     Radius: Float,
 
     BBox: BBox,
-
-    Color: Color,
 }
 
 impl Sphere {
-    pub fn New(center: Vector, radius: Float, color: Color) -> Sphere {
+    pub fn New(center: Vector, radius: Float) -> Sphere {
         let min = Vector::New(center.X - radius, center.Y - radius, center.Z - radius);
         let max = Vector::New(center.X + radius, center.Y + radius, center.Z + radius);
         let bbox = BBox { Min: min, Max: max };
-        return Sphere { Center: center, Radius: radius, BBox: bbox, Color: color };
+        return Sphere { Center: center, Radius: radius, BBox: bbox };
     }
 }
 
@@ -46,9 +43,5 @@ impl Shape for Sphere {
             }
         }
         return None;
-    }
-
-    fn MateralAt(&self) -> Color {
-        return self.Color;
     }
 }

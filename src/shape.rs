@@ -1,14 +1,8 @@
-use ray::Ray;
 use bbox::BBox;
-use material::Color;
 use hit::Hit;
+use ray::Ray;
 
 pub trait Shape {
     fn BBox(&self) -> BBox;
-    fn IntersectP(&self, &Ray) -> Option<Hit> {
-        return None;
-    }
-    fn MateralAt(&self) -> Color {
-        unimplemented!()
-    }
+    fn IntersectP(&self, &Ray) -> Option<Hit>;
 }
