@@ -1,6 +1,6 @@
 use bbox::BBox;
 use ray::Ray;
-use interaction::SurfaceInteraction;
+use interaction::Interaction;
 use light::Light;
 use primitive::Primitive;
 
@@ -15,10 +15,10 @@ impl Scene {
     }
 
     pub fn IntersectP(&self, ray: &Ray) -> bool {
-        unimplemented!()
+        self.aggregate.IntersectP(ray)
     }
 
-    pub fn Intersect(&self, ray: &Ray) -> Option<SurfaceInteraction> {
-        unimplemented!()
+    pub fn Intersect(&self, ray: &Ray) -> Option<Interaction> {
+        self.aggregate.Intersect(ray)
     }
 }
