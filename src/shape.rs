@@ -1,8 +1,9 @@
 use bbox::BBox;
-use hit::Hit;
 use ray::Ray;
+use interaction::Interaction;
 
 pub trait Shape {
     fn BBox(&self) -> BBox;
-    fn IntersectP(&self, &Ray) -> Option<Hit>;
+    fn IntersectP(&self, &Ray) -> bool;
+    fn Intersect(&self, &Ray) -> Option<Interaction>;
 }

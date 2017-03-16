@@ -3,7 +3,6 @@
 #[allow(non_snake_case, non_camel_case_types, dead_code, unused_variables)] mod camera;
 #[allow(non_snake_case, non_camel_case_types, dead_code, unused_variables)] mod common;
 #[allow(non_snake_case, non_camel_case_types, dead_code, unused_variables)] mod film;
-#[allow(non_snake_case, non_camel_case_types, dead_code, unused_variables)] mod hit;
 #[allow(non_snake_case, non_camel_case_types, dead_code, unused_variables)] mod interaction;
 #[allow(non_snake_case, non_camel_case_types, dead_code, unused_variables)] mod light;
 #[allow(non_snake_case, non_camel_case_types, dead_code, unused_variables)] mod material;

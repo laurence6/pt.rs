@@ -1,7 +1,6 @@
 use bbox::BBox;
-use common::EPSILON;
 use common::Float;
-use hit::Hit;
+use interaction::Interaction;
 use ray::Ray;
 use shape::Shape;
 use vector::Vector;
@@ -27,21 +26,11 @@ impl Shape for Sphere {
         return self.BBox;
     }
 
-    fn IntersectP(&self, r: &Ray) -> Option<Hit> {
-        let to = r.Origin - self.Center;
-        let b = to.Dot(r.Direction);
-        let mut d = b * b - (to.Dot(to) - self.Radius * self.Radius);
-        if d > 0.0 {
-            d = d.sqrt();
-            let t = -b - d;
-            if t > EPSILON {
-                return Some(Hit::New(t));
-            }
-            let t = -b + d;
-            if t > EPSILON {
-                return Some(Hit::New(t));
-            }
-        }
-        return None;
+    fn IntersectP(&self, r: &Ray) -> bool {
+        unimplemented!()
+    }
+
+    fn Intersect(&self, r: &Ray) -> Option<Interaction> {
+        unimplemented!()
     }
 }

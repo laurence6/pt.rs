@@ -4,7 +4,7 @@ use axis::Axis;
 use common::Float;
 use common::FLOAT_MAX;
 use common::FLOAT_MIN_POS;
-use hit::Hit;
+use interaction::Interaction;
 use ray::Ray;
 use shape::Shape;
 
@@ -60,7 +60,7 @@ impl Tree {
         return buildTree(tree, shapes, nodeBBox, 0, maxDepth);
     }
 
-    pub fn Intersect(&self, ray: &Ray) -> Option<Hit> {
+    pub fn Intersect(&self, ray: &Ray) -> Option<Interaction> {
         #[derive(Clone, Copy)]
         struct todo {
             node: usize,
@@ -80,12 +80,12 @@ impl Tree {
         }
         let (mut tMin, mut tMax) = isec.unwrap();
 
-        let invDir = ray.Direction.Inv(); // to save division (TODO remove?)
+        let invDir = ray.Direction.Inv();
 
         let mut todos = [todo::new(); MAX_TODO];
         let mut todoI = 0;
 
-        let hit: Option<Hit> = None;
+        let interaction: Option<Interaction> = None;
         let mut nodeIndex = 0;
         loop {
             if ray.TMax < tMin {
@@ -118,16 +118,16 @@ impl Tree {
                 SplitOrShape::Shape(n) => {
                     if n == 1 {
                         let shape = &self.Shapes[node.Index];
-                        let hit = shape.IntersectP(ray);
-                        if hit.is_some() {
-                            return hit;
+                        let i = shape.Intersect(ray);
+                        if i.is_some() {
+                            return i;
                         }
                     } else {
                         for i in 0..n {
                             let shape = &self.Shapes[self.ShapeIndices[node.Index + i]];
-                            let hit = shape.IntersectP(ray);
-                            if hit.is_some() {
-                                return hit;
+                            let i = shape.Intersect(ray);
+                            if i.is_some() {
+                                return i;
                             }
                         }
                     }
@@ -143,7 +143,7 @@ impl Tree {
                 },
             }
         }
-        return hit;
+        return interaction;
     }
 }
 
