@@ -1,6 +1,6 @@
 use std::ops;
 
-use common::{Float, Radians};
+use common::Float;
 use vector::Vector;
 use ray::Ray;
 use bbox::BBox;
@@ -208,7 +208,7 @@ impl Transform {
             0.0, 0.0, f / (f - n), - f * n / (f - n),
             0.0, 0.0, 1.0, 0.0,
         );
-        let invTanAng = 1.0 / (Radians(fov) / 2.0).tan();
+        let invTanAng = 1.0 / (fov.to_radians() / 2.0).tan();
         return Transform::Scale(Vector::New(invTanAng, invTanAng, 1.0))
             * Transform::FromSingleMat(p.m);
     }
@@ -313,5 +313,5 @@ impl ops::Mul<Transform> for Transform {
 }
 
 fn computeSinCosInDegree(deg: Float) -> (Float, Float) {
-    (Radians(deg).sin(), Radians(deg).cos())
+    (deg.to_radians().sin(), deg.to_radians().cos())
 }
