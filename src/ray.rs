@@ -1,5 +1,4 @@
-use common::Float;
-use common::FLOAT_MAX;
+use common::{Float, INFINITY};
 use vector::Vector;
 
 #[derive(Debug)]
@@ -9,16 +8,7 @@ pub struct Ray {
     pub TMax: Float,
 }
 
-
 impl Ray {
-    pub fn New(origin: Vector, direction: Vector) -> Ray {
-        return Ray {
-            Origin: origin,
-            Direction: direction,
-            TMax: FLOAT_MAX,
-        };
-    }
-
     pub fn Position(&self, t: Float) -> Vector {
         return self.Origin + self.Direction * t;
     }
@@ -37,5 +27,15 @@ impl Ray {
 
     pub fn WeightedBounce() -> Ray {
         unimplemented!()
+    }
+}
+
+impl Default for Ray {
+    fn default() -> Ray {
+        Ray {
+            Origin: Vector::default(),
+            Direction: Vector::default(),
+            TMax: INFINITY,
+        }
     }
 }

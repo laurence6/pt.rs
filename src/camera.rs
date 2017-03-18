@@ -60,7 +60,10 @@ impl Camera for PerspectiveCamera {
         let pFilm = Vector::New(sample.pFilm.X, sample.pFilm.Y, 0.0);
         let pCamera = self.rasterToCamera.ApplyPoint(pFilm);
 
-        let ray = Ray::New(Vector::default(), pCamera);
+        let ray = Ray {
+            Direction: pCamera,
+            ..Default::default()
+        };
 
         return self.cameraToWorld.ApplyRay(&ray);
     }
