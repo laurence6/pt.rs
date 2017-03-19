@@ -101,8 +101,6 @@ impl BBox3f {
     }
 }
 
-pub type BBox = BBox3f;
-
 #[derive(Clone, Copy)]
 pub struct BBox2<T> where T: Copy {
     pub Min: Point2<T>,

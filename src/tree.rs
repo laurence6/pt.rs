@@ -1,5 +1,5 @@
 use std::cmp::Ordering;
-use bbox::BBox;
+use bbox::BBox3f;
 use axis::Axis;
 use common::Float;
 use common::FLOAT_MAX;
@@ -15,7 +15,7 @@ pub struct Tree {
 
     pub Nodes: Vec<Node>,
 
-    bBox: BBox,
+    bBox: BBox3f,
 }
 
 #[derive(Debug)]
@@ -35,7 +35,7 @@ impl Tree {
         print!("Building k-d tree ({} shapes) ... ", shapes.len());
 
         // Compute BBox
-        let bbox = BBox::BBoxOfShapes(&shapes);
+        let bbox = BBox3f::BBoxOfShapes(&shapes);
         let tree = Tree {
             Shapes: shapes,
             ShapeIndices: Vec::<usize>::new(),
@@ -209,7 +209,7 @@ impl bEdge {
 fn buildTree(
     mut tree: Tree,
     mut shapes: Vec<usize>,
-    nodeBBox: BBox,
+    nodeBBox: BBox3f,
     mut badRefines: u8,
     depth: u8) -> Tree {
 

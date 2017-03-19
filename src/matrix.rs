@@ -3,7 +3,7 @@ use std::ops;
 use common::Float;
 use vector::Vector3f;
 use ray::Ray;
-use bbox::BBox;
+use bbox::BBox3f;
 
 const IDENTITY_MATRIX: Matrix = Matrix { m: [
     [1.0, 0.0, 0.0, 0.0],
@@ -291,7 +291,7 @@ impl Transform {
         unimplemented!()
     }
 
-    fn ApplyBBox(&self, b: &BBox) -> BBox {
+    fn ApplyBBox(&self, b: &BBox3f) -> BBox3f {
         unimplemented!()
     }
 }

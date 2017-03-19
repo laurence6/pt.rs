@@ -1,4 +1,4 @@
-use bbox::BBox;
+use bbox::BBox3f;
 use common::Float;
 use interaction::Interaction;
 use ray::Ray;
@@ -9,20 +9,20 @@ pub struct Sphere {
     Center: Point3f,
     Radius: Float,
 
-    BBox: BBox,
+    BBox: BBox3f,
 }
 
 impl Sphere {
     pub fn New(center: Point3f, radius: Float) -> Sphere {
         let min = Point3f::New(center.X - radius, center.Y - radius, center.Z - radius);
         let max = Point3f::New(center.X + radius, center.Y + radius, center.Z + radius);
-        let bbox = BBox3f { min: min, max: max };
+        let bbox = BBox3f { Min: min, Max: max };
         return Sphere { Center: center, Radius: radius, BBox: bbox };
     }
 }
 
 impl Shape for Sphere {
-    fn BBox(&self) -> BBox {
+    fn BBox(&self) -> BBox3f {
         return self.BBox;
     }
 

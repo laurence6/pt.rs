@@ -1,4 +1,4 @@
-use bbox::BBox;
+use bbox::BBox3f;
 use ray::Ray;
 use interaction::Interaction;
 use light::Light;
@@ -10,7 +10,7 @@ pub struct Scene {
 }
 
 impl Scene {
-    pub fn BBox(&self) -> BBox {
+    pub fn BBox(&self) -> BBox3f {
         self.aggregate.BBox()
     }
 
