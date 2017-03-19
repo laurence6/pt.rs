@@ -183,6 +183,16 @@ impl<T> ops::Add<Vector2<T>> for Vector2<T> where T: Copy + ops::Add<Output = T>
     }
 }
 
+impl<T> ops::Sub<Vector2<T>> for Vector2<T> where T: Copy + ops::Sub<Output = T> {
+    type Output = Vector2<T>;
+    fn sub(self, p: Vector2<T>) -> Vector2<T> {
+        Vector2::<T>{
+            X: self.X - p.X,
+            Y: self.Y - p.Y,
+        }
+    }
+}
+
 pub type Point2<T> = Vector2<T>;
 pub type Point2u = Point2<u32>;
 pub type Point2f = Point2<Float>;
