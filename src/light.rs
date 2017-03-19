@@ -1,5 +1,5 @@
 use common::Float;
-use vector::{Vector, Point3f};
+use vector::{Vector3f, Point3f};
 use spectrum::Spectrum;
 use interaction::Interaction;
 use scene::Scene;
@@ -7,7 +7,7 @@ use scene::Scene;
 pub trait Light {
     /// SampleLi takes a world space point and returns the radiance arriving at that point,
     /// incident direction, and VisibilityTester.
-    fn SampleLi(&self, &Interaction) -> (Spectrum, Vector, VisibilityTester);
+    fn SampleLi(&self, &Interaction) -> (Spectrum, Vector3f, VisibilityTester);
     fn PreProcess(&mut self, &Scene) {}
 }
 
@@ -24,13 +24,13 @@ impl VisibilityTester {
 
 pub struct DistantLight {
     l: Spectrum,
-    wLight: Vector,
+    wLight: Vector3f,
     worldCenter: Point3f,
     worldRadius: Float,
 }
 
 impl Light for DistantLight {
-    fn SampleLi(&self, i: &Interaction) -> (Spectrum, Vector, VisibilityTester) {
+    fn SampleLi(&self, i: &Interaction) -> (Spectrum, Vector3f, VisibilityTester) {
         let mut p1 = Interaction::default();
         // A point outside the scene
         p1.p = i.p + self.wLight * (2.0 * self.worldRadius);

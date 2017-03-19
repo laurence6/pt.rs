@@ -1,21 +1,21 @@
 use std::rc::Rc;
 
 use common::ONE_MINUS_EPSILON;
-use vector::{Vector, Point3f, Point2f};
+use vector::{Vector3f, Point3f, Point2f};
 use shape::Shape;
 use ray::Ray;
 
 #[derive(Default, Clone)]
 pub struct Interaction {
     pub p: Point3f,
-    n: Vector,
-    wo: Vector,
+    n: Vector3f,
+    wo: Vector3f,
 
     uv: Point2f,
-    dpdu: Vector,
-    dpdv: Vector,
-    dndu: Vector,
-    dndv: Vector,
+    dpdu: Vector3f,
+    dpdv: Vector3f,
+    dndu: Vector3f,
+    dndv: Vector3f,
     shape: Option<Rc<Shape>>,
 }
 

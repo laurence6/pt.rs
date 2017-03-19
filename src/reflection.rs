@@ -1,6 +1,6 @@
 use common::Float;
 use common::Clamp;
-use vector::{Vector, Point2f};
+use vector::{Vector3f, Point2f};
 use spectrum::Spectrum;
 
 type BxDFType = u8;
@@ -22,11 +22,11 @@ impl BxDF {
         (self.Type & t) == self.Type
     }
 
-    pub fn F(&self, wo: Vector, wi: Vector) -> Spectrum {
+    pub fn F(&self, wo: Vector3f, wi: Vector3f) -> Spectrum {
         unimplemented!()
     }
 
-    pub fn SampleF(&self, wo: Vector, wi: &mut Vector, sample: Point2f, pdf: &mut Float, sampledType: &mut BxDFType) -> Spectrum {
+    pub fn SampleF(&self, wo: Vector3f, wi: &mut Vector3f, sample: Point2f, pdf: &mut Float, sampledType: &mut BxDFType) -> Spectrum {
         unimplemented!()
     }
 
@@ -34,35 +34,35 @@ impl BxDF {
 }
 
 
-fn CosTheta(w: Vector) -> Float {
+fn CosTheta(w: Vector3f) -> Float {
     w.Z
 }
 
-fn Cos2Theta(w: Vector) -> Float {
+fn Cos2Theta(w: Vector3f) -> Float {
     w.Z * w.Z
 }
 
-fn AbsCosTheta(w: Vector) -> Float {
+fn AbsCosTheta(w: Vector3f) -> Float {
     w.Z.abs()
 }
 
-fn SinTheta(w: Vector) -> Float {
+fn SinTheta(w: Vector3f) -> Float {
     Sin2Theta(w).sqrt()
 }
 
-fn Sin2Theta(w: Vector) -> Float {
+fn Sin2Theta(w: Vector3f) -> Float {
     (1.0 - Cos2Theta(w)).max(0.0)
 }
 
-fn TanTheta(w: Vector) -> Float {
+fn TanTheta(w: Vector3f) -> Float {
     SinTheta(w) / CosTheta(w)
 }
 
-fn Tan2Theta(w: Vector) -> Float {
+fn Tan2Theta(w: Vector3f) -> Float {
     Sin2Theta(w) / Cos2Theta(w)
 }
 
-fn CosPhi(w: Vector) -> Float {
+fn CosPhi(w: Vector3f) -> Float {
     let sinTheta = SinTheta(w);
     if sinTheta == 0.0 {
         return 1.0;
@@ -71,11 +71,11 @@ fn CosPhi(w: Vector) -> Float {
     }
 }
 
-fn Cos2Phi(w: Vector) -> Float {
+fn Cos2Phi(w: Vector3f) -> Float {
     CosPhi(w) * CosPhi(w)
 }
 
-fn SinPhi(w: Vector) -> Float {
+fn SinPhi(w: Vector3f) -> Float {
     let sinTheta = SinTheta(w);
     if sinTheta == 0.0 {
         return 0.0;
@@ -84,11 +84,11 @@ fn SinPhi(w: Vector) -> Float {
     }
 }
 
-fn Sin2Phi(w: Vector) -> Float {
+fn Sin2Phi(w: Vector3f) -> Float {
     SinPhi(w) * SinPhi(w)
 }
 
-fn CosDPhi(wa: Vector, wb: Vector) -> Float {
+fn CosDPhi(wa: Vector3f, wb: Vector3f) -> Float {
     Clamp((wa.X * wb.X + wa.Y * wb.Y)
         /((wa.X * wa.X + wa.Y * wa.Y) * (wb.X * wb.X + wb.Y * wb.Y)).sqrt(),
         -1.0, 1.0)

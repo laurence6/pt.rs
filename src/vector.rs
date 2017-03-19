@@ -143,7 +143,6 @@ impl ops::IndexMut<Axis> for Vector3f {
     }
 }
 
-pub type Vector = Vector3f;
 pub type Point3f = Vector3f;
 
 impl Point3f {

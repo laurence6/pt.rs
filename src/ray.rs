@@ -1,40 +1,24 @@
 use common::{Float, INFINITY};
-use vector::Vector;
+use vector::{Vector3f, Point3f};
 
 #[derive(Debug)]
 pub struct Ray {
-    pub Origin: Vector,
-    pub Direction: Vector,
+    pub Origin: Point3f,
+    pub Direction: Vector3f,
     pub TMax: Float,
 }
 
 impl Ray {
-    pub fn Position(&self, t: Float) -> Vector {
+    pub fn Position(&self, t: Float) -> Vector3f {
         return self.Origin + self.Direction * t;
-    }
-
-    //pub fn Reflect(&self, i: &Ray) -> Ray {
-    //    return Ray::New(self.Origin, self.Direction.Reflect(&i.Direction));
-    // }
-
-    //pub fn Refract(&self, i: &Ray, n1: Float, n2: Float) -> Ray {
-    //    return Ray::New(self.Origin, self.Direction.Refract(&i.Direction, n1, n2));
-    // }
-
-    //pub fn Reflectance(&self, i: &Ray, n1: Float, n2: Float) -> Float {
-    //    return self.Direction.Reflectance(&i.Direction, n1, n2);
-    // }
-
-    pub fn WeightedBounce() -> Ray {
-        unimplemented!()
     }
 }
 
 impl Default for Ray {
     fn default() -> Ray {
         Ray {
-            Origin: Vector::default(),
-            Direction: Vector::default(),
+            Origin: Vector3f::default(),
+            Direction: Vector3f::default(),
             TMax: INFINITY,
         }
     }

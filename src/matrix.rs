@@ -1,7 +1,7 @@
 use std::ops;
 
 use common::Float;
-use vector::Vector;
+use vector::Vector3f;
 use ray::Ray;
 use bbox::BBox;
 
@@ -79,14 +79,14 @@ impl Matrix {
         return r;
     }
 
-    fn ApplyPoint(&self, p: Vector) -> Vector {
+    fn ApplyPoint(&self, p: Vector3f) -> Vector3f {
         let xp = self[0][0] * p.X + self[0][1] * p.Y + self[0][2] * p.Z + self[0][3];
         let yp = self[1][0] * p.X + self[1][1] * p.Y + self[1][2] * p.Z + self[1][3];
         let zp = self[2][0] * p.X + self[2][1] * p.Y + self[2][2] * p.Z + self[2][3];
         let wp = self[3][0] * p.X + self[3][1] * p.Y + self[3][2] * p.Z + self[3][3];
         debug_assert!(wp != 0.0);
 
-        let p = Vector::New(xp, yp, zp);
+        let p = Vector3f::New(xp, yp, zp);
         if wp == 1.0 {
             return p;
         } else {
@@ -94,8 +94,8 @@ impl Matrix {
         }
     }
 
-    fn ApplyVector(&self, v: Vector) -> Vector {
-        Vector::New(
+    fn ApplyVector(&self, v: Vector3f) -> Vector3f {
+        Vector3f::New(
             self.m[0][0] * v.X + self.m[0][1] * v.Y + self.m[0][2] * v.Z,
             self.m[1][0] * v.X + self.m[1][1] * v.Y + self.m[1][2] * v.Z,
             self.m[2][0] * v.X + self.m[2][1] * v.Y + self.m[2][2] * v.Z,
@@ -165,7 +165,7 @@ impl Transform {
         Transform { m: Matrix::New(m), mInv: Matrix::New(mInv) }
     }
 
-    pub fn Translate(v: Vector) -> Transform {
+    pub fn Translate(v: Vector3f) -> Transform {
         Transform {
             m: M(
                 1.0, 0.0, 0.0, v.X,
@@ -182,7 +182,7 @@ impl Transform {
         }
     }
 
-    pub fn Scale(v: Vector) -> Transform {
+    pub fn Scale(v: Vector3f) -> Transform {
         Transform {
             m: M(
                 v.X, 0.0, 0.0, 0.0,
@@ -209,13 +209,13 @@ impl Transform {
             0.0, 0.0, 1.0, 0.0,
         );
         let invTanAng = 1.0 / (fov.to_radians() / 2.0).tan();
-        return Transform::Scale(Vector::New(invTanAng, invTanAng, 1.0))
+        return Transform::Scale(Vector3f::New(invTanAng, invTanAng, 1.0))
             * Transform::FromSingleMat(p.m);
     }
 
     /// Compute look-at transformation from camera position, a point camera looks at and up
     /// direction in world space coordinates.
-    fn LookAt(pos: Vector, look: Vector, up: Vector) -> Transform {
+    fn LookAt(pos: Vector3f, look: Vector3f, up: Vector3f) -> Transform {
         let d = (look - pos).Normalize();
         let up = up.Normalize();
         let left = up.Cross(d).Normalize();
@@ -275,15 +275,15 @@ impl Transform {
         return Transform { m: m, mInv: m.Transpose() };
     }
 
-    pub fn ApplyPoint(&self, p: Vector) -> Vector {
+    pub fn ApplyPoint(&self, p: Vector3f) -> Vector3f {
         self.m.ApplyPoint(p)
     }
 
-    fn ApplyVector(&self, v: Vector) -> Vector {
+    fn ApplyVector(&self, v: Vector3f) -> Vector3f {
         self.m.ApplyVector(v)
     }
 
-    fn ApplyNormal(&self, n: Vector) -> Vector {
+    fn ApplyNormal(&self, n: Vector3f) -> Vector3f {
         self.mInv.ApplyVector(n)
     }
 

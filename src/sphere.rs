@@ -3,20 +3,20 @@ use common::Float;
 use interaction::Interaction;
 use ray::Ray;
 use shape::Shape;
-use vector::Vector;
+use vector::Point3f;
 
 pub struct Sphere {
-    Center: Vector,
+    Center: Point3f,
     Radius: Float,
 
     BBox: BBox,
 }
 
 impl Sphere {
-    pub fn New(center: Vector, radius: Float) -> Sphere {
-        let min = Vector::New(center.X - radius, center.Y - radius, center.Z - radius);
-        let max = Vector::New(center.X + radius, center.Y + radius, center.Z + radius);
-        let bbox = BBox { Min: min, Max: max };
+    pub fn New(center: Point3f, radius: Float) -> Sphere {
+        let min = Point3f::New(center.X - radius, center.Y - radius, center.Z - radius);
+        let max = Point3f::New(center.X + radius, center.Y + radius, center.Z + radius);
+        let bbox = BBox3f { min: min, max: max };
         return Sphere { Center: center, Radius: radius, BBox: bbox };
     }
 }
