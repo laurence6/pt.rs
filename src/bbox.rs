@@ -1,10 +1,11 @@
 use std::mem::swap;
+use std::ops;
 
 use axis::Axis;
 use common::{Float, EPSILON};
 use ray::Ray;
 use shape::Shape;
-use vector::{Point2, Point3f};
+use vector::{Vector2, Vector3f, Point2, Point3f};
 
 #[derive(Clone, Copy)]
 pub struct BBox3f {
@@ -25,7 +26,7 @@ impl BBox3f {
         return bbox;
     }
 
-    pub fn Diagonal(&self) -> Point3f {
+    pub fn Diagonal(&self) -> Vector3f {
         self.Max - self.Min
     }
 
@@ -105,6 +106,17 @@ impl BBox3f {
 pub struct BBox2<T> where T: Copy {
     pub Min: Point2<T>,
     pub Max: Point2<T>,
+}
+
+impl<T> BBox2<T> where T: Copy + ops::Sub<Output = T> + ops::Mul<Output = T> {
+    pub fn Diagonal(&self) -> Vector2<T> {
+        self.Max - self.Min
+    }
+
+    pub fn Area(&self) -> T {
+        let d = self.Diagonal();
+        return d.X * d.Y;
+    }
 }
 
 pub type BBox2u = BBox2<u32>;
