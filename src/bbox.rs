@@ -1,32 +1,31 @@
 use std::mem::swap;
 
 use axis::Axis;
-use common::EPSILON;
-use common::Float;
+use common::{Float, EPSILON};
 use ray::Ray;
 use shape::Shape;
-use vector::{Vector, Point2f, Point3f};
+use vector::{Point2, Point3f};
 
 #[derive(Clone, Copy)]
-pub struct BBox {
-    pub Min: Vector,
-    pub Max: Vector,
+pub struct BBox3f {
+    pub Min: Point3f,
+    pub Max: Point3f,
 }
 
-impl BBox {
-    pub fn New(min: Vector, max: Vector) -> BBox {
-        BBox { Min: min, Max: max }
+impl BBox3f {
+    pub fn New(min: Point3f, max: Point3f) -> BBox3f {
+        BBox3f { Min: min, Max: max }
     }
 
-    pub fn BBoxOfShapes(shapes: &Vec<Box<Shape>>) -> BBox {
-        let mut bbox = BBox::New(Vector::default(), Vector::default());
+    pub fn BBoxOfShapes(shapes: &Vec<Box<Shape>>) -> BBox3f {
+        let mut bbox = BBox3f::New(Point3f::default(), Point3f::default());
         for shape in shapes {
             bbox = bbox.Union(&shape.BBox());
         }
         return bbox;
     }
 
-    pub fn Diagonal(&self) -> Vector {
+    pub fn Diagonal(&self) -> Point3f {
         self.Max - self.Min
     }
 
@@ -54,7 +53,7 @@ impl BBox {
         return (center, radius);
     }
 
-    pub fn Overlaps(&self, b: &BBox) -> bool {
+    pub fn Overlaps(&self, b: &BBox3f) -> bool {
         (b.Min.X <= self.Max.X) && (self.Min.X <= b.Max.X) &&
         (b.Min.Y <= self.Max.Y) && (self.Min.Y <= b.Max.Y) &&
         (b.Min.Z <= self.Max.Z) && (self.Min.Z <= b.Max.Z)
@@ -66,8 +65,8 @@ impl BBox {
         (self.Min.Z <= p.Z) && (p.Z <= self.Max.Z)
     }
 
-    pub fn Union(&self, b: &BBox) -> BBox {
-        BBox {
+    pub fn Union(&self, b: &BBox3f) -> BBox3f {
+        BBox3f {
             Min: self.Min.Min(b.Min),
             Max: self.Max.Max(b.Max),
         }
@@ -102,12 +101,17 @@ impl BBox {
     }
 }
 
-fn Gamma(x: Float) -> Float {
-    (x * EPSILON) / (1.0 - x * EPSILON)
-}
+pub type BBox = BBox3f;
 
 #[derive(Clone, Copy)]
-pub struct BBox2f {
-    pub Min: Point2f,
-    pub Max: Point2f,
+pub struct BBox2<T> where T: Copy {
+    pub Min: Point2<T>,
+    pub Max: Point2<T>,
+}
+
+pub type BBox2u = BBox2<u32>;
+pub type BBox2f = BBox2<Float>;
+
+fn Gamma(x: Float) -> Float {
+    (x * EPSILON) / (1.0 - x * EPSILON)
 }
