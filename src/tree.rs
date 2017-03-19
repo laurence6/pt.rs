@@ -1,4 +1,6 @@
 use std::cmp::Ordering;
+use std::rc::Rc;
+
 use bbox::BBox3f;
 use axis::Axis;
 use common::Float;
@@ -10,7 +12,7 @@ use shape::Shape;
 
 // k-d tree
 pub struct Tree {
-    pub Shapes: Vec<Box<Shape + 'static>>,
+    pub Shapes: Vec<Rc<Shape>>,
     pub ShapeIndices: Vec<usize>,
 
     pub Nodes: Vec<Node>,
@@ -31,7 +33,7 @@ pub enum SplitOrShape {
 }
 
 impl Tree {
-    pub fn New(shapes: Vec<Box<Shape>>, maxDepth: u8) -> Tree {
+    pub fn New(shapes: Vec<Rc<Shape>>, maxDepth: u8) -> Tree {
         print!("Building k-d tree ({} shapes) ... ", shapes.len());
 
         // Compute BBox

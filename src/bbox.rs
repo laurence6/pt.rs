@@ -1,5 +1,6 @@
-use std::mem::swap;
 use std::ops;
+use std::rc::Rc;
+use std::mem::swap;
 
 use axis::Axis;
 use common::{Float, EPSILON};
@@ -18,7 +19,7 @@ impl BBox3f {
         BBox3f { Min: min, Max: max }
     }
 
-    pub fn BBoxOfShapes(shapes: &Vec<Box<Shape>>) -> BBox3f {
+    pub fn BBoxOfShapes(shapes: &Vec<Rc<Shape>>) -> BBox3f {
         let mut bbox = BBox3f::New(Point3f::default(), Point3f::default());
         for shape in shapes {
             bbox = bbox.Union(&shape.BBox());
