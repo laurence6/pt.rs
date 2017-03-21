@@ -1,5 +1,6 @@
 use common::{Float, ONE_MINUS_EPSILON};
 use vector::{Point2u, Point2f};
+use bbox::BBox2u;
 use sampler::{Sampler, GlobalSampler};
 
 /// Max resoltion of one tile.
@@ -41,7 +42,7 @@ pub struct HaltonSampler {
 }
 
 impl HaltonSampler {
-    pub fn New(samplesPerPixel: usize) -> HaltonSampler {
+    pub fn New(samplesPerPixel: usize, sampleBounds: BBox2u) -> HaltonSampler {
         unimplemented!()
     }
 }
@@ -56,8 +57,7 @@ impl Sampler for HaltonSampler {
 
         // Compute 1D array samples
         for i in 0..self.sampleArray1D.len() {
-            let nSample = self.sampleArray1D[i].len() * self.samplesPerPixel;
-            for j in 0..nSample {
+            for j in 0..self.sampleArray1D[i].len() {
                 let index = self.GetIndexForSample(j);
                 self.sampleArray1D[i][j] = self.SampleDimension(index, ARRAY_START_DIM + i);
             }
@@ -66,8 +66,7 @@ impl Sampler for HaltonSampler {
         // Compute 2D array samples
         let mut dim = ARRAY_START_DIM + self.sampleArray1D.len();
         for i in 0..self.sampleArray2D.len() {
-            let nSample = self.sampleArray2D[i].len() * self.samplesPerPixel;
-            for j in 0..nSample {
+            for j in 0..self.sampleArray2D[i].len() {
                 let index = self.GetIndexForSample(j);
                 self.sampleArray2D[i][j].X = self.SampleDimension(index, dim);
                 self.sampleArray2D[i][j].Y = self.SampleDimension(index, dim + 1);
@@ -122,8 +121,7 @@ impl Sampler for HaltonSampler {
     fn Req1DArray(&mut self, n: usize) {
         debug_assert_eq!(self.RoundCount(n), n);
         self.sampleArray1D.push(
-            Vec::<Float>
-            ::with_capacity((n * self.samplesPerPixel))
+            vec![0.0; n * self.samplesPerPixel]
             .into_boxed_slice()
         );
     }
@@ -131,8 +129,7 @@ impl Sampler for HaltonSampler {
     fn Req2DArray(&mut self, n: usize) {
         debug_assert_eq!(self.RoundCount(n), n);
         self.sampleArray2D.push(
-            Vec::<Point2f>
-            ::with_capacity((n * self.samplesPerPixel))
+            vec![Point2f::New(0.0, 0.0); n * self.samplesPerPixel]
             .into_boxed_slice()
         );
     }
@@ -141,14 +138,16 @@ impl Sampler for HaltonSampler {
         if self.array1DOffset == self.sampleArray1D.len() {
             return None;
         }
-        debug_assert_eq!(self.sampleArray1D[self.array1DOffset].len(), n);
+
+        debug_assert_eq!(self.sampleArray1D[self.array1DOffset].len(), n * self.samplesPerPixel);
         debug_assert!(self.currentPixelSampleIndex < self.samplesPerPixel);
-        let ret = {
-            let i0 = self.currentPixelSampleIndex * n;
-            let i1 = i0 + n;
-            Some(&self.sampleArray1D[self.array1DOffset][i0..i1])
-        };
+
+        let i0 = self.currentPixelSampleIndex * n;
+        let i1 = i0 + n;
+        let ret = Some(&self.sampleArray1D[self.array1DOffset][i0..i1]);
+
         self.array1DOffset += 1;
+
         return ret;
     }
 
@@ -156,14 +155,16 @@ impl Sampler for HaltonSampler {
         if self.array2DOffset == self.sampleArray2D.len() {
             return None;
         }
-        debug_assert_eq!(self.sampleArray2D[self.array2DOffset].len(), n);
+
+        debug_assert_eq!(self.sampleArray2D[self.array2DOffset].len(), n * self.samplesPerPixel);
         debug_assert!(self.currentPixelSampleIndex < self.samplesPerPixel);
-        let ret = {
-            let i0 = self.currentPixelSampleIndex * n;
-            let i1 = i0 + n;
-            Some(&self.sampleArray2D[self.array2DOffset][i0..i1])
-        };
+
+        let i0 = self.currentPixelSampleIndex * n;
+        let i1 = i0 + n;
+        let ret = Some(&self.sampleArray2D[self.array2DOffset][i0..i1]);
+
         self.array2DOffset += 1;
+
         return ret;
     }
 }
@@ -216,7 +217,7 @@ fn radicalInverse(base: u32, mut a: u32) -> Float {
 }
 
 fn RadicalInverse(baseIndex: u32, a: u32) -> Float {
-    return match baseIndex {
+    match baseIndex {
         0 => radicalInverse(2, a),
         1 => radicalInverse(3, a),
         2 => radicalInverse(5, a),
@@ -1242,7 +1243,7 @@ fn RadicalInverse(baseIndex: u32, a: u32) -> Float {
         1022 => radicalInverse(8147, a),
         1023 => radicalInverse(8161, a),
         _ => panic!("RadicalInverse: baseIndex reaches limit"),
-    };
+    }
 }
 
 fn InverseRadicalInverse(base: u32, mut a: u32, nDigits: u32) -> usize {
@@ -1259,8 +1260,9 @@ fn InverseRadicalInverse(base: u32, mut a: u32, nDigits: u32) -> usize {
 mod sampler_halton_test {
     #[test]
     fn TestRadicalInverse() {
-        assert_eq!(super::radicalInverse(10, 0), 0.0);
-        assert_eq!(super::radicalInverse(10, 1), 0.1);
-        assert_eq!(super::radicalInverse(10, 1234), 0.4321);
+        use super::radicalInverse;
+        assert_eq!(radicalInverse(10, 0), 0.0);
+        assert_eq!(radicalInverse(10, 1), 0.1);
+        assert_eq!(radicalInverse(10, 1234), 0.4321);
     }
 }
