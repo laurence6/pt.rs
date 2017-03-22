@@ -12,6 +12,7 @@
 #[allow(non_snake_case, non_camel_case_types, dead_code, unused_variables)] mod reflection;
 #[allow(non_snake_case, non_camel_case_types, dead_code, unused_variables)] mod sampler;
 #[allow(non_snake_case, non_camel_case_types, dead_code, unused_variables)] mod sampler_halton;
+#[allow(non_snake_case, non_camel_case_types, dead_code, unused_variables)] mod sampler_random;
 #[allow(non_snake_case, non_camel_case_types, dead_code, unused_variables)] mod scene;
 #[allow(non_snake_case, non_camel_case_types, dead_code, unused_variables)] mod shape;
 #[allow(non_snake_case, non_camel_case_types, dead_code, unused_variables)] mod spectrum;
