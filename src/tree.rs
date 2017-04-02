@@ -20,13 +20,11 @@ pub struct Tree {
     bBox: BBox3f,
 }
 
-#[derive(Debug)]
 pub struct Node {
     pub SplitOrShape: SplitOrShape, // 16B
     pub Index: usize,               // 8 B Child or Shape Index
 }
 
-#[derive(Debug)]
 pub enum SplitOrShape {
     Split(Axis, Float), // Splite Point
     Shape(usize),       // Number of Shapes

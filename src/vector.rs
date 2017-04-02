@@ -3,7 +3,7 @@ use std::ops;
 use common::Float;
 use axis::Axis;
 
-#[derive(Default, Clone, Copy, Debug)]
+#[derive(Default, Clone, Copy)]
 pub struct Vector3f {
     pub X: Float,
     pub Y: Float,
@@ -151,7 +151,7 @@ impl Point3f {
     }
 }
 
-#[derive(Default, PartialEq, Clone, Copy, Debug)]
+#[derive(Default, PartialEq, Clone, Copy)]
 pub struct Vector2<T> where T: Copy {
     pub X: T,
     pub Y: T,
