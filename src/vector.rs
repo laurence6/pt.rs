@@ -1,4 +1,5 @@
 use std::ops;
+use std::convert::From;
 
 use common::Float;
 use axis::Axis;
@@ -197,8 +198,8 @@ pub type Point2<T> = Vector2<T>;
 pub type Point2u = Point2<u32>;
 pub type Point2f = Point2<Float>;
 
-impl Point2f {
-    pub fn From(p: Point2u) -> Point2f {
+impl From<Point2u> for Point2f {
+    fn from(p: Point2u) -> Point2f {
         Point2f {
             X: p.X as Float,
             Y: p.Y as Float,

@@ -26,7 +26,7 @@ pub trait Sampler {
     }
 
     fn GetCameraSample(&mut self, pRaster: Point2u) -> CameraSample {
-        let pFilm = Point2f::From(pRaster) + self.Get2D();
+        let pFilm = Point2f::from(pRaster) + self.Get2D();
         let pLens = self.Get2D();
         return CameraSample {
             pFilm: pFilm,
