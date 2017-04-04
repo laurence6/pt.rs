@@ -263,7 +263,7 @@ fn buildTree(
                 let t = edges[axis as usize][i].t;
                 if nodeBBox.Min[axis] < t && t < nodeBBox.Max[axis] {
                     let (pBelow, pAbove) = {
-                        let (axis1, axis2) = axis.OtherAxes();
+                        let (axis1, axis2) = axis.other_axes();
                         (
                             2.0 * (d[axis1] * d[axis2] + (t - nodeBBox.Min[axis]) * (d[axis1] + d[axis2])) * invTotSA,
                             2.0 * (d[axis1] * d[axis2] + (nodeBBox.Min[axis] - t) * (d[axis1] + d[axis2])) * invTotSA,
@@ -289,7 +289,7 @@ fn buildTree(
             debug_assert!(nBelow == shapes.len() && nAbove == 0);
 
             if bestAxis.is_none() {
-                axis = axis.NextAxis();
+                axis = axis.next_axis();
             } else {
                 break
             }

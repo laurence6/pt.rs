@@ -97,7 +97,7 @@ impl BBox3f {
                 return None;
             }
 
-            axis = axis.NextAxis();
+            axis = axis.next_axis();
         }
         return Some((t0, t1));
     }
