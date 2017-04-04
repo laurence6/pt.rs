@@ -16,7 +16,7 @@ impl Sphere {
     pub fn New(center: Point3f, radius: Float) -> Sphere {
         let min = Point3f::New(center.X - radius, center.Y - radius, center.Z - radius);
         let max = Point3f::New(center.X + radius, center.Y + radius, center.Z + radius);
-        let bbox = BBox3f { Min: min, Max: max };
+        let bbox = BBox3f { min: min, max: max };
         return Sphere { Center: center, Radius: radius, BBox: bbox };
     }
 }

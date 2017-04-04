@@ -35,7 +35,7 @@ impl Tree {
         print!("Building k-d tree ({} shapes) ... ", shapes.len());
 
         // Compute BBox
-        let bbox = BBox3f::BBoxOfShapes(&shapes);
+        let bbox = BBox3f::bbox_of_shapes(&shapes);
         let tree = Tree {
             Shapes: shapes,
             ShapeIndices: Vec::<usize>::new(),
@@ -74,7 +74,7 @@ impl Tree {
             }
         }
 
-        let isec = self.bBox.IntersectP(ray);
+        let isec = self.bBox.intersect_p(ray);
         if isec.is_none() {
             return None;
         }
@@ -219,8 +219,8 @@ fn buildTree(
         return tree;
     }
 
-    let d = nodeBBox.Diagonal();
-    let invTotSA = 1.0 / nodeBBox.SurfaceArea();
+    let d = nodeBBox.diagonal();
+    let invTotSA = 1.0 / nodeBBox.surface_area();
     let oldCost = ISECT_COST * shapes.len() as Float;
 
     let mut bestAxis: Option<Axis> = None;
@@ -231,13 +231,13 @@ fn buildTree(
 
     // try different axes
     {
-        let mut axis = nodeBBox.MaximumExtent();
+        let mut axis = nodeBBox.maximum_extent();
         for _ in 0..3 {
             for i in 0..shapes.len() {
                 let s = &tree.Shapes[i];
                 let bbox = s.BBox();
-                edges[axis as usize].push(bEdge::new(bbox.Min[axis], i, bEdgeType::start));
-                edges[axis as usize].push(bEdge::new(bbox.Min[axis], i, bEdgeType::end));
+                edges[axis as usize].push(bEdge::new(bbox.min[axis], i, bEdgeType::start));
+                edges[axis as usize].push(bEdge::new(bbox.min[axis], i, bEdgeType::end));
             }
             edges[axis as usize].sort_by(|a, b| {
                 match (a.t < b.t, a.t > b.t) {
@@ -261,12 +261,12 @@ fn buildTree(
                 }
 
                 let t = edges[axis as usize][i].t;
-                if nodeBBox.Min[axis] < t && t < nodeBBox.Max[axis] {
+                if nodeBBox.min[axis] < t && t < nodeBBox.max[axis] {
                     let (pBelow, pAbove) = {
                         let (axis1, axis2) = axis.other_axes();
                         (
-                            2.0 * (d[axis1] * d[axis2] + (t - nodeBBox.Min[axis]) * (d[axis1] + d[axis2])) * invTotSA,
-                            2.0 * (d[axis1] * d[axis2] + (nodeBBox.Min[axis] - t) * (d[axis1] + d[axis2])) * invTotSA,
+                            2.0 * (d[axis1] * d[axis2] + (t - nodeBBox.min[axis]) * (d[axis1] + d[axis2])) * invTotSA,
+                            2.0 * (d[axis1] * d[axis2] + (nodeBBox.min[axis] - t) * (d[axis1] + d[axis2])) * invTotSA,
                         )
                     };
                     let bonus = if pBelow < FLOAT_MIN_POS || pAbove < FLOAT_MIN_POS {
@@ -328,8 +328,8 @@ fn buildTree(
     let (bboxBelow, bboxAbove) = {
         let mut b1 = nodeBBox;
         let mut b2 = nodeBBox;
-        b1.Max[bestAxis] = t;
-        b2.Min[bestAxis] = t;
+        b1.max[bestAxis] = t;
+        b2.min[bestAxis] = t;
         (b1, b2)
     };
 

@@ -43,7 +43,7 @@ impl Light for DistantLight {
     }
 
     fn PreProcess(&mut self, scene: &Scene) {
-        let (center, radius) = scene.BBox().BoundingSphere();
+        let (center, radius) = scene.BBox().bounding_sphere();
         self.worldCenter = center;
         self.worldRadius = radius;
     }

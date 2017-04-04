@@ -36,8 +36,8 @@ impl PerspectiveCamera {
         let cameraToScreen = Transform::Perspective(fov, 1.0e-2, 1000.0);
 
         let screenToRaster = Transform::Scale(Vector3f::New(film.Resolution.X as Float, film.Resolution.Y as Float, 1.0))
-                           * Transform::Scale(Vector3f::New(1.0 / (screenWindow.Max.X - screenWindow.Min.Y), 1.0 / (screenWindow.Max.Y - screenWindow.Min.Y), 1.0))
-                           * Transform::Translate(Vector3f::New(-screenWindow.Min.X, -screenWindow.Max.Y, 0.0));
+                           * Transform::Scale(Vector3f::New(1.0 / (screenWindow.max.X - screenWindow.min.Y), 1.0 / (screenWindow.max.Y - screenWindow.min.Y), 1.0))
+                           * Transform::Translate(Vector3f::New(-screenWindow.min.X, -screenWindow.max.Y, 0.0));
         let rasterToScreen = screenToRaster.Inverse();
 
         let rasterToCamera = cameraToScreen.Inverse() * rasterToScreen;
