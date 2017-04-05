@@ -21,7 +21,7 @@ defFloat!(f32);
 defFloat!(f64);
 
 // Funcs
-pub fn Clamp<T: PartialOrd>(x: T, low: T, high: T) -> T {
+pub fn clamp<T: PartialOrd>(x: T, low: T, high: T) -> T {
     debug_assert!(low <= high);
     if x < low {
         return low;
@@ -32,6 +32,6 @@ pub fn Clamp<T: PartialOrd>(x: T, low: T, high: T) -> T {
     }
 }
 
-pub fn Lerp(t: Float, v1: Float, v2: Float) -> Float {
+pub fn lerp(t: Float, v1: Float, v2: Float) -> Float {
     (1.0 - t) * v1 + t * v2
 }

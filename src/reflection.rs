@@ -1,5 +1,5 @@
 use common::Float;
-use common::Clamp;
+use common::clamp;
 use vector::{Vector3f, Point2f};
 use spectrum::Spectrum;
 
@@ -67,7 +67,7 @@ fn CosPhi(w: Vector3f) -> Float {
     if sinTheta == 0.0 {
         return 1.0;
     } else {
-        return Clamp(w.X / sinTheta, -1.0, 1.0);
+        return clamp(w.X / sinTheta, -1.0, 1.0);
     }
 }
 
@@ -80,7 +80,7 @@ fn SinPhi(w: Vector3f) -> Float {
     if sinTheta == 0.0 {
         return 0.0;
     } else {
-        return Clamp(w.Y / sinTheta, -1.0, 1.0);
+        return clamp(w.Y / sinTheta, -1.0, 1.0);
     }
 }
 
@@ -89,7 +89,7 @@ fn Sin2Phi(w: Vector3f) -> Float {
 }
 
 fn CosDPhi(wa: Vector3f, wb: Vector3f) -> Float {
-    Clamp((wa.X * wb.X + wa.Y * wb.Y)
+    clamp((wa.X * wb.X + wa.Y * wb.Y)
         /((wa.X * wa.X + wa.Y * wa.Y) * (wb.X * wb.X + wb.Y * wb.Y)).sqrt(),
         -1.0, 1.0)
 }

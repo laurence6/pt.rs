@@ -1,7 +1,7 @@
 use std::ops;
 
 use common::Float;
-use common::Clamp;
+use common::clamp;
 
 pub type Spectrum = RGBSpectrum;
 
@@ -44,11 +44,11 @@ impl RGBSpectrum {
         *self * (1.0 - t) + *s * t
     }
 
-    fn Clamp(&self, low: Float, high: Float) -> RGBSpectrum {
+    fn clamp(&self, low: Float, high: Float) -> RGBSpectrum {
         RGBSpectrum(
-            Clamp(self.0, low, high),
-            Clamp(self.1, low, high),
-            Clamp(self.2, low, high),
+            clamp(self.0, low, high),
+            clamp(self.1, low, high),
+            clamp(self.2, low, high),
         )
     }
 }
