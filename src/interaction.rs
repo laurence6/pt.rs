@@ -20,7 +20,7 @@ pub struct Interaction {
 }
 
 impl Interaction {
-    pub fn SpawnRayTo(&self, i: Point3f) -> Ray {
+    pub fn spawn_ray_to(&self, i: Point3f) -> Ray {
         let d = i - self.p;
         return Ray {
             Origin: self.p,

@@ -18,7 +18,7 @@ pub struct VisibilityTester {
 
 impl VisibilityTester {
     fn Unoccluded(&self, scene: &Scene) -> bool {
-        scene.IntersectP(&self.p0.SpawnRayTo(self.p1.p))
+        scene.IntersectP(&self.p0.spawn_ray_to(self.p1.p))
     }
 }
 
