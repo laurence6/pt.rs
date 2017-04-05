@@ -31,7 +31,7 @@ impl PerspectiveCamera {
     pub fn new(camera_to_world: Transform, screen_window: BBox2f, film: Film, fov: Float) -> PerspectiveCamera {
         let camera_to_screen = Transform::Perspective(fov, 1.0e-2, 1000.0);
 
-        let screen_to_raster = Transform::Scale(Vector3f::New(film.Resolution.X as Float, film.Resolution.Y as Float, 1.0))
+        let screen_to_raster = Transform::Scale(Vector3f::New(film.resolution.X as Float, film.resolution.Y as Float, 1.0))
                              * Transform::Scale(Vector3f::New(1.0 / (screen_window.max.X - screen_window.min.Y), 1.0 / (screen_window.max.Y - screen_window.min.Y), 1.0))
                              * Transform::Translate(Vector3f::New(-screen_window.min.X, -screen_window.max.Y, 0.0));
         let raster_to_screen = screen_to_raster.Inverse();
