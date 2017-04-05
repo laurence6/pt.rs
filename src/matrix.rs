@@ -221,14 +221,14 @@ impl Transform {
         let left = up.Cross(d).Normalize();
         let up = d.Cross(left);
 
-        let cameraToWorld = M(
+        let camera_to_world = M(
             left.X, up.X, d.X, pos.X,
             left.Y, up.Y, d.Y, pos.Y,
             left.Z, up.Z, d.Z, pos.Z,
                0.0,  0.0, 0.0,   1.0,
         );
 
-        return Transform { m: cameraToWorld.Inverse(), mInv: cameraToWorld };
+        return Transform { m: camera_to_world.Inverse(), mInv: camera_to_world };
     }
 
     fn Transpose(&self) -> Transform {

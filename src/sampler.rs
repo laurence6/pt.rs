@@ -26,11 +26,11 @@ pub trait Sampler {
     }
 
     fn GetCameraSample(&mut self, pRaster: Point2u) -> CameraSample {
-        let pFilm = Point2f::from(pRaster) + self.Get2D();
-        let pLens = self.Get2D();
+        let p_film = Point2f::from(pRaster) + self.Get2D();
+        let p_lens = self.Get2D();
         return CameraSample {
-            pFilm: pFilm,
-            pLens: pLens,
+            p_film: p_film,
+            p_lens: p_lens,
         };
     }
 }
