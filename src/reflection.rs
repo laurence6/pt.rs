@@ -12,21 +12,21 @@ pub const SPECULAR:     BxDFType = 1 << 4;
 pub const ALL:          BxDFType = REFLECTION | TRANSMISSION | DIFFUSE | GLOSSY | SPECULAR;
 
 pub struct BxDF {
-    Type: BxDFType,
+    bxdf_type: BxDFType,
 }
 
 impl BxDF {
-    pub fn MatchType(&self, t: BxDFType) -> bool {
-        debug_assert!(self.Type <= ALL);
+    pub fn match_type(&self, t: BxDFType) -> bool {
+        debug_assert!(self.bxdf_type <= ALL);
 
-        (self.Type & t) == self.Type
+        (self.bxdf_type & t) == self.bxdf_type
     }
 
-    pub fn F(&self, wo: Vector3f, wi: Vector3f) -> Spectrum {
+    pub fn f(&self, wo: Vector3f, wi: Vector3f) -> Spectrum {
         unimplemented!()
     }
 
-    pub fn SampleF(&self, wo: Vector3f, wi: &mut Vector3f, sample: Point2f, pdf: &mut Float, sampledType: &mut BxDFType) -> Spectrum {
+    pub fn sample_f(&self, wo: Vector3f, wi: &mut Vector3f, sample: Point2f, pdf: &mut Float, sampled_type: &mut BxDFType) -> Spectrum {
         unimplemented!()
     }
 
@@ -34,61 +34,61 @@ impl BxDF {
 }
 
 
-fn CosTheta(w: Vector3f) -> Float {
+fn cos_theta(w: Vector3f) -> Float {
     w.Z
 }
 
-fn Cos2Theta(w: Vector3f) -> Float {
+fn cos2_theta(w: Vector3f) -> Float {
     w.Z * w.Z
 }
 
-fn AbsCosTheta(w: Vector3f) -> Float {
+fn abscos_theta(w: Vector3f) -> Float {
     w.Z.abs()
 }
 
-fn SinTheta(w: Vector3f) -> Float {
-    Sin2Theta(w).sqrt()
+fn sin_theta(w: Vector3f) -> Float {
+    sin2_theta(w).sqrt()
 }
 
-fn Sin2Theta(w: Vector3f) -> Float {
-    (1.0 - Cos2Theta(w)).max(0.0)
+fn sin2_theta(w: Vector3f) -> Float {
+    (1.0 - cos2_theta(w)).max(0.0)
 }
 
-fn TanTheta(w: Vector3f) -> Float {
-    SinTheta(w) / CosTheta(w)
+fn tan_theta(w: Vector3f) -> Float {
+    sin_theta(w) / cos_theta(w)
 }
 
-fn Tan2Theta(w: Vector3f) -> Float {
-    Sin2Theta(w) / Cos2Theta(w)
+fn tan2_theta(w: Vector3f) -> Float {
+    sin2_theta(w) / cos2_theta(w)
 }
 
-fn CosPhi(w: Vector3f) -> Float {
-    let sinTheta = SinTheta(w);
-    if sinTheta == 0.0 {
+fn cos_phi(w: Vector3f) -> Float {
+    let sin_theta = sin_theta(w);
+    if sin_theta == 0.0 {
         return 1.0;
     } else {
-        return clamp(w.X / sinTheta, -1.0, 1.0);
+        return clamp(w.X / sin_theta, -1.0, 1.0);
     }
 }
 
-fn Cos2Phi(w: Vector3f) -> Float {
-    CosPhi(w) * CosPhi(w)
+fn cos2_phi(w: Vector3f) -> Float {
+    cos_phi(w) * cos_phi(w)
 }
 
-fn SinPhi(w: Vector3f) -> Float {
-    let sinTheta = SinTheta(w);
-    if sinTheta == 0.0 {
+fn sin_phi(w: Vector3f) -> Float {
+    let sin_theta = sin_theta(w);
+    if sin_theta == 0.0 {
         return 0.0;
     } else {
-        return clamp(w.Y / sinTheta, -1.0, 1.0);
+        return clamp(w.Y / sin_theta, -1.0, 1.0);
     }
 }
 
-fn Sin2Phi(w: Vector3f) -> Float {
-    SinPhi(w) * SinPhi(w)
+fn sin2_phi(w: Vector3f) -> Float {
+    sin_phi(w) * sin_phi(w)
 }
 
-fn CosDPhi(wa: Vector3f, wb: Vector3f) -> Float {
+fn cos_dphi(wa: Vector3f, wb: Vector3f) -> Float {
     clamp((wa.X * wb.X + wa.Y * wb.Y)
         /((wa.X * wa.X + wa.Y * wa.Y) * (wb.X * wb.X + wb.Y * wb.Y)).sqrt(),
         -1.0, 1.0)
