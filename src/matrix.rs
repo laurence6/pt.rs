@@ -1,7 +1,7 @@
 use std::ops;
 
 use common::Float;
-use vector::Vector3f;
+use vector::{Vector3f, Point3f};
 use ray::Ray;
 use bbox::BBox3f;
 
@@ -17,7 +17,7 @@ struct Matrix {
     m: [[Float; 4]; 4],
 }
 
-fn M(
+fn m4(
     m00: Float, m01: Float, m02: Float, m03: Float,
     m10: Float, m11: Float, m12: Float, m13: Float,
     m20: Float, m21: Float, m22: Float, m23: Float,
@@ -32,12 +32,12 @@ fn M(
 }
 
 impl Matrix {
-    pub fn New(m: [[Float; 4]; 4]) -> Matrix {
+    pub fn new(m: [[Float; 4]; 4]) -> Matrix {
         Matrix { m: m }
     }
 
-    fn Transpose(&self) -> Matrix {
-        M(
+    fn transpose(&self) -> Matrix {
+        m4(
             self[0][0], self[1][0], self[2][0], self[3][0],
             self[0][1], self[1][1], self[2][1], self[3][1],
             self[0][2], self[1][2], self[2][2], self[3][2],
@@ -45,7 +45,7 @@ impl Matrix {
         )
     }
 
-    fn Inverse(&self) -> Matrix {
+    fn inverse(&self) -> Matrix {
         let mut r = Matrix::default();
 
         r[0][0] = self[1][2] * self[2][3] * self[3][1] - self[1][3] * self[2][2] * self[3][1] + self[1][3] * self[2][1] * self[3][2] - self[1][1] * self[2][3] * self[3][2] - self[1][2] * self[2][1] * self[3][3] + self[1][1] * self[2][2] * self[3][3];
@@ -79,14 +79,14 @@ impl Matrix {
         return r;
     }
 
-    fn ApplyPoint(&self, p: Vector3f) -> Vector3f {
+    fn apply_point(&self, p: Point3f) -> Point3f {
         let xp = self[0][0] * p.X + self[0][1] * p.Y + self[0][2] * p.Z + self[0][3];
         let yp = self[1][0] * p.X + self[1][1] * p.Y + self[1][2] * p.Z + self[1][3];
         let zp = self[2][0] * p.X + self[2][1] * p.Y + self[2][2] * p.Z + self[2][3];
         let wp = self[3][0] * p.X + self[3][1] * p.Y + self[3][2] * p.Z + self[3][3];
         debug_assert!(wp != 0.0);
 
-        let p = Vector3f::New(xp, yp, zp);
+        let p = Point3f::New(xp, yp, zp);
         if wp == 1.0 {
             return p;
         } else {
@@ -94,11 +94,11 @@ impl Matrix {
         }
     }
 
-    fn ApplyVector(&self, v: Vector3f) -> Vector3f {
+    fn apply_vector(&self, v: Vector3f) -> Vector3f {
         Vector3f::New(
-            self.m[0][0] * v.X + self.m[0][1] * v.Y + self.m[0][2] * v.Z,
-            self.m[1][0] * v.X + self.m[1][1] * v.Y + self.m[1][2] * v.Z,
-            self.m[2][0] * v.X + self.m[2][1] * v.Y + self.m[2][2] * v.Z,
+            self[0][0] * v.X + self[0][1] * v.Y + self[0][2] * v.Z,
+            self[1][0] * v.X + self[1][1] * v.Y + self[1][2] * v.Z,
+            self[2][0] * v.X + self[2][1] * v.Y + self[2][2] * v.Z,
         )
     }
 }
@@ -149,31 +149,31 @@ impl ops::IndexMut<usize> for Matrix {
 #[derive(Clone, Copy)]
 pub struct Transform {
     m: Matrix,
-    mInv: Matrix,
+    m_inv: Matrix,
 }
 
 impl Transform {
-    fn FromSingleMat(m: [[Float; 4]; 4]) -> Transform {
-        let mat = Matrix::New(m);
+    fn from_single_mat(m: [[Float; 4]; 4]) -> Transform {
+        let mat = Matrix::new(m);
         return Transform {
             m: mat,
-            mInv: mat.Inverse(),
+            m_inv: mat.inverse(),
         };
     }
 
-    fn FromMats(m: [[Float; 4]; 4], mInv: [[Float; 4]; 4]) -> Transform {
-        Transform { m: Matrix::New(m), mInv: Matrix::New(mInv) }
+    fn from_mats(m: [[Float; 4]; 4], m_inv: [[Float; 4]; 4]) -> Transform {
+        Transform { m: Matrix::new(m), m_inv: Matrix::new(m_inv) }
     }
 
-    pub fn Translate(v: Vector3f) -> Transform {
+    pub fn translate(v: Vector3f) -> Transform {
         Transform {
-            m: M(
+            m: m4(
                 1.0, 0.0, 0.0, v.X,
                 0.0, 1.0, 0.0, v.Y,
                 0.0, 0.0, 1.0, v.Z,
                 0.0, 0.0, 0.0, 1.0,
             ),
-            mInv: M(
+            m_inv: m4(
                 1.0, 0.0, 0.0, -v.X,
                 0.0, 1.0, 0.0, -v.Y,
                 0.0, 0.0, 1.0, -v.Z,
@@ -182,15 +182,15 @@ impl Transform {
         }
     }
 
-    pub fn Scale(v: Vector3f) -> Transform {
+    pub fn scale(v: Vector3f) -> Transform {
         Transform {
-            m: M(
+            m: m4(
                 v.X, 0.0, 0.0, 0.0,
                 0.0, v.Y, 0.0, 0.0,
                 0.0, 0.0, v.Z, 0.0,
                 0.0, 0.0, 0.0, 1.0,
             ),
-            mInv: M(
+            m_inv: m4(
                 1.0/v.X, 0.0,     0.0,     0.0,
                 0.0,     1.0/v.Y, 0.0,     0.0,
                 0.0,     0.0,     1.0/v.Z, 0.0,
@@ -201,97 +201,97 @@ impl Transform {
 
     /// Compute perspective transformation from field-of-view angel, distance to near a near z
     /// plane and a far z plane.
-    pub fn Perspective(fov: Float, n: Float, f: Float) -> Transform {
-        let p = M(
+    pub fn perspective(fov: Float, n: Float, f: Float) -> Transform {
+        let p = m4(
             1.0, 0.0, 0.0, 0.0,
             0.0, 1.0, 0.0, 0.0,
             0.0, 0.0, f / (f - n), - f * n / (f - n),
             0.0, 0.0, 1.0, 0.0,
         );
-        let invTanAng = 1.0 / (fov.to_radians() / 2.0).tan();
-        return Transform::Scale(Vector3f::New(invTanAng, invTanAng, 1.0))
-            * Transform::FromSingleMat(p.m);
+        let inv_tan_ang = 1.0 / (fov.to_radians() / 2.0).tan();
+        return Transform::scale(Vector3f::New(inv_tan_ang, inv_tan_ang, 1.0))
+             * Transform::from_single_mat(p.m);
     }
 
     /// Compute look-at transformation from camera position, a point camera looks at and up
     /// direction in world space coordinates.
-    fn LookAt(pos: Vector3f, look: Vector3f, up: Vector3f) -> Transform {
+    fn look_at(pos: Vector3f, look: Vector3f, up: Vector3f) -> Transform {
         let d = (look - pos).Normalize();
         let up = up.Normalize();
         let left = up.Cross(d).Normalize();
         let up = d.Cross(left);
 
-        let camera_to_world = M(
+        let camera_to_world = m4(
             left.X, up.X, d.X, pos.X,
             left.Y, up.Y, d.Y, pos.Y,
             left.Z, up.Z, d.Z, pos.Z,
                0.0,  0.0, 0.0,   1.0,
         );
 
-        return Transform { m: camera_to_world.Inverse(), mInv: camera_to_world };
+        return Transform { m: camera_to_world.inverse(), m_inv: camera_to_world };
     }
 
-    fn Transpose(&self) -> Transform {
+    fn transpose(&self) -> Transform {
         Transform {
-            m: self.m.Transpose(),
-            mInv: self.mInv.Transpose(),
+            m: self.m.transpose(),
+            m_inv: self.m_inv.transpose(),
         }
     }
 
-    pub fn Inverse(&self) -> Transform {
-        Transform { m: self.mInv, mInv: self.m }
+    pub fn inverse(&self) -> Transform {
+        Transform { m: self.m_inv, m_inv: self.m }
     }
 
-    fn RotateX(&self, theta: Float) -> Transform {
-        let (sinTheta, cosTheta) = computeSinCosInDegree(theta);
-        let m = M(
-            1.0,      0.0,       0.0, 0.0,
-            0.0, cosTheta, -sinTheta, 0.0,
-            0.0, sinTheta,  cosTheta, 0.0,
-            0.0,      0.0,       0.0, 1.0,
+    fn rotate_x(&self, theta: Float) -> Transform {
+        let (sin_theta, cos_theta) = compute_sin_cos_in_degree(theta);
+        let m = m4(
+            1.0,       0.0,        0.0, 0.0,
+            0.0, cos_theta, -sin_theta, 0.0,
+            0.0, sin_theta,  cos_theta, 0.0,
+            0.0,       0.0,        0.0, 1.0,
         );
-        return Transform { m: m, mInv: m.Transpose() };
+        return Transform { m: m, m_inv: m.transpose() };
     }
 
-    fn RotateY(&self, theta: Float) -> Transform {
-        let (sinTheta, cosTheta) = computeSinCosInDegree(theta);
-        let m = M(
-             cosTheta, 0.0, sinTheta, 0.0,
-                  0.0, 1.0,      0.0, 0.0,
-            -sinTheta, 0.0, cosTheta, 0.0,
-                  0.0, 0.0,      0.0, 1.0,
+    fn rotate_y(&self, theta: Float) -> Transform {
+        let (sin_theta, cos_theta) = compute_sin_cos_in_degree(theta);
+        let m = m4(
+             cos_theta, 0.0, sin_theta, 0.0,
+                  0.0,  1.0,       0.0, 0.0,
+            -sin_theta, 0.0, cos_theta, 0.0,
+                  0.0,  0.0,       0.0, 1.0,
         );
-        return Transform { m: m, mInv: m.Transpose() };
+        return Transform { m: m, m_inv: m.transpose() };
     }
 
-    fn RotateZ(&self, theta: Float) -> Transform {
-        let (sinTheta, cosTheta) = computeSinCosInDegree(theta);
-        let m = M(
-            cosTheta, -sinTheta, 0.0, 0.0,
-            sinTheta,  cosTheta, 0.0, 0.0,
-                 0.0,       0.0, 1.0, 0.0,
-                 0.0,       0.0, 0.0, 1.0,
+    fn rotate_z(&self, theta: Float) -> Transform {
+        let (sin_theta, cos_theta) = compute_sin_cos_in_degree(theta);
+        let m = m4(
+            cos_theta, -sin_theta, 0.0, 0.0,
+            sin_theta,  cos_theta, 0.0, 0.0,
+                  0.0,        0.0, 1.0, 0.0,
+                  0.0,        0.0, 0.0, 1.0,
         );
-        return Transform { m: m, mInv: m.Transpose() };
+        return Transform { m: m, m_inv: m.transpose() };
     }
 
-    pub fn ApplyPoint(&self, p: Vector3f) -> Vector3f {
-        self.m.ApplyPoint(p)
+    pub fn apply_point(&self, p: Point3f) -> Point3f {
+        self.m.apply_point(p)
     }
 
-    fn ApplyVector(&self, v: Vector3f) -> Vector3f {
-        self.m.ApplyVector(v)
+    fn apply_vector(&self, v: Vector3f) -> Vector3f {
+        self.m.apply_vector(v)
     }
 
-    fn ApplyNormal(&self, n: Vector3f) -> Vector3f {
-        self.mInv.ApplyVector(n)
+    fn apply_normal(&self, n: Vector3f) -> Vector3f {
+        self.m_inv.apply_vector(n)
     }
 
-    pub fn ApplyRay(&self, r: &Ray) -> Ray {
+    pub fn apply_ray(&self, r: &Ray) -> Ray {
         unimplemented!()
     }
 
-    fn ApplyBBox(&self, b: &BBox3f) -> BBox3f {
+    fn apply_bbox(&self, b: &BBox3f) -> BBox3f {
         unimplemented!()
     }
 }
@@ -307,11 +307,11 @@ impl ops::Mul<Transform> for Transform {
     fn mul(self, t: Transform) -> Transform {
         Transform {
             m: self.m * t.m,
-            mInv: self.mInv * t.mInv
+            m_inv: self.m_inv * t.m_inv
         }
     }
 }
 
-fn computeSinCosInDegree(deg: Float) -> (Float, Float) {
+fn compute_sin_cos_in_degree(deg: Float) -> (Float, Float) {
     (deg.to_radians().sin(), deg.to_radians().cos())
 }
