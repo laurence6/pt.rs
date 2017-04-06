@@ -5,10 +5,10 @@ use interaction::Interaction;
 use scene::Scene;
 
 pub trait Light {
-    /// SampleLi takes a world space point and returns the radiance arriving at that point,
+    /// sample_li takes a world space point and returns the radiance arriving at that point,
     /// incident direction, and VisibilityTester.
-    fn SampleLi(&self, &Interaction) -> (Spectrum, Vector3f, VisibilityTester);
-    fn PreProcess(&mut self, &Scene) {}
+    fn sample_li(&self, &Interaction) -> (Spectrum, Vector3f, VisibilityTester);
+    fn pre_process(&mut self, &Scene) {}
 }
 
 pub struct VisibilityTester {
@@ -17,34 +17,34 @@ pub struct VisibilityTester {
 }
 
 impl VisibilityTester {
-    fn Unoccluded(&self, scene: &Scene) -> bool {
+    fn unoccluded(&self, scene: &Scene) -> bool {
         scene.IntersectP(&self.p0.spawn_ray_to(self.p1.p))
     }
 }
 
 pub struct DistantLight {
     l: Spectrum,
-    wLight: Vector3f,
-    worldCenter: Point3f,
-    worldRadius: Float,
+    w_light: Vector3f,
+    world_center: Point3f,
+    world_radius: Float,
 }
 
 impl Light for DistantLight {
-    fn SampleLi(&self, i: &Interaction) -> (Spectrum, Vector3f, VisibilityTester) {
+    fn sample_li(&self, i: &Interaction) -> (Spectrum, Vector3f, VisibilityTester) {
         let mut p1 = Interaction::default();
         // A point outside the scene
-        p1.p = i.p + self.wLight * (2.0 * self.worldRadius);
+        p1.p = i.p + self.w_light * (2.0 * self.world_radius);
         let vis = VisibilityTester {
             p0: i.clone(),
             p1: p1,
         };
 
-        return (self.l, self.wLight, vis);
+        return (self.l, self.w_light, vis);
     }
 
-    fn PreProcess(&mut self, scene: &Scene) {
+    fn pre_process(&mut self, scene: &Scene) {
         let (center, radius) = scene.BBox().bounding_sphere();
-        self.worldCenter = center;
-        self.worldRadius = radius;
+        self.world_center = center;
+        self.world_radius = radius;
     }
 }
