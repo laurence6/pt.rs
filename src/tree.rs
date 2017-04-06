@@ -80,7 +80,7 @@ impl Tree {
         }
         let (mut tMin, mut tMax) = isec.unwrap();
 
-        let invDir = ray.Direction.Inv();
+        let invDir = ray.direction.Inv();
 
         let mut todos = [todo::new(); MAX_TODO];
         let mut todoI = 0;
@@ -88,15 +88,15 @@ impl Tree {
         let interaction: Option<Interaction> = None;
         let mut nodeIndex = 0;
         loop {
-            if ray.TMax < tMin {
+            if ray.t_max < tMin {
                 break;
             }
             let node = &self.Nodes[nodeIndex];
             match node.SplitOrShape {
                 SplitOrShape::Split(axis, point) => {
-                    let tPlane = (point - ray.Origin[axis]) * invDir[axis];
+                    let tPlane = (point - ray.origin[axis]) * invDir[axis];
                     // below first?
-                    let (child1, child2) = if ray.Origin[axis] < point || ray.Origin[axis] == point && ray.Direction[axis] <= 0.0 {
+                    let (child1, child2) = if ray.origin[axis] < point || ray.origin[axis] == point && ray.direction[axis] <= 0.0 {
                         (nodeIndex+1, node.Index)
                     } else {
                         (node.Index, nodeIndex+1)

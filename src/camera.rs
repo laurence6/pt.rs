@@ -57,7 +57,7 @@ impl Camera for PerspectiveCamera {
         let p_camera = self.raster_to_camera.apply_point(p_film);
 
         let ray = Ray {
-            Direction: p_camera,
+            direction: p_camera,
             ..Default::default()
         };
 

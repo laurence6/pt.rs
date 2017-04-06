@@ -2,23 +2,23 @@ use common::{Float, INFINITY};
 use vector::{Vector3f, Point3f};
 
 pub struct Ray {
-    pub Origin: Point3f,
-    pub Direction: Vector3f,
-    pub TMax: Float,
+    pub origin: Point3f,
+    pub direction: Vector3f,
+    pub t_max: Float,
 }
 
 impl Ray {
-    pub fn Position(&self, t: Float) -> Vector3f {
-        return self.Origin + self.Direction * t;
+    pub fn position(&self, t: Float) -> Point3f {
+        self.origin + self.direction * t
     }
 }
 
 impl Default for Ray {
     fn default() -> Ray {
         Ray {
-            Origin: Vector3f::default(),
-            Direction: Vector3f::default(),
-            TMax: INFINITY,
+            origin: Point3f::default(),
+            direction: Vector3f::default(),
+            t_max: INFINITY,
         }
     }
 }

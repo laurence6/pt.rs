@@ -23,9 +23,9 @@ impl Interaction {
     pub fn spawn_ray_to(&self, i: Point3f) -> Ray {
         let d = i - self.p;
         return Ray {
-            Origin: self.p,
-            Direction: d,
-            TMax: ONE_MINUS_EPSILON,
+            origin: self.p,
+            direction: d,
+            t_max: ONE_MINUS_EPSILON,
         };
     }
 }

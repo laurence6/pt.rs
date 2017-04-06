@@ -76,13 +76,13 @@ impl BBox3f {
 
     pub fn intersect_p(&self, ray: &Ray) -> Option<(Float, Float)> {
         let mut t0 = 0.0;
-        let mut t1 = ray.TMax;
+        let mut t1 = ray.t_max;
 
         let mut axis = Axis::X;
         for _ in 0..3 {
-            let inv_ray_dir = 1.0 / ray.Direction[axis];
-            let mut t_near = (self.min[axis] - ray.Origin[axis]) * inv_ray_dir;
-            let mut t_far  = (self.max[axis] - ray.Origin[axis]) * inv_ray_dir;
+            let inv_ray_dir = 1.0 / ray.direction[axis];
+            let mut t_near = (self.min[axis] - ray.origin[axis]) * inv_ray_dir;
+            let mut t_far  = (self.max[axis] - ray.origin[axis]) * inv_ray_dir;
             if t_near > t_far {
                 swap(&mut t_near, &mut t_far);
             }
