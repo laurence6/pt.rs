@@ -18,7 +18,7 @@ pub struct VisibilityTester {
 
 impl VisibilityTester {
     fn unoccluded(&self, scene: &Scene) -> bool {
-        scene.IntersectP(&self.p0.spawn_ray_to(self.p1.p))
+        scene.intersect_p(&self.p0.spawn_ray_to(self.p1.p))
     }
 }
 
@@ -43,7 +43,7 @@ impl Light for DistantLight {
     }
 
     fn pre_process(&mut self, scene: &Scene) {
-        let (center, radius) = scene.BBox().bounding_sphere();
+        let (center, radius) = scene.bbox().bounding_sphere();
         self.world_center = center;
         self.world_radius = radius;
     }

@@ -10,15 +10,15 @@ pub struct Scene {
 }
 
 impl Scene {
-    pub fn BBox(&self) -> BBox3f {
+    pub fn bbox(&self) -> BBox3f {
         self.aggregate.BBox()
     }
 
-    pub fn IntersectP(&self, ray: &Ray) -> bool {
+    pub fn intersect_p(&self, ray: &Ray) -> bool {
         self.aggregate.IntersectP(ray)
     }
 
-    pub fn Intersect(&self, ray: &Ray) -> Option<Interaction> {
+    pub fn intersect(&self, ray: &Ray) -> Option<Interaction> {
         self.aggregate.Intersect(ray)
     }
 }
