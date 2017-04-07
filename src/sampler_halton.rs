@@ -68,8 +68,8 @@ impl Sampler for HaltonSampler {
         for i in 0..self.sample_array_2d.len() {
             for j in 0..self.sample_array_2d[i].len() {
                 let index = self.get_index_for_sample(j);
-                self.sample_array_2d[i][j].X = self.sample_dimension(index, dim);
-                self.sample_array_2d[i][j].Y = self.sample_dimension(index, dim + 1);
+                self.sample_array_2d[i][j].x = self.sample_dimension(index, dim);
+                self.sample_array_2d[i][j].y = self.sample_dimension(index, dim + 1);
             }
             dim += 2;
         }
@@ -110,7 +110,7 @@ impl Sampler for HaltonSampler {
         if ARRAY_START_DIM <= self.dimension + 1 && self.dimension + 1 <= self.array_end_dim {
             self.dimension = self.array_end_dim;
         }
-        let p = Point2f::New(
+        let p = Point2f::new(
             self.sample_dimension(self.interval_sample_index, self.dimension),
             self.sample_dimension(self.interval_sample_index, self.dimension + 1),
         );
@@ -129,7 +129,7 @@ impl Sampler for HaltonSampler {
     fn req_2d_array(&mut self, n: usize) {
         debug_assert_eq!(self.round_count(n), n);
         self.sample_array_2d.push(
-            vec![Point2f::New(0.0, 0.0); n * self.samples_per_pixel]
+            vec![Point2f::new(0.0, 0.0); n * self.samples_per_pixel]
             .into_boxed_slice()
         );
     }
@@ -175,17 +175,17 @@ impl GlobalSampler for HaltonSampler {
             self.offset_for_current_pixel = 0;
             if self.sample_stride > 1 {
                 let pm = Point2u {
-                    X: self.current_pixel.X % K_MAX_RESOLUTION,
-                    Y: self.current_pixel.Y % K_MAX_RESOLUTION,
+                    x: self.current_pixel.x % K_MAX_RESOLUTION,
+                    y: self.current_pixel.y % K_MAX_RESOLUTION,
                 };
 
                 self.offset_for_current_pixel += {
-                    let dim_offset = inverse_radical_inverse(2, pm.X, self.base_exp.X);
-                    dim_offset * (self.sample_stride / self.base_exp.X as usize) * self.multi_inverse[0]
+                    let dim_offset = inverse_radical_inverse(2, pm.x, self.base_exp.x);
+                    dim_offset * (self.sample_stride / self.base_exp.x as usize) * self.multi_inverse[0]
                 };
                 self.offset_for_current_pixel += {
-                    let dim_offset = inverse_radical_inverse(3, pm.Y, self.base_exp.Y);
-                    dim_offset * (self.sample_stride / self.base_exp.Y as usize) * self.multi_inverse[1]
+                    let dim_offset = inverse_radical_inverse(3, pm.y, self.base_exp.y);
+                    dim_offset * (self.sample_stride / self.base_exp.y as usize) * self.multi_inverse[1]
                 };
                 self.offset_for_current_pixel %= self.sample_stride;
             }
@@ -198,8 +198,8 @@ impl GlobalSampler for HaltonSampler {
         let index = index as u32;
         let d = d as u32;
         match d {
-            0 => radical_inverse_prime(0, index >> self.base_exp.X),
-            1 => radical_inverse_prime(1, index / self.base_scale.Y),
+            0 => radical_inverse_prime(0, index >> self.base_exp.x),
+            1 => radical_inverse_prime(1, index / self.base_scale.y),
             _ => radical_inverse_prime(d, index),
         }
     }

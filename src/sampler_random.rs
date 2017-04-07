@@ -56,7 +56,7 @@ impl Sampler for RandomSampler {
 
         for i in 0..self.sample_array_2d.len() {
             for j in 0..self.sample_array_2d[i].len() {
-                self.sample_array_2d[i][j] = Point2f::New(self.rng.gen(), self.rng.gen());
+                self.sample_array_2d[i][j] = Point2f::new(self.rng.gen(), self.rng.gen());
             }
         }
     }
@@ -75,7 +75,7 @@ impl Sampler for RandomSampler {
 
     fn get_2d(&mut self) -> Point2f {
         debug_assert!(self.current_pixel_sample_index < self.samples_per_pixel);
-        return Point2f::New(self.rng.gen(), self.rng.gen());
+        return Point2f::new(self.rng.gen(), self.rng.gen());
     }
 
     fn req_1d_array(&mut self, n: usize) {
@@ -89,7 +89,7 @@ impl Sampler for RandomSampler {
     fn req_2d_array(&mut self, n: usize) {
         debug_assert_eq!(self.round_count(n), n);
         self.sample_array_2d.push(
-            vec![Point2f::New(0.0, 0.0); n * self.samples_per_pixel]
+            vec![Point2f::new(0.0, 0.0); n * self.samples_per_pixel]
             .into_boxed_slice()
         );
     }
@@ -149,7 +149,7 @@ mod sampler_random_test {
 
         for i in 0..17 {
             for j in 0..19 {
-                sampler.start_pixel(Point2u::New(i, j));
+                sampler.start_pixel(Point2u::new(i, j));
 
                 let mut c = 0;
                 loop {
@@ -171,7 +171,7 @@ mod sampler_random_test {
 
                         if c > 0 {
                             let s = array[size / 2];
-                            assert!(s.X != 0.0 && s.Y != 0.0, "Empty sample");
+                            assert!(s.x != 0.0 && s.y != 0.0, "Empty sample");
                         }
                     }
 

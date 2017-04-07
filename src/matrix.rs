@@ -80,13 +80,13 @@ impl Matrix {
     }
 
     fn apply_point(&self, p: Point3f) -> Point3f {
-        let xp = self[0][0] * p.X + self[0][1] * p.Y + self[0][2] * p.Z + self[0][3];
-        let yp = self[1][0] * p.X + self[1][1] * p.Y + self[1][2] * p.Z + self[1][3];
-        let zp = self[2][0] * p.X + self[2][1] * p.Y + self[2][2] * p.Z + self[2][3];
-        let wp = self[3][0] * p.X + self[3][1] * p.Y + self[3][2] * p.Z + self[3][3];
+        let xp = self[0][0] * p.x + self[0][1] * p.y + self[0][2] * p.z + self[0][3];
+        let yp = self[1][0] * p.x + self[1][1] * p.y + self[1][2] * p.z + self[1][3];
+        let zp = self[2][0] * p.x + self[2][1] * p.y + self[2][2] * p.z + self[2][3];
+        let wp = self[3][0] * p.x + self[3][1] * p.y + self[3][2] * p.z + self[3][3];
         debug_assert!(wp != 0.0);
 
-        let p = Point3f::New(xp, yp, zp);
+        let p = Point3f::new(xp, yp, zp);
         if wp == 1.0 {
             return p;
         } else {
@@ -95,10 +95,10 @@ impl Matrix {
     }
 
     fn apply_vector(&self, v: Vector3f) -> Vector3f {
-        Vector3f::New(
-            self[0][0] * v.X + self[0][1] * v.Y + self[0][2] * v.Z,
-            self[1][0] * v.X + self[1][1] * v.Y + self[1][2] * v.Z,
-            self[2][0] * v.X + self[2][1] * v.Y + self[2][2] * v.Z,
+        Vector3f::new(
+            self[0][0] * v.x + self[0][1] * v.y + self[0][2] * v.z,
+            self[1][0] * v.x + self[1][1] * v.y + self[1][2] * v.z,
+            self[2][0] * v.x + self[2][1] * v.y + self[2][2] * v.z,
         )
     }
 }
@@ -168,15 +168,15 @@ impl Transform {
     pub fn translate(v: Vector3f) -> Transform {
         Transform {
             m: m4(
-                1.0, 0.0, 0.0, v.X,
-                0.0, 1.0, 0.0, v.Y,
-                0.0, 0.0, 1.0, v.Z,
+                1.0, 0.0, 0.0, v.x,
+                0.0, 1.0, 0.0, v.y,
+                0.0, 0.0, 1.0, v.z,
                 0.0, 0.0, 0.0, 1.0,
             ),
             m_inv: m4(
-                1.0, 0.0, 0.0, -v.X,
-                0.0, 1.0, 0.0, -v.Y,
-                0.0, 0.0, 1.0, -v.Z,
+                1.0, 0.0, 0.0, -v.x,
+                0.0, 1.0, 0.0, -v.y,
+                0.0, 0.0, 1.0, -v.z,
                 0.0, 0.0, 0.0, 1.0,
             ),
         }
@@ -185,15 +185,15 @@ impl Transform {
     pub fn scale(v: Vector3f) -> Transform {
         Transform {
             m: m4(
-                v.X, 0.0, 0.0, 0.0,
-                0.0, v.Y, 0.0, 0.0,
-                0.0, 0.0, v.Z, 0.0,
+                v.x, 0.0, 0.0, 0.0,
+                0.0, v.y, 0.0, 0.0,
+                0.0, 0.0, v.z, 0.0,
                 0.0, 0.0, 0.0, 1.0,
             ),
             m_inv: m4(
-                1.0/v.X, 0.0,     0.0,     0.0,
-                0.0,     1.0/v.Y, 0.0,     0.0,
-                0.0,     0.0,     1.0/v.Z, 0.0,
+                1.0/v.x, 0.0,     0.0,     0.0,
+                0.0,     1.0/v.y, 0.0,     0.0,
+                0.0,     0.0,     1.0/v.z, 0.0,
                 0.0,     0.0,     0.0,     1.0,
             ),
         }
@@ -209,22 +209,22 @@ impl Transform {
             0.0, 0.0, 1.0, 0.0,
         );
         let inv_tan_ang = 1.0 / (fov.to_radians() / 2.0).tan();
-        return Transform::scale(Vector3f::New(inv_tan_ang, inv_tan_ang, 1.0))
+        return Transform::scale(Vector3f::new(inv_tan_ang, inv_tan_ang, 1.0))
              * Transform::from_single_mat(p.m);
     }
 
     /// Compute look-at transformation from camera position, a point camera looks at and up
     /// direction in world space coordinates.
     fn look_at(pos: Vector3f, look: Vector3f, up: Vector3f) -> Transform {
-        let d = (look - pos).Normalize();
-        let up = up.Normalize();
-        let left = up.Cross(d).Normalize();
-        let up = d.Cross(left);
+        let d = (look - pos).normalize();
+        let up = up.normalize();
+        let left = up.cross(d).normalize();
+        let up = d.cross(left);
 
         let camera_to_world = m4(
-            left.X, up.X, d.X, pos.X,
-            left.Y, up.Y, d.Y, pos.Y,
-            left.Z, up.Z, d.Z, pos.Z,
+            left.x, up.x, d.x, pos.x,
+            left.y, up.y, d.y, pos.y,
+            left.z, up.z, d.z, pos.z,
                0.0,  0.0, 0.0,   1.0,
         );
 

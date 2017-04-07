@@ -80,7 +80,7 @@ impl Tree {
         }
         let (mut t_min, mut t_max) = isec.unwrap();
 
-        let inv_dir = ray.direction.Inv();
+        let inv_dir = ray.direction.inv();
 
         let mut todos = [Todo::new(); MAX_TODO];
         let mut todo_i = 0;

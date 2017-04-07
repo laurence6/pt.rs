@@ -33,12 +33,12 @@ impl BBox3f {
 
     pub fn surface_area(&self) -> Float {
         let d = self.diagonal();
-        return (d.X * d.Y + d.X * d.Z + d.Y * d.Z) * 2.0;
+        return (d.x * d.y + d.x * d.z + d.y * d.z) * 2.0;
     }
 
     pub fn maximum_extent(&self) -> Axis {
         let d = self.diagonal();
-        match (d.X <= d.Y, d.Y <= d.Z) {
+        match (d.x <= d.y, d.y <= d.z) {
             (true,  true) => return Axis::X,
             (false, true) => return Axis::Y,
             _             => return Axis::Z,
@@ -48,7 +48,7 @@ impl BBox3f {
     pub fn bounding_sphere(&self) -> (Point3f, Float) {
         let center = (self.min + self.max) / 2.0;
         let radius = if self.point_inside(center) {
-            center.Distance(self.max)
+            center.distance(self.max)
         } else {
             0.0
         };
@@ -56,21 +56,21 @@ impl BBox3f {
     }
 
     pub fn overlaps(&self, b: &BBox3f) -> bool {
-        (b.min.X <= self.max.X) && (self.min.X <= b.max.X) &&
-        (b.min.Y <= self.max.Y) && (self.min.Y <= b.max.Y) &&
-        (b.min.Z <= self.max.Z) && (self.min.Z <= b.max.Z)
+        (b.min.x <= self.max.x) && (self.min.x <= b.max.x) &&
+        (b.min.y <= self.max.y) && (self.min.y <= b.max.y) &&
+        (b.min.z <= self.max.z) && (self.min.z <= b.max.z)
     }
 
     pub fn point_inside(&self, p: Point3f) -> bool {
-        (self.min.X <= p.X) && (p.X <= self.max.X) &&
-        (self.min.Y <= p.Y) && (p.Y <= self.max.Y) &&
-        (self.min.Z <= p.Z) && (p.Z <= self.max.Z)
+        (self.min.x <= p.x) && (p.x <= self.max.x) &&
+        (self.min.y <= p.y) && (p.y <= self.max.y) &&
+        (self.min.z <= p.z) && (p.z <= self.max.z)
     }
 
     pub fn union(&self, b: &BBox3f) -> BBox3f {
         BBox3f {
-            min: self.min.Min(b.min),
-            max: self.max.Max(b.max),
+            min: self.min.min(b.min),
+            max: self.max.max(b.max),
         }
     }
 
@@ -116,7 +116,7 @@ impl<T> BBox2<T> where T: Copy + ops::Sub<Output = T> + ops::Mul<Output = T> {
 
     pub fn area(&self) -> T {
         let d = self.diagonal();
-        return d.X * d.Y;
+        return d.x * d.y;
     }
 }
 
