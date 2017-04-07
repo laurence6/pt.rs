@@ -118,14 +118,14 @@ impl Tree {
                 SplitOrShape::Shape(n) => {
                     if n == 1 {
                         let shape = &self.Shapes[node.Index];
-                        let i = shape.Intersect(ray);
+                        let i = shape.intersect(ray);
                         if i.is_some() {
                             return i;
                         }
                     } else {
                         for i in 0..n {
                             let shape = &self.Shapes[self.ShapeIndices[node.Index + i]];
-                            let i = shape.Intersect(ray);
+                            let i = shape.intersect(ray);
                             if i.is_some() {
                                 return i;
                             }
@@ -235,7 +235,7 @@ fn buildTree(
         for _ in 0..3 {
             for i in 0..shapes.len() {
                 let s = &tree.Shapes[i];
-                let bbox = s.BBox();
+                let bbox = s.bbox();
                 edges[axis as usize].push(bEdge::new(bbox.min[axis], i, bEdgeType::start));
                 edges[axis as usize].push(bEdge::new(bbox.min[axis], i, bEdgeType::end));
             }

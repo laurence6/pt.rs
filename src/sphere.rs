@@ -22,15 +22,15 @@ impl Sphere {
 }
 
 impl Shape for Sphere {
-    fn BBox(&self) -> BBox3f {
+    fn bbox(&self) -> BBox3f {
         return self.BBox;
     }
 
-    fn IntersectP(&self, r: &Ray) -> bool {
+    fn intersect_p(&self, r: &Ray) -> bool {
         unimplemented!()
     }
 
-    fn Intersect(&self, r: &Ray) -> Option<Interaction> {
+    fn intersect(&self, r: &Ray) -> Option<Interaction> {
         unimplemented!()
     }
 }

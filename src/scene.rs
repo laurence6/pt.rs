@@ -11,14 +11,14 @@ pub struct Scene {
 
 impl Scene {
     pub fn bbox(&self) -> BBox3f {
-        self.aggregate.BBox()
+        self.aggregate.bbox()
     }
 
     pub fn intersect_p(&self, ray: &Ray) -> bool {
-        self.aggregate.IntersectP(ray)
+        self.aggregate.intersect_p(ray)
     }
 
     pub fn intersect(&self, ray: &Ray) -> Option<Interaction> {
-        self.aggregate.Intersect(ray)
+        self.aggregate.intersect(ray)
     }
 }

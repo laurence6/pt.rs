@@ -22,7 +22,7 @@ impl BBox3f {
     pub fn bbox_of_shapes(shapes: &Vec<Rc<Shape>>) -> BBox3f {
         let mut bbox = BBox3f::new(Point3f::default(), Point3f::default());
         for shape in shapes {
-            bbox = bbox.union(&shape.BBox());
+            bbox = bbox.union(&shape.bbox());
         }
         return bbox;
     }
