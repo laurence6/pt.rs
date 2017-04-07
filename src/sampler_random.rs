@@ -43,7 +43,7 @@ impl RandomSampler {
 }
 
 impl Sampler for RandomSampler {
-    fn StartPixel(&mut self, _: Point2u) {
+    fn start_pixel(&mut self, _: Point2u) {
         self.currentPixelSampleIndex = 0;
         self.array1DOffset = 0;
         self.array2DOffset = 0;
@@ -61,40 +61,40 @@ impl Sampler for RandomSampler {
         }
     }
 
-    fn StartNextSample(&mut self) -> bool {
+    fn start_next_sample(&mut self) -> bool {
         self.currentPixelSampleIndex += 1;
         self.array1DOffset = 0;
         self.array2DOffset = 0;
         return self.currentPixelSampleIndex < self.samplesPerPixel;
     }
 
-    fn Get1D(&mut self) -> Float {
+    fn get_1d(&mut self) -> Float {
         debug_assert!(self.currentPixelSampleIndex < self.samplesPerPixel);
         return self.rng.gen();
     }
 
-    fn Get2D(&mut self) -> Point2f {
+    fn get_2d(&mut self) -> Point2f {
         debug_assert!(self.currentPixelSampleIndex < self.samplesPerPixel);
         return Point2f::New(self.rng.gen(), self.rng.gen());
     }
 
-    fn Req1DArray(&mut self, n: usize) {
-        debug_assert_eq!(self.RoundCount(n), n);
+    fn req_1d_array(&mut self, n: usize) {
+        debug_assert_eq!(self.round_count(n), n);
         self.sampleArray1D.push(
             vec![0.0; n * self.samplesPerPixel]
             .into_boxed_slice()
         );
     }
 
-    fn Req2DArray(&mut self, n: usize) {
-        debug_assert_eq!(self.RoundCount(n), n);
+    fn req_2d_array(&mut self, n: usize) {
+        debug_assert_eq!(self.round_count(n), n);
         self.sampleArray2D.push(
             vec![Point2f::New(0.0, 0.0); n * self.samplesPerPixel]
             .into_boxed_slice()
         );
     }
 
-    fn Get1DArray(&mut self, n: usize) -> Option<&[Float]> {
+    fn get_1d_array(&mut self, n: usize) -> Option<&[Float]> {
         if self.array1DOffset >= self.sampleArray1D.len() {
             return None;
         }
@@ -111,7 +111,7 @@ impl Sampler for RandomSampler {
         return ret;
     }
 
-    fn Get2DArray(&mut self, n: usize) -> Option<&[Point2f]> {
+    fn get_2d_array(&mut self, n: usize) -> Option<&[Point2f]> {
         if self.array2DOffset >= self.sampleArray2D.len() {
             return None;
         }
@@ -144,20 +144,20 @@ mod sampler_random_test {
 
         let mut sampler = RandomSampler::New(samplesPerPixel);
 
-        for _ in 0..n1DArray { sampler.Req1DArray(size); }
-        for _ in 0..n2DArray { sampler.Req2DArray(size); }
+        for _ in 0..n1DArray { sampler.req_1d_array(size); }
+        for _ in 0..n2DArray { sampler.req_2d_array(size); }
 
         for i in 0..17 {
             for j in 0..19 {
-                sampler.StartPixel(Point2u::New(i, j));
+                sampler.start_pixel(Point2u::New(i, j));
 
                 let mut c = 0;
                 loop {
                     for _ in 1..n1DArray {
-                        assert!(sampler.Get1D() != 0.0, "Empty sample");
+                        assert!(sampler.get_1d() != 0.0, "Empty sample");
                     }
                     for _ in 0..n1DArray {
-                        let array = sampler.Get1DArray(size).unwrap();
+                        let array = sampler.get_1d_array(size).unwrap();
                         assert!(array.len() == size, "Incorrect size");
 
                         if c > 0 {
@@ -166,7 +166,7 @@ mod sampler_random_test {
                         }
                     }
                     for _ in 0..n2DArray {
-                        let array = sampler.Get2DArray(size).unwrap();
+                        let array = sampler.get_2d_array(size).unwrap();
                         assert!(array.len() == size, "Incorrect size");
 
                         if c > 0 {
@@ -177,7 +177,7 @@ mod sampler_random_test {
 
                     c += 1;
 
-                    if !sampler.StartNextSample() {
+                    if !sampler.start_next_sample() {
                         assert_eq!(c, samplesPerPixel);
                         break;
                     }

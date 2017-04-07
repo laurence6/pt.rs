@@ -48,7 +48,7 @@ impl HaltonSampler {
 }
 
 impl Sampler for HaltonSampler {
-    fn StartPixel(&mut self, p: Point2u) {
+    fn start_pixel(&mut self, p: Point2u) {
         // General sampler
         self.currentPixel = p;
         self.currentPixelSampleIndex = 0;
@@ -58,8 +58,8 @@ impl Sampler for HaltonSampler {
         // Compute 1D array samples
         for i in 0..self.sampleArray1D.len() {
             for j in 0..self.sampleArray1D[i].len() {
-                let index = self.GetIndexForSample(j);
-                self.sampleArray1D[i][j] = self.SampleDimension(index, ARRAY_START_DIM + i);
+                let index = self.get_index_for_sample(j);
+                self.sampleArray1D[i][j] = self.sample_dimension(index, ARRAY_START_DIM + i);
             }
         }
 
@@ -67,16 +67,16 @@ impl Sampler for HaltonSampler {
         let mut dim = ARRAY_START_DIM + self.sampleArray1D.len();
         for i in 0..self.sampleArray2D.len() {
             for j in 0..self.sampleArray2D[i].len() {
-                let index = self.GetIndexForSample(j);
-                self.sampleArray2D[i][j].X = self.SampleDimension(index, dim);
-                self.sampleArray2D[i][j].Y = self.SampleDimension(index, dim + 1);
+                let index = self.get_index_for_sample(j);
+                self.sampleArray2D[i][j].X = self.sample_dimension(index, dim);
+                self.sampleArray2D[i][j].Y = self.sample_dimension(index, dim + 1);
             }
             dim += 2;
         }
 
         // Global sampler
         self.dimension = 0;
-        self.intervalSampleIndex = self.GetIndexForSample(0);
+        self.intervalSampleIndex = self.get_index_for_sample(0);
         self.arrayEndDim = ARRAY_START_DIM
             + self.sampleArray1D.len()
             + self.sampleArray2D.len() * 2;
@@ -84,7 +84,7 @@ impl Sampler for HaltonSampler {
         debug_assert_eq!(dim, self.arrayEndDim);
     }
 
-    fn StartNextSample(&mut self) -> bool {
+    fn start_next_sample(&mut self) -> bool {
         self.currentPixelSampleIndex += 1;
         self.array1DOffset = 0;
         self.array2DOffset = 0;
@@ -92,49 +92,49 @@ impl Sampler for HaltonSampler {
         self.dimension = 0;
         self.intervalSampleIndex = {
             let nextPixelSampleIndex = self.currentPixelSampleIndex + 1;
-            self.GetIndexForSample(nextPixelSampleIndex)
+            self.get_index_for_sample(nextPixelSampleIndex)
         };
 
         return self.currentPixelSampleIndex < self.samplesPerPixel;
     }
 
-    fn Get1D(&mut self) -> Float {
+    fn get_1d(&mut self) -> Float {
         if ARRAY_START_DIM <= self.dimension && self.dimension <= self.arrayEndDim {
             self.dimension = self.arrayEndDim;
         }
         self.dimension += 1;
-        return self.SampleDimension(self.intervalSampleIndex, self.dimension);
+        return self.sample_dimension(self.intervalSampleIndex, self.dimension);
     }
 
-    fn Get2D(&mut self) -> Point2f {
+    fn get_2d(&mut self) -> Point2f {
         if ARRAY_START_DIM <= self.dimension + 1 && self.dimension + 1 <= self.arrayEndDim {
             self.dimension = self.arrayEndDim;
         }
         let p = Point2f::New(
-            self.SampleDimension(self.intervalSampleIndex, self.dimension),
-            self.SampleDimension(self.intervalSampleIndex, self.dimension + 1),
+            self.sample_dimension(self.intervalSampleIndex, self.dimension),
+            self.sample_dimension(self.intervalSampleIndex, self.dimension + 1),
         );
         self.dimension += 2;
         return p;
     }
 
-    fn Req1DArray(&mut self, n: usize) {
-        debug_assert_eq!(self.RoundCount(n), n);
+    fn req_1d_array(&mut self, n: usize) {
+        debug_assert_eq!(self.round_count(n), n);
         self.sampleArray1D.push(
             vec![0.0; n * self.samplesPerPixel]
             .into_boxed_slice()
         );
     }
 
-    fn Req2DArray(&mut self, n: usize) {
-        debug_assert_eq!(self.RoundCount(n), n);
+    fn req_2d_array(&mut self, n: usize) {
+        debug_assert_eq!(self.round_count(n), n);
         self.sampleArray2D.push(
             vec![Point2f::New(0.0, 0.0); n * self.samplesPerPixel]
             .into_boxed_slice()
         );
     }
 
-    fn Get1DArray(&mut self, n: usize) -> Option<&[Float]> {
+    fn get_1d_array(&mut self, n: usize) -> Option<&[Float]> {
         if self.array1DOffset == self.sampleArray1D.len() {
             return None;
         }
@@ -151,7 +151,7 @@ impl Sampler for HaltonSampler {
         return ret;
     }
 
-    fn Get2DArray(&mut self, n: usize) -> Option<&[Point2f]> {
+    fn get_2d_array(&mut self, n: usize) -> Option<&[Point2f]> {
         if self.array2DOffset == self.sampleArray2D.len() {
             return None;
         }
@@ -170,7 +170,7 @@ impl Sampler for HaltonSampler {
 }
 
 impl GlobalSampler for HaltonSampler {
-    fn GetIndexForSample(&mut self, sampleNum: usize) -> usize {
+    fn get_index_for_sample(&mut self, sampleNum: usize) -> usize {
         if self.pixelForOffset != self.currentPixel {
             self.offsetForCurrentPixel = 0;
             if self.sampleStride > 1 {
@@ -194,7 +194,7 @@ impl GlobalSampler for HaltonSampler {
         return self.offsetForCurrentPixel + sampleNum * self.sampleStride;
     }
 
-    fn SampleDimension(&self, index: usize, d: usize) -> Float {
+    fn sample_dimension(&self, index: usize, d: usize) -> Float {
         let index = index as u32;
         let d = d as u32;
         match d {

@@ -4,30 +4,30 @@ use camera::CameraSample;
 
 pub trait Sampler {
     /// Set current pixel. Reset sample number.
-    fn StartPixel(&mut self, p: Point2u);
+    fn start_pixel(&mut self, p: Point2u);
     /// Start next sample of current pixel.
     /// Return false if requested samples per pixel have been generated.
-    fn StartNextSample(&mut self) -> bool;
+    fn start_next_sample(&mut self) -> bool;
     /// Return next 1 dimension of current sample.
-    fn Get1D(&mut self) -> Float;
+    fn get_1d(&mut self) -> Float;
     /// Return next 2 dimensions of current sample.
-    fn Get2D(&mut self) -> Point2f;
+    fn get_2d(&mut self) -> Point2f;
     /// Request an array of n samples with 1 dimension.
-    fn Req1DArray(&mut self, usize);
+    fn req_1d_array(&mut self, usize);
     /// Request an array of n samples with 2 dimensions.
-    fn Req2DArray(&mut self, usize);
+    fn req_2d_array(&mut self, usize);
     /// Get an array of samples with 1 dimension.
-    fn Get1DArray(&mut self, usize) -> Option<&[Float]>;
+    fn get_1d_array(&mut self, usize) -> Option<&[Float]>;
     /// Get an array of samples with 2 dimensions.
-    fn Get2DArray(&mut self, usize) -> Option<&[Point2f]>;
+    fn get_2d_array(&mut self, usize) -> Option<&[Point2f]>;
     /// Round to a better size of array.
-    fn RoundCount(&self, n: usize) -> usize {
+    fn round_count(&self, n: usize) -> usize {
         n
     }
 
-    fn GetCameraSample(&mut self, pRaster: Point2u) -> CameraSample {
-        let p_film = Point2f::from(pRaster) + self.Get2D();
-        let p_lens = self.Get2D();
+    fn get_camera_sample(&mut self, p_raster: Point2u) -> CameraSample {
+        let p_film = Point2f::from(p_raster) + self.get_2d();
+        let p_lens = self.get_2d();
         return CameraSample {
             p_film: p_film,
             p_lens: p_lens,
@@ -37,7 +37,7 @@ pub trait Sampler {
 
 pub trait GlobalSampler : Sampler {
     /// Return index to the sample in the overall set of samples based on current pixel and sample index.
-    fn GetIndexForSample(&mut self, usize) -> usize;
+    fn get_index_for_sample(&mut self, usize) -> usize;
     /// Return sample value for the given dimension of the indexth sample in the overall set of samples.
-    fn SampleDimension(&self, index: usize, d: usize) -> Float;
+    fn sample_dimension(&self, index: usize, d: usize) -> Float;
 }
