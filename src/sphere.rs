@@ -6,24 +6,24 @@ use shape::Shape;
 use vector::Point3f;
 
 pub struct Sphere {
-    Center: Point3f,
-    Radius: Float,
+    center: Point3f,
+    radius: Float,
 
-    BBox: BBox3f,
+    bbox: BBox3f,
 }
 
 impl Sphere {
-    pub fn New(center: Point3f, radius: Float) -> Sphere {
+    pub fn new(center: Point3f, radius: Float) -> Sphere {
         let min = Point3f::New(center.X - radius, center.Y - radius, center.Z - radius);
         let max = Point3f::New(center.X + radius, center.Y + radius, center.Z + radius);
         let bbox = BBox3f { min: min, max: max };
-        return Sphere { Center: center, Radius: radius, BBox: bbox };
+        return Sphere { center: center, radius: radius, bbox: bbox };
     }
 }
 
 impl Shape for Sphere {
     fn bbox(&self) -> BBox3f {
-        return self.BBox;
+        return self.bbox;
     }
 
     fn intersect_p(&self, r: &Ray) -> bool {
