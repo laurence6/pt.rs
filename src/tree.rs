@@ -12,119 +12,119 @@ use shape::Shape;
 
 // k-d tree
 pub struct Tree {
-    pub Shapes: Vec<Rc<Shape>>,
-    pub ShapeIndices: Vec<usize>,
+    pub shapes: Vec<Rc<Shape>>,
+    pub shape_indices: Vec<usize>,
 
-    pub Nodes: Vec<Node>,
+    pub nodes: Vec<Node>,
 
-    bBox: BBox3f,
+    bbox: BBox3f,
 }
 
 pub struct Node {
-    pub SplitOrShape: SplitOrShape, // 16B
-    pub Index: usize,               // 8 B Child or Shape Index
+    pub split_or_shape: SplitOrShape,
+    pub index: usize,
 }
 
 pub enum SplitOrShape {
     Split(Axis, Float), // Splite Point
-    Shape(usize),       // Number of Shapes
+    Shape(usize),       // Number of shapes
 }
 
 impl Tree {
-    pub fn New(shapes: Vec<Rc<Shape>>, maxDepth: u8) -> Tree {
+    pub fn new(shapes: Vec<Rc<Shape>>, max_depth: u8) -> Tree {
         print!("Building k-d tree ({} shapes) ... ", shapes.len());
 
         // Compute BBox
         let bbox = BBox3f::bbox_of_shapes(&shapes);
         let tree = Tree {
-            Shapes: shapes,
-            ShapeIndices: Vec::<usize>::new(),
-            Nodes: Vec::<Node>::new(),
+            shapes: shapes,
+            shape_indices: Vec::<usize>::new(),
+            nodes: Vec::<Node>::new(),
 
-            bBox: bbox,
+            bbox: bbox,
         };
 
-        let mut shapes = vec![0; tree.Shapes.len()];
+        let mut shapes = vec![0; tree.shapes.len()];
         for i in 0..shapes.len() {
             shapes[i] = i;
         }
-        let nodeBBox = tree.bBox;
-        let maxDepth = if maxDepth > 0 {
-            maxDepth
+        let node_bbox = tree.bbox;
+        let max_depth = if max_depth > 0 {
+            max_depth
         } else {
             (8.0 + 1.3 * (shapes.len() as f32).log(2.0)).round() as u8
         };
 
         println!("Done");
 
-        return buildTree(tree, shapes, nodeBBox, 0, maxDepth);
+        return build_tree(tree, shapes, node_bbox, 0, max_depth);
     }
 
-    pub fn Intersect(&self, ray: &Ray) -> Option<Interaction> {
+    pub fn intersect(&self, ray: &Ray) -> Option<Interaction> {
         #[derive(Clone, Copy)]
-        struct todo {
+        struct Todo {
             node: usize,
-            tMin: Float,
-            tMax: Float,
+            t_min: Float,
+            t_max: Float,
         }
 
-        impl todo {
-            fn new() -> todo {
-                return todo { node: 0, tMin: 0.0, tMax: 0.0 };
+        impl Todo {
+            fn new() -> Todo {
+                return Todo { node: 0, t_min: 0.0, t_max: 0.0 };
             }
         }
 
-        let isec = self.bBox.intersect_p(ray);
+        let isec = self.bbox.intersect_p(ray);
         if isec.is_none() {
             return None;
         }
-        let (mut tMin, mut tMax) = isec.unwrap();
+        let (mut t_min, mut t_max) = isec.unwrap();
 
-        let invDir = ray.direction.Inv();
+        let inv_dir = ray.direction.Inv();
 
-        let mut todos = [todo::new(); MAX_TODO];
-        let mut todoI = 0;
+        let mut todos = [Todo::new(); MAX_TODO];
+        let mut todo_i = 0;
 
         let interaction: Option<Interaction> = None;
-        let mut nodeIndex = 0;
+        let mut node_index = 0;
         loop {
-            if ray.t_max < tMin {
+            if ray.t_max < t_min {
                 break;
             }
-            let node = &self.Nodes[nodeIndex];
-            match node.SplitOrShape {
+            let node = &self.nodes[node_index];
+            match node.split_or_shape {
                 SplitOrShape::Split(axis, point) => {
-                    let tPlane = (point - ray.origin[axis]) * invDir[axis];
+                    let t_plane = (point - ray.origin[axis]) * inv_dir[axis];
                     // below first?
                     let (child1, child2) = if ray.origin[axis] < point || ray.origin[axis] == point && ray.direction[axis] <= 0.0 {
-                        (nodeIndex+1, node.Index)
+                        (node_index+1, node.index)
                     } else {
-                        (node.Index, nodeIndex+1)
+                        (node.index, node_index+1)
                     };
-                    if tPlane > tMax || tPlane <= 0.0 {
-                        nodeIndex = child1;
-                    } else if tPlane < tMin {
-                        nodeIndex = child2;
+                    if t_plane > t_max || t_plane <= 0.0 {
+                        node_index = child1;
+                    } else if t_plane < t_min {
+                        node_index = child2;
                     } else {
-                        nodeIndex = child1;
-                        tMax = tPlane;
-                        // put child2 into todo
-                        todos[todoI].node = child2;
-                        todos[todoI].tMin = tPlane;
-                        todos[todoI].tMax = tMax;
-                        todoI += 1;
+                        node_index = child1;
+                        t_max = t_plane;
+                        // put child2 into Todo
+                        todos[todo_i].node = child2;
+                        todos[todo_i].t_min = t_plane;
+                        todos[todo_i].t_max = t_max;
+                        todo_i += 1;
                     }
                 },
                 SplitOrShape::Shape(n) => {
                     if n == 1 {
-                        let shape = &self.Shapes[node.Index];
+                        let shape = &self.shapes[node.index];
                         let i = shape.intersect(ray);
                         if i.is_some() {
                             return i;
                         }
                     } else {
                         for i in 0..n {
-                            let shape = &self.Shapes[self.ShapeIndices[node.Index + i]];
+                            let shape = &self.shapes[self.shape_indices[node.index + i]];
                             let i = shape.intersect(ray);
                             if i.is_some() {
                                 return i;
@@ -132,11 +132,11 @@ impl Tree {
                         }
                     }
 
-                    if todoI > 0 {
-                        todoI -= 1;
-                        nodeIndex = todos[todoI].node;
-                        tMin = todos[todoI].tMin;
-                        tMax = todos[todoI].tMax;
+                    if todo_i > 0 {
+                        todo_i -= 1;
+                        node_index = todos[todo_i].node;
+                        t_min = todos[todo_i].t_min;
+                        t_max = todos[todo_i].t_max;
                     } else {
                         break;
                     }
@@ -148,16 +148,16 @@ impl Tree {
 }
 
 impl Node {
-    fn newInterior(axis: Axis, point: Float) -> Node {
+    fn new_interior(axis: Axis, point: Float) -> Node {
         return Node {
-            SplitOrShape: SplitOrShape::Split(axis, point),
-            Index: 0,
+            split_or_shape: SplitOrShape::Split(axis, point),
+            index: 0,
         };
     }
 
     // shapes: Indices of shapes
-    fn newLeaf(mut shapes: &mut Vec<usize>, shapeIndices: &mut Vec<usize>) -> Node {
-        let (Shape, Index) = match shapes.len() {
+    fn new_leaf(mut shapes: &mut Vec<usize>, shape_indices: &mut Vec<usize>) -> Node {
+        let (shape, index) = match shapes.len() {
             0 => {
                 (SplitOrShape::Shape(0), 0)
             },
@@ -165,14 +165,14 @@ impl Node {
                 (SplitOrShape::Shape(1), shapes[0])
             },
             n => {
-                let i = shapeIndices.len();
-                shapeIndices.append(&mut shapes);
+                let i = shape_indices.len();
+                shape_indices.append(&mut shapes);
                 (SplitOrShape::Shape(n), i)
             },
         };
         return Node {
-            SplitOrShape: Shape,
-            Index: Index,
+            split_or_shape: shape,
+            index: index,
         };
     }
 }
@@ -180,64 +180,64 @@ impl Node {
 const MAX_TODO: usize = 64;
 
 const MAX_SHAPES_IN_NODE: usize = 8;
-const ISECT_COST: Float = 80.0; // TODO
-const TRAV_COST: Float = 1.0;   // TODO
-const EMPTY_BONUS: Float = 0.5; // TODO
+const ISECT_COST: Float = 80.0;
+const TRAV_COST: Float = 1.0;
+const EMPTY_BONUS: Float = 0.5;
 
 #[derive(PartialEq)]
-enum bEdgeType {
-    start,
-    end,
+enum Bedgetype {
+    Start,
+    End,
 }
 
 // bounding edge
-struct bEdge {
+struct Bedge {
     t: Float,
-    shapeIndex: usize,
-    edgeType: bEdgeType,
+    shapeindex: usize,
+    edge_type: Bedgetype,
 }
 
-impl bEdge {
-    fn new(t: Float, shapeIndex: usize, edgeType: bEdgeType) -> bEdge {
-        return bEdge { t: t, shapeIndex: shapeIndex, edgeType: edgeType };
+impl Bedge {
+    fn new(t: Float, shapeindex: usize, edge_type: Bedgetype) -> Bedge {
+        return Bedge { t: t, shapeindex: shapeindex, edge_type: edge_type };
     }
 }
 
 // Recursive construction
 //   Decide if the node should be an interior node or leaf
 //   Update the data structures appropriately
-fn buildTree(
+fn build_tree(
     mut tree: Tree,
     mut shapes: Vec<usize>,
-    nodeBBox: BBox3f,
-    mut badRefines: u8,
+    node_bbox: BBox3f,
+    mut bad_refines: u8,
     depth: u8) -> Tree {
 
     // Create leaf
     if shapes.len() <= MAX_SHAPES_IN_NODE || depth == 0 {
-        tree.Nodes.push(Node::newLeaf(&mut shapes, &mut tree.ShapeIndices));
+        tree.nodes.push(Node::new_leaf(&mut shapes, &mut tree.shape_indices));
         return tree;
     }
 
-    let d = nodeBBox.diagonal();
-    let invTotSA = 1.0 / nodeBBox.surface_area();
-    let oldCost = ISECT_COST * shapes.len() as Float;
+    let d = node_bbox.diagonal();
+    let inv_tot_sa = 1.0 / node_bbox.surface_area();
+    let old_cost = ISECT_COST * shapes.len() as Float;
 
-    let mut bestAxis: Option<Axis> = None;
-    let mut bestIndex: Option<usize> = None;
-    let mut bestCost = FLOAT_MAX;
+    let mut best_axis: Option<Axis> = None;
+    let mut bestindex: Option<usize> = None;
+    let mut best_cost = FLOAT_MAX;
     // 0: X 1: Y 2: Z
-    let mut edges = [Vec::<bEdge>::new(), Vec::<bEdge>::new(), Vec::<bEdge>::new()];
+    let mut edges = [Vec::<Bedge>::new(), Vec::<Bedge>::new(), Vec::<Bedge>::new()];
 
     // try different axes
     {
-        let mut axis = nodeBBox.maximum_extent();
+        let mut axis = node_bbox.maximum_extent();
         for _ in 0..3 {
             for i in 0..shapes.len() {
-                let s = &tree.Shapes[i];
+                let s = &tree.shapes[i];
                 let bbox = s.bbox();
-                edges[axis as usize].push(bEdge::new(bbox.min[axis], i, bEdgeType::start));
-                edges[axis as usize].push(bEdge::new(bbox.min[axis], i, bEdgeType::end));
+                edges[axis as usize].push(Bedge::new(bbox.min[axis], i, Bedgetype::Start));
+                edges[axis as usize].push(Bedge::new(bbox.min[axis], i, Bedgetype::End));
             }
             edges[axis as usize].sort_by(|a, b| {
                 match (a.t < b.t, a.t > b.t) {
@@ -245,50 +245,50 @@ fn buildTree(
                     (false, true) => return Ordering::Greater,
                     _ => (),
                 };
-                match (&a.edgeType, &b.edgeType) {
-                    (&bEdgeType::start, &bEdgeType::end) => return Ordering::Less,
-                    (&bEdgeType::end, &bEdgeType::start) => return Ordering::Greater,
+                match (&a.edge_type, &b.edge_type) {
+                    (&Bedgetype::Start, &Bedgetype::End) => return Ordering::Less,
+                    (&Bedgetype::End, &Bedgetype::Start) => return Ordering::Greater,
                     _                                    => return Ordering::Equal,
                 };
             });
 
-            let mut nBelow = 0;
-            let mut nAbove = shapes.len();
+            let mut n_below = 0;
+            let mut n_above = shapes.len();
 
             for i in 0..(shapes.len() * 2) {
-                if edges[axis as usize][i].edgeType == bEdgeType::end {
-                    nAbove -= 1;
+                if edges[axis as usize][i].edge_type == Bedgetype::End {
+                    n_above -= 1;
                 }
 
                 let t = edges[axis as usize][i].t;
-                if nodeBBox.min[axis] < t && t < nodeBBox.max[axis] {
-                    let (pBelow, pAbove) = {
+                if node_bbox.min[axis] < t && t < node_bbox.max[axis] {
+                    let (p_below, p_above) = {
                         let (axis1, axis2) = axis.other_axes();
                         (
-                            2.0 * (d[axis1] * d[axis2] + (t - nodeBBox.min[axis]) * (d[axis1] + d[axis2])) * invTotSA,
-                            2.0 * (d[axis1] * d[axis2] + (nodeBBox.min[axis] - t) * (d[axis1] + d[axis2])) * invTotSA,
+                            2.0 * (d[axis1] * d[axis2] + (t - node_bbox.min[axis]) * (d[axis1] + d[axis2])) * inv_tot_sa,
+                            2.0 * (d[axis1] * d[axis2] + (node_bbox.min[axis] - t) * (d[axis1] + d[axis2])) * inv_tot_sa,
                         )
                     };
-                    let bonus = if pBelow < FLOAT_MIN_POS || pAbove < FLOAT_MIN_POS {
+                    let bonus = if p_below < FLOAT_MIN_POS || p_above < FLOAT_MIN_POS {
                         EMPTY_BONUS
                     } else {
                         0.0
                     };
-                    let cost = TRAV_COST + ISECT_COST * (1.0 - bonus) * (pBelow * nBelow as Float + pAbove * nAbove as Float);
-                    if cost < bestCost {
-                        bestCost = cost;
-                        bestAxis = Some(axis);
-                        bestIndex = Some(i);
+                    let cost = TRAV_COST + ISECT_COST * (1.0 - bonus) * (p_below * n_below as Float + p_above * n_above as Float);
+                    if cost < best_cost {
+                        best_cost = cost;
+                        best_axis = Some(axis);
+                        bestindex = Some(i);
                     }
                 }
 
-                if edges[axis as usize][i].edgeType == bEdgeType::start {
-                    nBelow += 1;
+                if edges[axis as usize][i].edge_type == Bedgetype::Start {
+                    n_below += 1;
                 }
             }
-            debug_assert!(nBelow == shapes.len() && nAbove == 0);
+            debug_assert!(n_below == shapes.len() && n_above == 0);
 
-            if bestAxis.is_none() {
+            if best_axis.is_none() {
                 axis = axis.next_axis();
             } else {
                 break
@@ -296,46 +296,46 @@ fn buildTree(
         }
     }
 
-    if bestCost > oldCost {
-        badRefines += 1;
+    if best_cost > old_cost {
+        bad_refines += 1;
     }
 
     // Create leaf
-    if (bestCost > 4.0 * oldCost && shapes.len() < 16) || bestAxis.is_none() || badRefines == 3 {
-        tree.Nodes.push(Node::newLeaf(&mut shapes, &mut tree.ShapeIndices));
+    if (best_cost > 4.0 * old_cost && shapes.len() < 16) || best_axis.is_none() || bad_refines == 3 {
+        tree.nodes.push(Node::new_leaf(&mut shapes, &mut tree.shape_indices));
         return tree;
     }
 
-    let bestAxis = bestAxis.unwrap();
-    let bestIndex = bestIndex.unwrap();
-    let t = edges[bestAxis as usize][bestIndex].t;
+    let best_axis = best_axis.unwrap();
+    let bestindex = bestindex.unwrap();
+    let t = edges[best_axis as usize][bestindex].t;
     // Classify shapes
-    let (shapesBelow, shapesAbove) = {
-        let mut sBelow = Vec::<usize>::new();
-        let mut sAbove = Vec::<usize>::new();
-        for i in 0..bestIndex {
-            if edges[bestAxis as usize][i].edgeType == bEdgeType::start {
-                sBelow.push(edges[bestAxis as usize][i].shapeIndex);
+    let (shapes_below, shapes_above) = {
+        let mut s_below = Vec::<usize>::new();
+        let mut s_above = Vec::<usize>::new();
+        for i in 0..bestindex {
+            if edges[best_axis as usize][i].edge_type == Bedgetype::Start {
+                s_below.push(edges[best_axis as usize][i].shapeindex);
             }
         }
-        for i in (bestIndex + 1)..(shapes.len() * 2) {
-            if edges[bestAxis as usize][i].edgeType == bEdgeType::end {
-                sAbove.push(edges[bestAxis as usize][i].shapeIndex);
+        for i in (bestindex + 1)..(shapes.len() * 2) {
+            if edges[best_axis as usize][i].edge_type == Bedgetype::End {
+                s_above.push(edges[best_axis as usize][i].shapeindex);
             }
         }
-        (sBelow, sAbove)
+        (s_below, s_above)
     };
-    let (bboxBelow, bboxAbove) = {
-        let mut b1 = nodeBBox;
-        let mut b2 = nodeBBox;
-        b1.max[bestAxis] = t;
-        b2.min[bestAxis] = t;
+    let (bbox_below, bbox_above) = {
+        let mut b1 = node_bbox;
+        let mut b2 = node_bbox;
+        b1.max[best_axis] = t;
+        b2.min[best_axis] = t;
         (b1, b2)
     };
 
-    let mut tree = buildTree(tree, shapesBelow, bboxBelow, badRefines, depth-1);
-    tree.Nodes.push(Node::newInterior(bestAxis, t));
-    let     tree = buildTree(tree, shapesAbove, bboxAbove, badRefines, depth-1);
+    let mut tree = build_tree(tree, shapes_below, bbox_below, bad_refines, depth-1);
+    tree.nodes.push(Node::new_interior(best_axis, t));
+    let     tree = build_tree(tree, shapes_above, bbox_above, bad_refines, depth-1);
 
     return tree;
 }
