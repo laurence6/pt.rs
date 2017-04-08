@@ -284,7 +284,7 @@ impl Transform {
     }
 
     fn apply_normal(&self, n: Vector3f) -> Vector3f {
-        self.m_inv.apply_vector(n)
+        self.m_inv.transpose().apply_vector(n)
     }
 
     pub fn apply_ray(&self, r: &Ray) -> Ray {
