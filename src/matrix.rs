@@ -78,29 +78,6 @@ impl Matrix {
 
         return r;
     }
-
-    fn apply_point(&self, p: Point3f) -> Point3f {
-        let xp = self[0][0] * p.x + self[0][1] * p.y + self[0][2] * p.z + self[0][3];
-        let yp = self[1][0] * p.x + self[1][1] * p.y + self[1][2] * p.z + self[1][3];
-        let zp = self[2][0] * p.x + self[2][1] * p.y + self[2][2] * p.z + self[2][3];
-        let wp = self[3][0] * p.x + self[3][1] * p.y + self[3][2] * p.z + self[3][3];
-        debug_assert!(wp != 0.0);
-
-        let p = Point3f::new(xp, yp, zp);
-        if wp == 1.0 {
-            return p;
-        } else {
-            return p / wp;
-        }
-    }
-
-    fn apply_vector(&self, v: Vector3f) -> Vector3f {
-        Vector3f::new(
-            self[0][0] * v.x + self[0][1] * v.y + self[0][2] * v.z,
-            self[1][0] * v.x + self[1][1] * v.y + self[1][2] * v.z,
-            self[2][0] * v.x + self[2][1] * v.y + self[2][2] * v.z,
-        )
-    }
 }
 
 impl ops::Mul<Matrix> for Matrix {
@@ -276,15 +253,34 @@ impl Transform {
     }
 
     pub fn apply_point(&self, p: Point3f) -> Point3f {
-        self.m.apply_point(p)
+        let xp = self.m[0][0] * p.x + self.m[0][1] * p.y + self.m[0][2] * p.z + self.m[0][3];
+        let yp = self.m[1][0] * p.x + self.m[1][1] * p.y + self.m[1][2] * p.z + self.m[1][3];
+        let zp = self.m[2][0] * p.x + self.m[2][1] * p.y + self.m[2][2] * p.z + self.m[2][3];
+        let wp = self.m[3][0] * p.x + self.m[3][1] * p.y + self.m[3][2] * p.z + self.m[3][3];
+        debug_assert!(wp != 0.0);
+
+        let p = Point3f::new(xp, yp, zp);
+        if wp == 1.0 {
+            return p;
+        } else {
+            return p / wp;
+        }
     }
 
     fn apply_vector(&self, v: Vector3f) -> Vector3f {
-        self.m.apply_vector(v)
+        Vector3f::new(
+            self.m[0][0] * v.x + self.m[0][1] * v.y + self.m[0][2] * v.z,
+            self.m[1][0] * v.x + self.m[1][1] * v.y + self.m[1][2] * v.z,
+            self.m[2][0] * v.x + self.m[2][1] * v.y + self.m[2][2] * v.z,
+        )
     }
 
     fn apply_normal(&self, n: Vector3f) -> Vector3f {
-        self.m_inv.transpose().apply_vector(n)
+        Vector3f::new(
+            self.m_inv[0][0] * n.x + self.m_inv[1][0] * n.y + self.m_inv[2][0] * n.z,
+            self.m_inv[0][1] * n.x + self.m_inv[1][1] * n.y + self.m_inv[2][1] * n.z,
+            self.m_inv[0][2] * n.x + self.m_inv[1][2] * n.y + self.m_inv[2][2] * n.z,
+        )
     }
 
     pub fn apply_ray(&self, r: &Ray) -> Ray {
