@@ -5,39 +5,83 @@ use common::clamp;
 
 pub type Spectrum = RGBSpectrum;
 
-type RGB = [Float; 3];
-type XYZ = [Float; 3];
+struct RGB {
+    r: Float,
+    g: Float,
+    b: Float,
+}
+impl_vector3f!(RGB, r, g, b);
+
+impl From<XYZ> for RGB {
+    fn from(xyz: XYZ) -> RGB {
+        let r =  3.240479 * xyz.x + -1.537150 * xyz.y + -0.498535 * xyz.z;
+        let g = -0.969256 * xyz.x +  1.875991 * xyz.y +  0.041556 * xyz.z;
+        let b =  0.055648 * xyz.x + -0.204043 * xyz.y +  1.057311 * xyz.z;
+        return RGB::new(r, g, b);
+    }
+}
+
+struct XYZ {
+    x: Float,
+    y: Float,
+    z: Float,
+}
+impl_vector3f!(XYZ, x, y, z);
+
+impl From<RGB> for XYZ {
+    fn from(rgb: RGB) -> XYZ {
+        let x = 0.412453 * rgb.r + 0.357580 * rgb.g + 0.180423 * rgb.b;
+        let y = 0.212671 * rgb.r + 0.715160 * rgb.g + 0.072169 * rgb.b;
+        let z = 0.019334 * rgb.r + 0.119193 * rgb.g + 0.950227 * rgb.b;
+        return XYZ::new(x, y, z);
+    }
+}
+
 
 #[derive(Clone, Copy)]
-pub struct RGBSpectrum (Float, Float, Float);
+pub struct RGBSpectrum {
+    r: Float,
+    g: Float,
+    b: Float,
+}
+impl_vector3f!(RGBSpectrum, r, g, b);
+impl_vector3f_add!(RGBSpectrum, RGBSpectrum, RGBSpectrum, r, g, b);
+
+impl From<RGB> for RGBSpectrum {
+    fn from(rgb: RGB) -> RGBSpectrum {
+        RGBSpectrum::new(rgb.r, rgb.g, rgb.b)
+    }
+}
+
+impl From<XYZ> for RGBSpectrum {
+    fn from(xyz: XYZ) -> RGBSpectrum {
+        RGBSpectrum::from(RGB::from(xyz))
+    }
+}
+
+impl From<RGBSpectrum> for RGB {
+    fn from(rgbs: RGBSpectrum) -> RGB {
+        RGB::new(rgbs.r, rgbs.g, rgbs.b)
+    }
+}
+
+impl From<RGBSpectrum> for XYZ {
+    fn from(rgbs: RGBSpectrum) -> XYZ {
+        XYZ::from(RGB::from(rgbs))
+    }
+}
 
 impl RGBSpectrum {
-    fn from_rgb(rgb: RGB) -> RGBSpectrum {
-        RGBSpectrum(rgb[0], rgb[1], rgb[2])
-    }
-
-    fn from_xyz(xyz: XYZ) -> RGBSpectrum {
-        RGBSpectrum::from_rgb(xyz_to_rgb(xyz))
-    }
-
-    fn to_rgb(&self) -> RGB {
-        [self.0, self.1, self.2]
-    }
-
-    fn to_xyz(&self) -> XYZ {
-        rgb_to_xyz(self.to_rgb())
-    }
-
-    fn to_rgbspectrum(&self) -> RGBSpectrum {
-        *self
-    }
-
     fn is_black(&self) -> bool {
-        self.0 == 0.0 && self.1 == 0.0 && self.2 == 0.0
+        self.r == 0.0 && self.g == 0.0 && self.b == 0.0
     }
 
     fn sqrt(&self) -> RGBSpectrum {
-        RGBSpectrum(self.0.sqrt(), self.1.sqrt(), self.2.sqrt())
+        RGBSpectrum::new(
+            self.r.sqrt(),
+            self.g.sqrt(),
+            self.b.sqrt(),
+        )
     }
 
     fn lerp(&self, s: &RGBSpectrum, t: Float) -> RGBSpectrum {
@@ -45,73 +89,10 @@ impl RGBSpectrum {
     }
 
     fn clamp(&self, low: Float, high: Float) -> RGBSpectrum {
-        RGBSpectrum(
-            clamp(self.0, low, high),
-            clamp(self.1, low, high),
-            clamp(self.2, low, high),
+        RGBSpectrum::new(
+            clamp(self.r, low, high),
+            clamp(self.g, low, high),
+            clamp(self.b, low, high),
         )
     }
-}
-
-impl ops::Neg for RGBSpectrum {
-    type Output = RGBSpectrum;
-    fn neg(self) -> RGBSpectrum {
-        RGBSpectrum(-self.0, -self.1, -self.2)
-    }
-}
-
-impl ops::Add<RGBSpectrum> for RGBSpectrum {
-    type Output = RGBSpectrum;
-    fn add(self, s: RGBSpectrum) -> RGBSpectrum {
-        RGBSpectrum(self.0 + s.0, self.1 + s.1, self.2 + s.2)
-    }
-}
-
-impl ops::Sub<RGBSpectrum> for RGBSpectrum {
-    type Output = RGBSpectrum;
-    fn sub(self, s: RGBSpectrum) -> RGBSpectrum {
-        RGBSpectrum(self.0 - s.0, self.1 - s.1, self.2 - s.2)
-    }
-}
-
-impl ops::Add<Float> for RGBSpectrum {
-    type Output = RGBSpectrum;
-    fn add(self, a: Float) -> RGBSpectrum {
-        RGBSpectrum(self.0 + a, self.1 + a, self.2 + a)
-    }
-}
-
-impl ops::Sub<Float> for RGBSpectrum {
-    type Output = RGBSpectrum;
-    fn sub(self, a: Float) -> RGBSpectrum {
-        RGBSpectrum(self.0 - a, self.1 - a, self.2 - a)
-    }
-}
-
-impl ops::Mul<Float> for RGBSpectrum {
-    type Output = RGBSpectrum;
-    fn mul(self, a: Float) -> RGBSpectrum {
-        RGBSpectrum(self.0 * a, self.1 * a, self.2 * a)
-    }
-}
-
-impl ops::Div<Float> for RGBSpectrum {
-    type Output = RGBSpectrum;
-    fn div(self, a: Float) -> RGBSpectrum {
-        RGBSpectrum(self.0 / a, self.1 / a, self.2 / a)
-    }
-}
-
-fn xyz_to_rgb(xyz: XYZ) -> RGB {
-    let r =  3.240479 * xyz[0] + -1.537150 * xyz[1] + -0.498535 * xyz[2];
-    let g = -0.969256 * xyz[0] +  1.875991 * xyz[1] +  0.041556 * xyz[2];
-    let b =  0.055648 * xyz[0] + -0.204043 * xyz[1] +  1.057311 * xyz[2];
-    return [r, g, b];
-}
-
-fn rgb_to_xyz(rgb: RGB) -> XYZ {
-    let x = 0.412453 * rgb[0] + 0.357580 * rgb[1] + 0.180423 * rgb[2];
-    let y = 0.212671 * rgb[0] + 0.715160 * rgb[1] + 0.072169 * rgb[2];
-    let z = 0.019334 * rgb[0] + 0.119193 * rgb[1] + 0.950227 * rgb[2];
-    return [x, y, z];
 }
