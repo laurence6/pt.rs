@@ -182,6 +182,15 @@ impl Vector3f {
 
 
 #[derive(Default, Clone, Copy)]
+pub struct Normal3f {
+    pub x: Float,
+    pub y: Float,
+    pub z: Float,
+}
+impl_vector3f!(Normal3f, x, y, z);
+
+
+#[derive(Default, Clone, Copy)]
 pub struct Point3f {
     pub x: Float,
     pub y: Float,
