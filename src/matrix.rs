@@ -17,27 +17,29 @@ struct Matrix {
     m: [[Float; 4]; 4],
 }
 
-fn m4(
-    m00: Float, m01: Float, m02: Float, m03: Float,
-    m10: Float, m11: Float, m12: Float, m13: Float,
-    m20: Float, m21: Float, m22: Float, m23: Float,
-    m30: Float, m31: Float, m32: Float, m33: Float,
-) -> Matrix {
-    Matrix { m: [
-        [m00, m01, m02, m03],
-        [m10, m11, m12, m13],
-        [m20, m21, m22, m23],
-        [m30, m31, m32, m33],
-    ] }
+impl From<[[Float; 4]; 4]> for Matrix {
+    fn from(m: [[Float; 4]; 4]) -> Matrix {
+        Matrix { m: m }
+    }
 }
 
 impl Matrix {
-    pub fn new(m: [[Float; 4]; 4]) -> Matrix {
-        Matrix { m: m }
+    pub fn new(
+        m00: Float, m01: Float, m02: Float, m03: Float,
+        m10: Float, m11: Float, m12: Float, m13: Float,
+        m20: Float, m21: Float, m22: Float, m23: Float,
+        m30: Float, m31: Float, m32: Float, m33: Float,
+    ) -> Matrix {
+        Matrix { m: [
+            [m00, m01, m02, m03],
+            [m10, m11, m12, m13],
+            [m20, m21, m22, m23],
+            [m30, m31, m32, m33],
+        ] }
     }
 
     fn transpose(&self) -> Matrix {
-        m4(
+        Matrix::new(
             self[0][0], self[1][0], self[2][0], self[3][0],
             self[0][1], self[1][1], self[2][1], self[3][1],
             self[0][2], self[1][2], self[2][2], self[3][2],
@@ -131,7 +133,7 @@ pub struct Transform {
 
 impl Transform {
     fn from_single_mat(m: [[Float; 4]; 4]) -> Transform {
-        let mat = Matrix::new(m);
+        let mat = Matrix::from(m);
         return Transform {
             m: mat,
             m_inv: mat.inverse(),
@@ -139,18 +141,18 @@ impl Transform {
     }
 
     fn from_mats(m: [[Float; 4]; 4], m_inv: [[Float; 4]; 4]) -> Transform {
-        Transform { m: Matrix::new(m), m_inv: Matrix::new(m_inv) }
+        Transform { m: Matrix::from(m), m_inv: Matrix::from(m_inv) }
     }
 
     pub fn translate(v: Vector3f) -> Transform {
         Transform {
-            m: m4(
+            m: Matrix::new(
                 1.0, 0.0, 0.0, v.x,
                 0.0, 1.0, 0.0, v.y,
                 0.0, 0.0, 1.0, v.z,
                 0.0, 0.0, 0.0, 1.0,
             ),
-            m_inv: m4(
+            m_inv: Matrix::new(
                 1.0, 0.0, 0.0, -v.x,
                 0.0, 1.0, 0.0, -v.y,
                 0.0, 0.0, 1.0, -v.z,
@@ -161,13 +163,13 @@ impl Transform {
 
     pub fn scale(v: Vector3f) -> Transform {
         Transform {
-            m: m4(
+            m: Matrix::new(
                 v.x, 0.0, 0.0, 0.0,
                 0.0, v.y, 0.0, 0.0,
                 0.0, 0.0, v.z, 0.0,
                 0.0, 0.0, 0.0, 1.0,
             ),
-            m_inv: m4(
+            m_inv: Matrix::new(
                 1.0/v.x, 0.0,     0.0,     0.0,
                 0.0,     1.0/v.y, 0.0,     0.0,
                 0.0,     0.0,     1.0/v.z, 0.0,
@@ -179,7 +181,7 @@ impl Transform {
     /// Compute perspective transformation from field-of-view angel, distance to near a near z
     /// plane and a far z plane.
     pub fn perspective(fov: Float, n: Float, f: Float) -> Transform {
-        let p = m4(
+        let p = Matrix::new(
             1.0, 0.0, 0.0, 0.0,
             0.0, 1.0, 0.0, 0.0,
             0.0, 0.0, f / (f - n), - f * n / (f - n),
@@ -198,7 +200,7 @@ impl Transform {
         let left = up.cross(d).normalize();
         let up = d.cross(left);
 
-        let camera_to_world = m4(
+        let camera_to_world = Matrix::new(
             left.x, up.x, d.x, pos.x,
             left.y, up.y, d.y, pos.y,
             left.z, up.z, d.z, pos.z,
@@ -221,7 +223,7 @@ impl Transform {
 
     fn rotate_x(&self, theta: Float) -> Transform {
         let (sin_theta, cos_theta) = compute_sin_cos_in_degree(theta);
-        let m = m4(
+        let m = Matrix::new(
             1.0,       0.0,        0.0, 0.0,
             0.0, cos_theta, -sin_theta, 0.0,
             0.0, sin_theta,  cos_theta, 0.0,
@@ -232,7 +234,7 @@ impl Transform {
 
     fn rotate_y(&self, theta: Float) -> Transform {
         let (sin_theta, cos_theta) = compute_sin_cos_in_degree(theta);
-        let m = m4(
+        let m = Matrix::new(
              cos_theta, 0.0, sin_theta, 0.0,
                   0.0,  1.0,       0.0, 0.0,
             -sin_theta, 0.0, cos_theta, 0.0,
@@ -243,7 +245,7 @@ impl Transform {
 
     fn rotate_z(&self, theta: Float) -> Transform {
         let (sin_theta, cos_theta) = compute_sin_cos_in_degree(theta);
-        let m = m4(
+        let m = Matrix::new(
             cos_theta, -sin_theta, 0.0, 0.0,
             sin_theta,  cos_theta, 0.0, 0.0,
                   0.0,        0.0, 1.0, 0.0,
