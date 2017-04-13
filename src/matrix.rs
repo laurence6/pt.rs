@@ -131,18 +131,26 @@ pub struct Transform {
     m_inv: Matrix,
 }
 
-impl Transform {
-    fn from_single_mat(m: [[Float; 4]; 4]) -> Transform {
+impl From<[[Float; 4]; 4]> for Transform {
+    fn from(m: [[Float; 4]; 4]) -> Transform {
         let mat = Matrix::from(m);
         return Transform {
             m: mat,
             m_inv: mat.inverse(),
         };
     }
+}
 
-    fn from_mats(m: [[Float; 4]; 4], m_inv: [[Float; 4]; 4]) -> Transform {
-        Transform { m: Matrix::from(m), m_inv: Matrix::from(m_inv) }
+impl From<([[Float; 4]; 4], [[Float; 4]; 4])> for Transform {
+    fn from((m, m_inv): ([[Float; 4]; 4], [[Float; 4]; 4])) -> Transform {
+        Transform {
+            m: Matrix::from(m),
+            m_inv: Matrix::from(m_inv),
+        }
     }
+}
+
+impl Transform {
 
     pub fn translate(v: Vector3f) -> Transform {
         Transform {
@@ -189,7 +197,7 @@ impl Transform {
         );
         let inv_tan_ang = 1.0 / (fov.to_radians() / 2.0).tan();
         return Transform::scale(Vector3f::new(inv_tan_ang, inv_tan_ang, 1.0))
-             * Transform::from_single_mat(p.m);
+             * Transform::from(p.m);
     }
 
     /// Compute look-at transformation from camera position, a point camera looks at and up
