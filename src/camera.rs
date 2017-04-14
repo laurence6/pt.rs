@@ -1,7 +1,7 @@
 use film::Film;
 use ray::Ray;
 use vector::{Point2f, Vector3f, Point3f};
-use matrix::Transform;
+use transform::Transform;
 use bbox::BBox2f;
 use common::Float;
 

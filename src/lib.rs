@@ -18,4 +18,5 @@
 #[allow(dead_code, unused_variables)] mod shape;
 #[allow(dead_code, unused_variables)] mod spectrum;
 #[allow(dead_code, unused_variables)] mod sphere;
+#[allow(dead_code, unused_variables)] mod transform;
 #[allow(dead_code, unused_variables)] mod tree;
