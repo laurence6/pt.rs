@@ -142,43 +142,8 @@ impl Transform {
         return Transform { m: m, m_inv: m.transpose() };
     }
 
-    pub fn apply_point(&self, p: Point3f) -> Point3f {
-        let xp = self.m[0][0] * p.x + self.m[0][1] * p.y + self.m[0][2] * p.z + self.m[0][3];
-        let yp = self.m[1][0] * p.x + self.m[1][1] * p.y + self.m[1][2] * p.z + self.m[1][3];
-        let zp = self.m[2][0] * p.x + self.m[2][1] * p.y + self.m[2][2] * p.z + self.m[2][3];
-        let wp = self.m[3][0] * p.x + self.m[3][1] * p.y + self.m[3][2] * p.z + self.m[3][3];
-        debug_assert!(wp != 0.0);
-
-        let p = Point3f::new(xp, yp, zp);
-        if wp == 1.0 {
-            return p;
-        } else {
-            return p / wp;
-        }
-    }
-
-    pub fn apply_vector(&self, v: Vector3f) -> Vector3f {
-        Vector3f::new(
-            self.m[0][0] * v.x + self.m[0][1] * v.y + self.m[0][2] * v.z,
-            self.m[1][0] * v.x + self.m[1][1] * v.y + self.m[1][2] * v.z,
-            self.m[2][0] * v.x + self.m[2][1] * v.y + self.m[2][2] * v.z,
-        )
-    }
-
-    pub fn apply_normal(&self, n: Normal3f) -> Normal3f {
-        Normal3f::new(
-            self.m_inv[0][0] * n.x + self.m_inv[1][0] * n.y + self.m_inv[2][0] * n.z,
-            self.m_inv[0][1] * n.x + self.m_inv[1][1] * n.y + self.m_inv[2][1] * n.z,
-            self.m_inv[0][2] * n.x + self.m_inv[1][2] * n.y + self.m_inv[2][2] * n.z,
-        )
-    }
-
-    pub fn apply_ray(&self, r: &Ray) -> Ray {
-        unimplemented!()
-    }
-
-    fn apply_bbox(&self, b: &BBox3f) -> BBox3f {
-        unimplemented!()
+    pub fn apply<T>(&self, t: &T) -> T where T: Transformable {
+        t.transform(self)
     }
 }
 
@@ -200,4 +165,57 @@ impl ops::Mul<Transform> for Transform {
 
 fn compute_sin_cos_in_degree(deg: Float) -> (Float, Float) {
     (deg.to_radians().sin(), deg.to_radians().cos())
+}
+
+pub trait Transformable {
+    fn transform(&self, &Transform) -> Self;
+}
+
+impl Transformable for Vector3f {
+    fn transform(&self, t: &Transform) -> Vector3f {
+        Vector3f::new(
+            t.m[0][0] * self.x + t.m[0][1] * self.y + t.m[0][2] * self.z,
+            t.m[1][0] * self.x + t.m[1][1] * self.y + t.m[1][2] * self.z,
+            t.m[2][0] * self.x + t.m[2][1] * self.y + t.m[2][2] * self.z,
+        )
+    }
+}
+
+impl Transformable for Normal3f {
+    fn transform(&self, t: &Transform) -> Normal3f {
+        Normal3f::new(
+            t.m_inv[0][0] * self.x + t.m_inv[1][0] * self.y + t.m_inv[2][0] * self.z,
+            t.m_inv[0][1] * self.x + t.m_inv[1][1] * self.y + t.m_inv[2][1] * self.z,
+            t.m_inv[0][2] * self.x + t.m_inv[1][2] * self.y + t.m_inv[2][2] * self.z,
+        )
+    }
+}
+
+impl Transformable for Point3f {
+    fn transform(&self, t: &Transform) -> Point3f {
+        let xp = t.m[0][0] * self.x + t.m[0][1] * self.y + t.m[0][2] * self.z + t.m[0][3];
+        let yp = t.m[1][0] * self.x + t.m[1][1] * self.y + t.m[1][2] * self.z + t.m[1][3];
+        let zp = t.m[2][0] * self.x + t.m[2][1] * self.y + t.m[2][2] * self.z + t.m[2][3];
+        let wp = t.m[3][0] * self.x + t.m[3][1] * self.y + t.m[3][2] * self.z + t.m[3][3];
+        debug_assert!(wp != 0.0);
+
+        let p = Point3f::new(xp, yp, zp);
+        if wp == 1.0 {
+            return p;
+        } else {
+            return p / wp;
+        }
+    }
+}
+
+impl Transformable for Ray {
+    fn transform(&self, t: &Transform) -> Ray {
+        unimplemented!()
+    }
+}
+
+impl Transformable for BBox3f {
+    fn transform(&self, t: &Transform) -> BBox3f {
+        unimplemented!()
+    }
 }

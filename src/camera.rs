@@ -54,13 +54,13 @@ impl PerspectiveCamera {
 impl Camera for PerspectiveCamera {
     fn generate_ray(&self, sample: &CameraSample) -> Ray {
         let p_film = Point3f::new(sample.p_film.x, sample.p_film.y, 0.0);
-        let p_camera = self.raster_to_camera.apply_point(p_film);
+        let p_camera = self.raster_to_camera.apply(&p_film);
 
         let ray = Ray {
             direction: Vector3f::from(p_camera),
             ..Default::default()
         };
 
-        return self.camera_to_world.apply_ray(&ray);
+        return self.camera_to_world.apply(&ray);
     }
 }
