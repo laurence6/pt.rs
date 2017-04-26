@@ -32,36 +32,36 @@ impl From<[[Float; 4]; 4]> for Transform {
 }
 
 impl Transform {
-    pub fn translate(v: Vector3f) -> Transform {
+    pub fn translate(Vector3f { x, y, z }: Vector3f) -> Transform {
         Transform {
             m: Matrix::new(
-                1.0, 0.0, 0.0, v.x,
-                0.0, 1.0, 0.0, v.y,
-                0.0, 0.0, 1.0, v.z,
+                1.0, 0.0, 0.0,   x,
+                0.0, 1.0, 0.0,   y,
+                0.0, 0.0, 1.0,   z,
                 0.0, 0.0, 0.0, 1.0,
             ),
             m_inv: Matrix::new(
-                1.0, 0.0, 0.0, -v.x,
-                0.0, 1.0, 0.0, -v.y,
-                0.0, 0.0, 1.0, -v.z,
+                1.0, 0.0, 0.0,  -x,
+                0.0, 1.0, 0.0,  -y,
+                0.0, 0.0, 1.0,  -z,
                 0.0, 0.0, 0.0, 1.0,
             ),
         }
     }
 
-    pub fn scale(v: Vector3f) -> Transform {
+    pub fn scale(Vector3f { x, y, z }: Vector3f) -> Transform {
         Transform {
             m: Matrix::new(
-                v.x, 0.0, 0.0, 0.0,
-                0.0, v.y, 0.0, 0.0,
-                0.0, 0.0, v.z, 0.0,
+                  x, 0.0, 0.0, 0.0,
+                0.0,   y, 0.0, 0.0,
+                0.0, 0.0,   z, 0.0,
                 0.0, 0.0, 0.0, 1.0,
             ),
             m_inv: Matrix::new(
-                1.0/v.x, 0.0,     0.0,     0.0,
-                0.0,     1.0/v.y, 0.0,     0.0,
-                0.0,     0.0,     1.0/v.z, 0.0,
-                0.0,     0.0,     0.0,     1.0,
+                1.0/x, 0.0,   0.0,   0.0,
+                0.0,   1.0/y, 0.0,   0.0,
+                0.0,   0.0,   1.0/z, 0.0,
+                0.0,   0.0,   0.0,   1.0,
             ),
         }
     }
@@ -72,7 +72,7 @@ impl Transform {
         let p = Matrix::new(
             1.0, 0.0, 0.0, 0.0,
             0.0, 1.0, 0.0, 0.0,
-            0.0, 0.0, f / (f - n), - f * n / (f - n),
+            0.0, 0.0, f / (f-n), -f * n / (f-n),
             0.0, 0.0, 1.0, 0.0,
         );
         let inv_tan_ang = 1.0 / (fov.to_radians() / 2.0).tan();

@@ -13,10 +13,10 @@ struct RGB {
 impl_vector3f!(RGB, r, g, b);
 
 impl From<XYZ> for RGB {
-    fn from(xyz: XYZ) -> RGB {
-        let r =  3.240479 * xyz.x + -1.537150 * xyz.y + -0.498535 * xyz.z;
-        let g = -0.969256 * xyz.x +  1.875991 * xyz.y +  0.041556 * xyz.z;
-        let b =  0.055648 * xyz.x + -0.204043 * xyz.y +  1.057311 * xyz.z;
+    fn from(XYZ { x, y, z }: XYZ) -> RGB {
+        let r =  3.240479 * x + -1.537150 * y + -0.498535 * z;
+        let g = -0.969256 * x +  1.875991 * y +  0.041556 * z;
+        let b =  0.055648 * x + -0.204043 * y +  1.057311 * z;
         return RGB::new(r, g, b);
     }
 }
@@ -29,10 +29,10 @@ struct XYZ {
 impl_vector3f!(XYZ, x, y, z);
 
 impl From<RGB> for XYZ {
-    fn from(rgb: RGB) -> XYZ {
-        let x = 0.412453 * rgb.r + 0.357580 * rgb.g + 0.180423 * rgb.b;
-        let y = 0.212671 * rgb.r + 0.715160 * rgb.g + 0.072169 * rgb.b;
-        let z = 0.019334 * rgb.r + 0.119193 * rgb.g + 0.950227 * rgb.b;
+    fn from(RGB { r, g, b }: RGB) -> XYZ {
+        let x = 0.412453 * r + 0.357580 * g + 0.180423 * b;
+        let y = 0.212671 * r + 0.715160 * g + 0.072169 * b;
+        let z = 0.019334 * r + 0.119193 * g + 0.950227 * b;
         return XYZ::new(x, y, z);
     }
 }
@@ -48,8 +48,8 @@ impl_vector3f!(RGBSpectrum, r, g, b);
 impl_vector3f_add!(RGBSpectrum, RGBSpectrum, RGBSpectrum, r, g, b);
 
 impl From<RGB> for RGBSpectrum {
-    fn from(rgb: RGB) -> RGBSpectrum {
-        RGBSpectrum::new(rgb.r, rgb.g, rgb.b)
+    fn from(RGB { r, g, b }: RGB) -> RGBSpectrum {
+        RGBSpectrum::new(r, g, b)
     }
 }
 
@@ -60,8 +60,8 @@ impl From<XYZ> for RGBSpectrum {
 }
 
 impl From<RGBSpectrum> for RGB {
-    fn from(rgbs: RGBSpectrum) -> RGB {
-        RGB::new(rgbs.r, rgbs.g, rgbs.b)
+    fn from(RGBSpectrum { r, g, b }: RGBSpectrum) -> RGB {
+        RGB::new(r, g, b)
     }
 }
 

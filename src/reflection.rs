@@ -34,16 +34,16 @@ impl BxDF {
 }
 
 
-fn cos_theta(w: Vector3f) -> Float {
-    w.z
+fn cos_theta(Vector3f { z, .. }: Vector3f) -> Float {
+    z
 }
 
-fn cos2_theta(w: Vector3f) -> Float {
-    w.z * w.z
+fn cos2_theta(Vector3f { z, .. }: Vector3f) -> Float {
+    z * z
 }
 
-fn abscos_theta(w: Vector3f) -> Float {
-    w.z.abs()
+fn abscos_theta(Vector3f { z, .. }: Vector3f) -> Float {
+    z.abs()
 }
 
 fn sin_theta(w: Vector3f) -> Float {
@@ -89,7 +89,9 @@ fn sin2_phi(w: Vector3f) -> Float {
 }
 
 fn cos_dphi(wa: Vector3f, wb: Vector3f) -> Float {
-    clamp((wa.x * wb.x + wa.y * wb.y)
-        /((wa.x * wa.x + wa.y * wa.y) * (wb.x * wb.x + wb.y * wb.y)).sqrt(),
-        -1.0, 1.0)
+    clamp(
+           (wa.x * wb.x + wa.y * wb.y)
+        / ((wa.x * wa.x + wa.y * wa.y) * (wb.x * wb.x + wb.y * wb.y)).sqrt(),
+        -1.0, 1.0,
+    )
 }

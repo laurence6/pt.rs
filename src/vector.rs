@@ -126,8 +126,8 @@ macro_rules! impl_vector3f_index_axis {
 macro_rules! impl_vector3f_from {
     ($from: ident, $to: ident) => (
         impl From<$from> for $to {
-            fn from(v: $from) -> $to {
-                $to::new(v.x, v.y, v.z)
+            fn from($from { x, y, z }: $from) -> $to {
+                $to::new(x, y, z)
             }
         }
     );
@@ -288,8 +288,8 @@ macro_rules! impl_vector2_sub {
 macro_rules! impl_vector2_from {
     ($from: ident, $to: ident) => (
         impl<T> From<$from<T>> for $to<T> where T: Copy {
-            fn from(v: $from<T>) -> $to<T> {
-                $to::<T>::new(v.x, v.y)
+            fn from($from::<T>{ x, y }: $from<T>) -> $to<T> {
+                $to::<T>::new(x, y)
             }
         }
     );
@@ -320,10 +320,10 @@ pub type Point2u = Point2<u32>;
 pub type Point2f = Point2<Float>;
 
 impl From<Point2u> for Point2f {
-    fn from(p: Point2u) -> Point2f {
+    fn from(Point2u { x, y }: Point2u) -> Point2f {
         Point2f::new(
-            p.x as Float,
-            p.y as Float,
+            x as Float,
+            y as Float,
         )
     }
 }
