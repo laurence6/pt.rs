@@ -10,7 +10,7 @@ struct RGB {
     g: Float,
     b: Float,
 }
-impl_vector3f!(RGB, r, g, b);
+impl_vector3f_new_and_ops!(RGB, r, g, b);
 
 impl From<XYZ> for RGB {
     fn from(XYZ { x, y, z }: XYZ) -> RGB {
@@ -26,7 +26,7 @@ struct XYZ {
     y: Float,
     z: Float,
 }
-impl_vector3f!(XYZ, x, y, z);
+impl_vector3f_new_and_ops!(XYZ, x, y, z);
 
 impl From<RGB> for XYZ {
     fn from(RGB { r, g, b }: RGB) -> XYZ {
@@ -44,7 +44,7 @@ pub struct RGBSpectrum {
     g: Float,
     b: Float,
 }
-impl_vector3f!(RGBSpectrum, r, g, b);
+impl_vector3f_new_and_ops!(RGBSpectrum, r, g, b);
 impl_vector3f_add!(RGBSpectrum, RGBSpectrum, RGBSpectrum, r, g, b);
 
 impl From<RGB> for RGBSpectrum {
