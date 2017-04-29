@@ -1,4 +1,4 @@
-#[allow(dead_code, unused_variables)] #[macro_use] mod vector;
+#[macro_use] mod vector_macro;
 #[allow(dead_code, unused_variables)] mod axis;
 #[allow(dead_code, unused_variables)] mod bbox;
 #[allow(dead_code, unused_variables)] mod camera;
@@ -20,3 +20,4 @@
 #[allow(dead_code, unused_variables)] mod sphere;
 #[allow(dead_code, unused_variables)] mod transform;
 #[allow(dead_code, unused_variables)] mod tree;
+#[allow(dead_code, unused_variables)] mod vector;
