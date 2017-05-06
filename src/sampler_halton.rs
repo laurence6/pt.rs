@@ -1259,7 +1259,7 @@ fn inverse_radical_inverse(base: u32, mut a: u32, n_digits: u32) -> usize {
 #[cfg(test)]
 mod sampler_halton_test {
     #[test]
-    fn Testradical_inverse_prime() {
+    fn test_radical_inverse_prime() {
         use super::radical_inverse;
         assert_eq!(radical_inverse(10, 0), 0.0);
         assert_eq!(radical_inverse(10, 1), 0.1);

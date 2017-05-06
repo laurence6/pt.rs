@@ -132,20 +132,20 @@ impl Sampler for RandomSampler {
 #[cfg(test)]
 mod sampler_random_test {
     #[test]
-    fn TestRandomSampler() {
+    fn test_random_sampler() {
         use sampler::Sampler;
         use sampler_random::RandomSampler;
         use vector::Point2u;
 
         let samples_per_pixel = 7;
         let size = 13;
-        let n1DArray = 3;
-        let n2DArray = 5;
+        let n_1d_array = 3;
+        let n_2d_array = 5;
 
-        let mut sampler = RandomSampler::New(samples_per_pixel);
+        let mut sampler = RandomSampler::new(samples_per_pixel);
 
-        for _ in 0..n1DArray { sampler.req_1d_array(size); }
-        for _ in 0..n2DArray { sampler.req_2d_array(size); }
+        for _ in 0..n_1d_array { sampler.req_1d_array(size); }
+        for _ in 0..n_2d_array { sampler.req_2d_array(size); }
 
         for i in 0..17 {
             for j in 0..19 {
@@ -153,10 +153,10 @@ mod sampler_random_test {
 
                 let mut c = 0;
                 loop {
-                    for _ in 1..n1DArray {
+                    for _ in 1..n_1d_array {
                         assert!(sampler.get_1d() != 0.0, "Empty sample");
                     }
-                    for _ in 0..n1DArray {
+                    for _ in 0..n_1d_array {
                         let array = sampler.get_1d_array(size).unwrap();
                         assert!(array.len() == size, "Incorrect size");
 
@@ -165,7 +165,7 @@ mod sampler_random_test {
                             assert!(s != 0.0, "Empty sample");
                         }
                     }
-                    for _ in 0..n2DArray {
+                    for _ in 0..n_2d_array {
                         let array = sampler.get_2d_array(size).unwrap();
                         assert!(array.len() == size, "Incorrect size");
 
