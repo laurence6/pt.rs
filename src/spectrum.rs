@@ -3,14 +3,14 @@ use std::ops;
 use common::Float;
 use common::clamp;
 
-pub type Spectrum = RGBSpectrum;
-
-struct RGB {
-    r: Float,
-    g: Float,
-    b: Float,
+pub struct RGB {
+    pub r: Float,
+    pub g: Float,
+    pub b: Float,
 }
 impl_vector3f_new_and_ops!(RGB, r, g, b);
+impl_vector3f_add!(RGB, RGB, RGB, r, g, b);
+impl_vector3f_sub!(RGB, RGB, RGB, r, g, b);
 
 impl From<XYZ> for RGB {
     fn from(XYZ { x, y, z }: XYZ) -> RGB {
@@ -21,12 +21,15 @@ impl From<XYZ> for RGB {
     }
 }
 
-struct XYZ {
+#[derive(Default, Clone, Copy)]
+pub struct XYZ {
     x: Float,
     y: Float,
     z: Float,
 }
 impl_vector3f_new_and_ops!(XYZ, x, y, z);
+impl_vector3f_add!(XYZ, XYZ, XYZ, x, y, z);
+impl_vector3f_sub!(XYZ, XYZ, XYZ, x, y, z);
 
 impl From<RGB> for XYZ {
     fn from(RGB { r, g, b }: RGB) -> XYZ {
@@ -37,6 +40,7 @@ impl From<RGB> for XYZ {
     }
 }
 
+pub type Spectrum = RGBSpectrum;
 
 #[derive(Clone, Copy)]
 pub struct RGBSpectrum {
