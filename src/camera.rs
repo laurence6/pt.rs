@@ -17,7 +17,6 @@ pub trait Camera {
 }
 
 pub struct PerspectiveCamera {
-    film: Film,
     camera_to_world: Transform,
 
     camera_to_screen: Transform,
@@ -28,7 +27,7 @@ pub struct PerspectiveCamera {
 }
 
 impl PerspectiveCamera {
-    pub fn new(camera_to_world: Transform, screen_window: BBox2f, film: Film, fov: Float) -> PerspectiveCamera {
+    pub fn new(camera_to_world: Transform, screen_window: BBox2f, film: &Film, fov: Float) -> PerspectiveCamera {
         let camera_to_screen = Transform::perspective(fov, 1.0e-2, 1000.0);
 
         let screen_to_raster = Transform::scale(Vector3f::new(film.resolution.x as Float, film.resolution.y as Float, 1.0))
@@ -39,7 +38,6 @@ impl PerspectiveCamera {
         let raster_to_camera = camera_to_screen.inverse() * raster_to_screen;
 
         return PerspectiveCamera {
-            film: film,
             camera_to_world: camera_to_world,
 
             camera_to_screen: camera_to_screen,
