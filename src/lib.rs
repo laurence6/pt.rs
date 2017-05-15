@@ -15,6 +15,7 @@
 #[allow(dead_code, unused_variables)] mod sampler;
 #[allow(dead_code, unused_variables)] mod sampler_halton;
 #[allow(dead_code, unused_variables)] mod sampler_random;
+#[allow(dead_code, unused_variables)] mod sampling;
 #[allow(dead_code, unused_variables)] mod scene;
 #[allow(dead_code, unused_variables)] mod shape;
 #[allow(dead_code, unused_variables)] mod spectrum;
