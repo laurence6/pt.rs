@@ -9,15 +9,15 @@ use scene::Scene;
 use spectrum::Spectrum;
 use vector::Point2u;
 
-// SamplerIntegrator
-pub struct Integrator {
+/// PathIntegrator.
+pub struct Integrator<S, C> where S: Sampler, C: Camera {
     scene: Scene,
-    sampler: Box<Sampler>,
-    camera: Box<Camera>,
+    sampler: S,
+    camera: C,
     film: Film,
 }
 
-impl Integrator {
+impl<S, C> Integrator<S, C> where S: Sampler, C: Camera {
     /// Sampler generates a sequence of sample, point on image. Camera turns a sample into ray.
     /// Call li() to compute the radiance along the ray arriving at the film.
     pub fn render(&mut self) {
