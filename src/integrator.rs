@@ -24,7 +24,6 @@ impl<S, C> Integrator<S, C> where S: Sampler, C: Camera {
         let mut file = BufWriter::new(
             OpenOptions::new()
                 .write(true)
-                .append(true)
                 .create(true)
                 .open("output.ppm")
                 .unwrap()
@@ -46,12 +45,12 @@ impl<S, C> Integrator<S, C> where S: Sampler, C: Camera {
                 }
             }
 
-            if x < self.film.resolution.x {
+            if x < (self.film.resolution.x - 1) {
                 x += 1;
             } else {
                 x = 0;
                 y += 1;
-                if y > self.film.resolution.y {
+                if y >= self.film.resolution.y {
                     break;
                 }
             };
