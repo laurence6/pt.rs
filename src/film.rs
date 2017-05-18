@@ -31,7 +31,9 @@ impl Film {
     }
 
     fn pixel_offset(&self, Point2f { x, y }: Point2f) -> usize {
-        self.resolution.x as usize * x as usize + y as usize
+        let width = self.resolution.x as usize;
+        let (x, y) = (x.floor() as usize, y.floor() as usize);
+        return y * width + x;
     }
 
     /// Write an image file in plain ppm format.
