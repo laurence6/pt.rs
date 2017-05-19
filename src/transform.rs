@@ -210,7 +210,11 @@ impl Transformable for Point3f {
 
 impl Transformable for Ray {
     fn transform(&self, t: &Transform) -> Ray {
-        unimplemented!()
+        Ray {
+            origin: t.apply(&self.origin),
+            direction: t.apply(&self.direction),
+            t_max: self.t_max,
+        }
     }
 }
 
