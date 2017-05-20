@@ -1,6 +1,5 @@
-use film::Film;
 use ray::Ray;
-use vector::{Point2f, Vector3f, Point3f};
+use vector::{Point2u, Point2f, Vector3f, Point3f};
 use transform::Transform;
 use bbox::BBox2f;
 use common::Float;
@@ -27,10 +26,10 @@ pub struct PerspectiveCamera {
 }
 
 impl PerspectiveCamera {
-    pub fn new(camera_to_world: Transform, screen_window: BBox2f, film: &Film, fov: Float) -> PerspectiveCamera {
+    pub fn new(camera_to_world: Transform, screen_window: BBox2f, film_res: Point2u, fov: Float) -> PerspectiveCamera {
         let camera_to_screen = Transform::perspective(fov, 1.0e-2, 1000.0);
 
-        let screen_to_raster = Transform::scale(Vector3f::new(film.resolution.x as Float, film.resolution.y as Float, 1.0))
+        let screen_to_raster = Transform::scale(Vector3f::new(film_res.x as Float, film_res.y as Float, 1.0))
                              * Transform::scale(Vector3f::new(1.0 / (screen_window.max.x - screen_window.min.y), 1.0 / (screen_window.max.y - screen_window.min.y), 1.0))
                              * Transform::translate(Vector3f::new(-screen_window.min.x, -screen_window.max.y, 0.0));
         let raster_to_screen = screen_to_raster.inverse();
