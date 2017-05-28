@@ -82,11 +82,10 @@ impl Transform {
 
     /// Compute look-at transformation from camera position, a point camera looks at and up
     /// direction in world space coordinates.
-    fn look_at(pos: Vector3f, look: Vector3f, up: Vector3f) -> Transform {
+    pub fn look_at(pos: Point3f, look: Point3f, up: Vector3f) -> Transform {
         let d = (look - pos).normalize();
-        let up = up.normalize();
-        let left = up.cross(d).normalize();
-        let up = d.cross(left);
+        let left = up.normalize().cross(d).normalize();
+        let up = d.cross(left); // make sure it's orthogonal to other two vectors
 
         let camera_to_world = Matrix::new(
             left.x, up.x, d.x, pos.x,
@@ -221,5 +220,29 @@ impl Transformable for Ray {
 impl Transformable for BBox3f {
     fn transform(&self, t: &Transform) -> BBox3f {
         unimplemented!()
+    }
+}
+
+#[cfg(test)]
+mod transform_test {
+    #[test]
+    fn test_look_at() {
+        use matrix::Matrix;
+        use transform::Transform;
+        use vector::{Vector3f, Point3f};
+
+        let la = Transform::look_at(
+            Point3f::new(1.0, 1.0, 0.0),
+            Point3f::new(2.0, 1.0, 0.0),
+            Vector3f::new(0.0, 0.0, 1.0),
+        );
+        assert_eq!(la,
+                   Transform::from(Matrix::new(
+                        0.0, 1.0, 0.0, -1.0,
+                        0.0, 0.0, 1.0, 0.0,
+                        1.0, 0.0, 0.0, -1.0,
+                        0.0, 0.0, 0.0, 1.0,
+                   ))
+        );
     }
 }
