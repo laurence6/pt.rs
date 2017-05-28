@@ -1,4 +1,5 @@
 use std::ops;
+use std::fmt::{Debug, Formatter, Error};
 
 use common::Float;
 
@@ -112,5 +113,38 @@ impl ops::Index<usize> for Matrix {
 impl ops::IndexMut<usize> for Matrix {
     fn index_mut(&mut self, i: usize) -> &mut [Float; 4] {
         &mut self.m[i]
+    }
+}
+
+impl Debug for Matrix {
+    fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
+        write!(f, "Matrix {{\n\t{}\t{}\t{}\t{}\n\t{}\t{}\t{}\t{}\n\t{}\t{}\t{}\t{}\n\t{}\t{}\t{}\t{}\n}}",
+            self[0][0], self[0][1], self[0][2], self[0][3],
+            self[1][0], self[1][1], self[1][2], self[1][3],
+            self[2][0], self[2][1], self[2][2], self[2][3],
+            self[3][0], self[3][1], self[3][2], self[3][3],
+        )
+    }
+}
+
+#[cfg(test)]
+mod matrix_test {
+    use matrix::Matrix;
+
+    #[test]
+    fn test_inverse() {
+        let m = Matrix::new(
+            100.0,     0.0, 0.0, 200.0,
+              0.0,  -100.0, 0.0, 100.0,
+              0.0,     0.0, 1.0,   0.0,
+              0.0,     0.0, 0.0,   1.0,
+        );
+        let invm = Matrix::new(
+            0.01,   0.0, 0.0, -2.0,
+             0.0, -0.01, 0.0,  1.0,
+             0.0,   0.0, 1.0,  0.0,
+             0.0,   0.0, 0.0,  1.0,
+        );
+        assert_eq!(m.inverse(), invm);
     }
 }

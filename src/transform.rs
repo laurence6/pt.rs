@@ -6,7 +6,7 @@ use ray::Ray;
 use bbox::BBox3f;
 use matrix::Matrix;
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub struct Transform {
     m: Matrix,
     m_inv: Matrix,
