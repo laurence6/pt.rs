@@ -5,7 +5,7 @@ use light::Light;
 use primitive::Primitive;
 
 pub struct Scene {
-    lights: Vec<Box<Light>>,
+    lights: Box<[Box<Light>]>,
     aggregate: Box<Primitive>,
 }
 
