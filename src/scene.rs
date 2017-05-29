@@ -10,6 +10,13 @@ pub struct Scene {
 }
 
 impl Scene {
+    pub fn new(lights: Box<[Box<Light>]>, aggregate: Box<Primitive>) -> Scene {
+        Scene {
+            lights: lights,
+            aggregate: aggregate,
+        }
+    }
+
     pub fn bbox(&self) -> BBox3f {
         self.aggregate.bbox()
     }
