@@ -109,6 +109,12 @@ pub struct BBox2<T> where T: Copy {
     pub max: Point2<T>,
 }
 
+impl<T> BBox2<T> where T: Copy {
+    pub fn new(min: Point2<T>, max: Point2<T>) -> BBox2<T> {
+        BBox2::<T> { min: min, max: max }
+    }
+}
+
 impl<T> BBox2<T> where T: Copy + ops::Sub<Output = T> + ops::Mul<Output = T> {
     pub fn diagonal(&self) -> Vector2<T> {
         self.max - self.min
