@@ -1,6 +1,7 @@
 use bbox::BBox3f;
 use common::Float;
 use interaction::Interaction;
+use material::Material;
 use ray::Ray;
 use shape::Shape;
 use vector::Point3f;
@@ -33,4 +34,7 @@ impl Shape for Sphere {
     fn intersect(&self, r: &Ray) -> Option<Interaction> {
         unimplemented!()
     }
+}
+
+impl Material for Sphere {
 }
