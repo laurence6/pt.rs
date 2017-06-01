@@ -1,9 +1,9 @@
 use std::ops;
 
-use common::Float;
 use axis::Axis;
+use common::Float;
 
-#[derive(Default, Clone, Copy)]
+#[derive(Default, Clone, Copy, Debug, PartialEq)]
 pub struct Vector3f {
     pub x: Float,
     pub y: Float,
@@ -42,14 +42,15 @@ impl Vector3f {
     }
 
     pub fn cross(&self, v: Vector3f) -> Vector3f {
-        let x = self.y * v.z - self.z * v.y;
-        let y = self.z * v.x - self.x * v.z;
-        let z = self.x * v.y - self.y * v.x;
-        return Vector3f::new(x, y, z);
+        Vector3f::new(
+            self.y * v.z - self.z * v.y,
+            self.z * v.x - self.x * v.z,
+            self.x * v.y - self.y * v.x,
+        )
     }
 }
 
-#[derive(Default, Clone, Copy)]
+#[derive(Default, Clone, Copy, Debug, PartialEq)]
 pub struct Normal3f {
     pub x: Float,
     pub y: Float,
@@ -57,7 +58,13 @@ pub struct Normal3f {
 }
 impl_vector3f_new_and_ops!(Normal3f, x, y, z);
 
-#[derive(Default, Clone, Copy)]
+impl From<Vector3f> for Normal3f {
+    fn from(Vector3f { x, y, z }: Vector3f) -> Normal3f {
+        Normal3f::new(x, y, z)
+    }
+}
+
+#[derive(Default, Clone, Copy, Debug, PartialEq)]
 pub struct Point3f {
     pub x: Float,
     pub y: Float,
@@ -93,7 +100,7 @@ impl Point3f {
     }
 }
 
-#[derive(Default, Clone, Copy, PartialEq)]
+#[derive(Default, Clone, Copy, Debug, PartialEq)]
 pub struct Vector2<T> {
     pub x: T,
     pub y: T,
@@ -102,7 +109,7 @@ impl_vector2_new_and_ops!(Vector2, x, y);
 impl_vector2_add!(Vector2, Vector2, Vector2, x, y);
 impl_vector2_sub!(Vector2, Vector2, Vector2, x, y);
 
-#[derive(Default, Clone, Copy, PartialEq)]
+#[derive(Default, Clone, Copy, Debug, PartialEq)]
 pub struct Point2<T> {
     pub x: T,
     pub y: T,
