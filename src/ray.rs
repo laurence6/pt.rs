@@ -16,8 +16,8 @@ impl Ray {
 impl Default for Ray {
     fn default() -> Ray {
         Ray {
-            origin: Point3f::default(),
-            direction: Vector3f::default(),
+            origin: Point3f::new(0.0, 0.0, 0.0),
+            direction: Vector3f::new(0.0, 0.0, 0.0),
             t_max: INFINITY,
         }
     }
