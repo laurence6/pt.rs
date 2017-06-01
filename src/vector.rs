@@ -14,6 +14,7 @@ impl_vector3f_add!(Vector3f, Vector3f, Vector3f, x, y, z);
 impl_vector3f_sub!(Vector3f, Vector3f, Vector3f, x, y, z);
 impl_vector3f_index_axis!(Vector3f);
 impl_vector3f_from!(Point3f, Vector3f);
+impl_vector3f_from!(Normal3f, Vector3f);
 
 impl Vector3f {
     pub fn length(&self) -> Float {
@@ -57,12 +58,7 @@ pub struct Normal3f {
     pub z: Float,
 }
 impl_vector3f_new_and_ops!(Normal3f, x, y, z);
-
-impl From<Vector3f> for Normal3f {
-    fn from(Vector3f { x, y, z }: Vector3f) -> Normal3f {
-        Normal3f::new(x, y, z)
-    }
-}
+impl_vector3f_from!(Vector3f, Normal3f);
 
 #[derive(Default, Clone, Copy, Debug, PartialEq)]
 pub struct Point3f {
