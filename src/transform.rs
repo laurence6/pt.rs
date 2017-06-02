@@ -32,7 +32,7 @@ impl From<[[Float; 4]; 4]> for Transform {
 }
 
 impl Transform {
-    pub fn translate(Vector3f { x, y, z }: Vector3f) -> Transform {
+    pub fn translate(x: Float, y: Float, z: Float) -> Transform {
         Transform {
             m: Matrix::new(
                 1.0, 0.0, 0.0,   x,
@@ -49,7 +49,7 @@ impl Transform {
         }
     }
 
-    pub fn scale(Vector3f { x, y, z }: Vector3f) -> Transform {
+    pub fn scale(x: Float, y: Float, z: Float) -> Transform {
         Transform {
             m: Matrix::new(
                   x, 0.0, 0.0, 0.0,
@@ -76,7 +76,7 @@ impl Transform {
             0.0, 0.0, 1.0, 0.0,
         );
         let inv_tan_ang = 1.0 / (fov.to_radians() / 2.0).tan();
-        return Transform::scale(Vector3f::new(inv_tan_ang, inv_tan_ang, 1.0))
+        return Transform::scale(inv_tan_ang, inv_tan_ang, 1.0)
              * Transform::from(p);
     }
 
