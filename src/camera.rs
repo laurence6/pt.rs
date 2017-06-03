@@ -64,7 +64,7 @@ impl Camera for PerspectiveCamera {
         let p_camera = self.raster_to_camera.apply(&p_film);
 
         let ray = Ray {
-            direction: Vector3f::from(p_camera),
+            direction: Vector3f::from(p_camera).normalize(),
             ..Default::default()
         };
 
