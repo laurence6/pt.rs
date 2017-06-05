@@ -66,8 +66,7 @@ impl Transform {
         }
     }
 
-    /// Compute perspective transformation from field-of-view angel, distance to near a near z
-    /// plane and a far z plane.
+    /// Compute perspective transformation from field-of-view angel, distance to a near z plane and a far z plane.
     pub fn perspective(fov: Float, n: Float, f: Float) -> Transform {
         let p = Matrix::new(
             1.0, 0.0, 0.0, 0.0,
@@ -80,8 +79,7 @@ impl Transform {
              * Transform::from(p);
     }
 
-    /// Compute look-at transformation from camera position, a point camera looks at and up
-    /// direction in world space coordinates.
+    /// Compute look-at transformation from camera position, a point camera looks at and up direction in world space coordinates. Return camera_to_world transformation.
     pub fn look_at(pos: Point3f, look: Point3f, up: Vector3f) -> Transform {
         let d = (look - pos).normalize();
         let left = up.normalize().cross(d).normalize();
@@ -94,7 +92,7 @@ impl Transform {
                0.0,  0.0, 0.0,   1.0,
         );
 
-        return Transform { m: camera_to_world.inverse(), m_inv: camera_to_world };
+        return Transform { m: camera_to_world, m_inv: camera_to_world.inverse() };
     }
 
     fn transpose(&self) -> Transform {
