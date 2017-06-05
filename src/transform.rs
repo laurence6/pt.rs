@@ -223,24 +223,31 @@ impl Transformable for BBox3f {
 
 #[cfg(test)]
 mod transform_test {
+    use matrix::Matrix;
+    use transform::Transform;
+    use vector::{Vector3f, Point3f};
+
     #[test]
     fn test_look_at() {
-        use matrix::Matrix;
-        use transform::Transform;
-        use vector::{Vector3f, Point3f};
-
         let la = Transform::look_at(
             Point3f::new(1.0, 1.0, 0.0),
             Point3f::new(2.0, 1.0, 0.0),
             Vector3f::new(0.0, 0.0, 1.0),
         );
-        assert_eq!(la,
-                   Transform::from(Matrix::new(
-                        0.0, 1.0, 0.0, -1.0,
-                        0.0, 0.0, 1.0, 0.0,
-                        1.0, 0.0, 0.0, -1.0,
-                        0.0, 0.0, 0.0, 1.0,
-                   ))
-        );
+        let la_e = Transform::from(Matrix::new(
+            0.0, 0.0, 1.0, 1.0,
+            1.0, 0.0, 0.0, 1.0,
+            0.0, 1.0, 0.0, 0.0,
+            0.0, 0.0, 0.0, 1.0,
+        ));
+        assert_eq!(la, la_e);
+    }
+
+    #[test]
+    fn test_transform_point3f() {
+        let t = Transform::scale(3.0, 1.5, 1.0)
+              * Transform::translate(1.0, 2.0, 3.0);
+        let p = Point3f::new(0.0, 0.0, 0.0);
+        assert_eq!(t.apply(&p), Point3f::new(3.0, 3.0, 3.0));
     }
 }
