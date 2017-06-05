@@ -250,4 +250,20 @@ mod transform_test {
         let p = Point3f::new(0.0, 0.0, 0.0);
         assert_eq!(t.apply(&p), Point3f::new(3.0, 3.0, 3.0));
     }
+
+    #[test]
+    fn test_transform_mul() {
+        let t1 = Transform::scale(1., 2., 3.);
+        let t2 = Transform::translate(3., 2., 1.);
+        let t = t1 * t2;
+        let t_e = Transform::from(Matrix::new(
+            1., 0., 0., 3.,
+            0., 2., 0., 4.,
+            0., 0., 3., 3.,
+            0., 0., 0., 1.,
+        ));
+        assert_eq!(t, t_e);
+        assert_eq!(t.m, t_e.m);
+        assert_eq!(t.m_inv, t_e.m_inv);
+    }
 }
