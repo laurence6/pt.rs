@@ -155,7 +155,7 @@ impl ops::Mul<Transform> for Transform {
     fn mul(self, t: Transform) -> Transform {
         Transform {
             m: self.m * t.m,
-            m_inv: self.m_inv * t.m_inv
+            m_inv: t.m_inv * self.m_inv,
         }
     }
 }
