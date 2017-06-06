@@ -43,7 +43,12 @@ impl Film {
 
         for p in self.pixels.iter() {
             let rgb = RGB::from(p.xyz);
-            file.write_all(format!("{} {} {} ", rgb.r, rgb.g, rgb.b).as_bytes()).unwrap();
+            file.write_all(format!(
+                    "{} {} {}\n",
+                    rgb.r.round() as u32,
+                    rgb.g.round() as u32,
+                    rgb.b.round() as u32,
+            ).as_bytes()).unwrap();
         }
     }
 }
