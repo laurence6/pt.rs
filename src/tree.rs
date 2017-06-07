@@ -52,7 +52,7 @@ impl Tree {
         let max_depth = if max_depth > 0 {
             max_depth
         } else {
-            (8.0 + 1.3 * (shapes.len() as f32).log(2.0)).round() as u8
+            (8. + 1.3 * (shapes.len() as f32).log(2.)).round() as u8
         };
 
         println!("Done");
@@ -70,7 +70,7 @@ impl Tree {
 
         impl Todo {
             fn new() -> Todo {
-                return Todo { node: 0, t_min: 0.0, t_max: 0.0 };
+                return Todo { node: 0, t_min: 0., t_max: 0. };
             }
         }
 
@@ -96,12 +96,12 @@ impl Tree {
                 SplitOrShape::Split(axis, point) => {
                     let t_plane = (point - ray.origin[axis]) * inv_dir[axis];
                     // below first?
-                    let (child1, child2) = if ray.origin[axis] < point || ray.origin[axis] == point && ray.direction[axis] <= 0.0 {
+                    let (child1, child2) = if ray.origin[axis] < point || ray.origin[axis] == point && ray.direction[axis] <= 0. {
                         (node_index+1, node.index)
                     } else {
                         (node.index, node_index+1)
                     };
-                    if t_plane > t_max || t_plane <= 0.0 {
+                    if t_plane > t_max || t_plane <= 0. {
                         node_index = child1;
                     } else if t_plane < t_min {
                         node_index = child2;
@@ -180,8 +180,8 @@ impl Node {
 const MAX_TODO: usize = 64;
 
 const MAX_SHAPES_IN_NODE: usize = 8;
-const ISECT_COST: Float = 80.0;
-const TRAV_COST: Float = 1.0;
+const ISECT_COST: Float = 80.;
+const TRAV_COST: Float = 1.;
 const EMPTY_BONUS: Float = 0.5;
 
 #[derive(PartialEq)]
@@ -220,7 +220,7 @@ fn build_tree(
     }
 
     let d = node_bbox.diagonal();
-    let inv_tot_sa = 1.0 / node_bbox.surface_area();
+    let inv_tot_sa = 1. / node_bbox.surface_area();
     let old_cost = ISECT_COST * shapes.len() as Float;
 
     let mut best_axis: Option<Axis> = None;
@@ -265,16 +265,16 @@ fn build_tree(
                     let (p_below, p_above) = {
                         let (axis1, axis2) = axis.other_axes();
                         (
-                            2.0 * (d[axis1] * d[axis2] + (t - node_bbox.min[axis]) * (d[axis1] + d[axis2])) * inv_tot_sa,
-                            2.0 * (d[axis1] * d[axis2] + (node_bbox.min[axis] - t) * (d[axis1] + d[axis2])) * inv_tot_sa,
+                            2. * (d[axis1] * d[axis2] + (t - node_bbox.min[axis]) * (d[axis1] + d[axis2])) * inv_tot_sa,
+                            2. * (d[axis1] * d[axis2] + (node_bbox.min[axis] - t) * (d[axis1] + d[axis2])) * inv_tot_sa,
                         )
                     };
                     let bonus = if p_below < FLOAT_MIN_POS || p_above < FLOAT_MIN_POS {
                         EMPTY_BONUS
                     } else {
-                        0.0
+                        0.
                     };
-                    let cost = TRAV_COST + ISECT_COST * (1.0 - bonus) * (p_below * n_below as Float + p_above * n_above as Float);
+                    let cost = TRAV_COST + ISECT_COST * (1. - bonus) * (p_below * n_below as Float + p_above * n_above as Float);
                     if cost < best_cost {
                         best_cost = cost;
                         best_axis = Some(axis);
@@ -301,7 +301,7 @@ fn build_tree(
     }
 
     // Create leaf
-    if (best_cost > 4.0 * old_cost && shapes.len() < 16) || best_axis.is_none() || bad_refines == 3 {
+    if (best_cost > 4. * old_cost && shapes.len() < 16) || best_axis.is_none() || bad_refines == 3 {
         tree.nodes.push(Node::new_leaf(&mut shapes, &mut tree.shape_indices));
         return tree;
     }

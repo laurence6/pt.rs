@@ -65,7 +65,7 @@ impl Matrix {
             + self[0][3] * self[1][1] * self[2][0] * self[3][2] - self[0][1] * self[1][3] * self[2][0] * self[3][2] - self[0][3] * self[1][0] * self[2][1] * self[3][2] + self[0][0] * self[1][3] * self[2][1] * self[3][2]
             + self[0][1] * self[1][0] * self[2][3] * self[3][2] - self[0][0] * self[1][1] * self[2][3] * self[3][2] - self[0][2] * self[1][1] * self[2][0] * self[3][3] + self[0][1] * self[1][2] * self[2][0] * self[3][3]
             + self[0][2] * self[1][0] * self[2][1] * self[3][3] - self[0][0] * self[1][2] * self[2][1] * self[3][3] - self[0][1] * self[1][0] * self[2][2] * self[3][3] + self[0][0] * self[1][1] * self[2][2] * self[3][3];
-        debug_assert!(d != 0.0);
+        debug_assert!(d != 0.);
 
         r = r / d;
 
@@ -134,16 +134,16 @@ mod matrix_test {
     #[test]
     fn test_inverse() {
         let m = Matrix::new(
-            100.0,     0.0, 0.0, 200.0,
-              0.0,  -100.0, 0.0, 100.0,
-              0.0,     0.0, 1.0,   0.0,
-              0.0,     0.0, 0.0,   1.0,
+            100.,     0., 0., 200.,
+              0.,  -100., 0., 100.,
+              0.,     0., 1.,   0.,
+              0.,     0., 0.,   1.,
         );
         let invm = Matrix::new(
-            0.01,   0.0, 0.0, -2.0,
-             0.0, -0.01, 0.0,  1.0,
-             0.0,   0.0, 1.0,  0.0,
-             0.0,   0.0, 0.0,  1.0,
+            0.01,   0., 0., -2.,
+             0., -0.01, 0.,  1.,
+             0.,    0., 1.,  0.,
+             0.,    0., 0.,  1.,
         );
         assert_eq!(m.inverse(), invm);
     }

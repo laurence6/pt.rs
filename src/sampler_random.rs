@@ -80,18 +80,14 @@ impl Sampler for RandomSampler {
 
     fn req_1d_array(&mut self, n: usize) {
         debug_assert_eq!(self.round_count(n), n);
-        self.sample_array_1d.push(
-            vec![0.0; n * self.samples_per_pixel]
-            .into_boxed_slice()
-        );
+        self.sample_array_1d
+            .push(vec![0.; n * self.samples_per_pixel].into_boxed_slice());
     }
 
     fn req_2d_array(&mut self, n: usize) {
         debug_assert_eq!(self.round_count(n), n);
-        self.sample_array_2d.push(
-            vec![Point2f::new(0.0, 0.0); n * self.samples_per_pixel]
-            .into_boxed_slice()
-        );
+        self.sample_array_2d
+            .push(vec![Point2f::new(0., 0.); n * self.samples_per_pixel].into_boxed_slice());
     }
 
     fn get_1d_array(&mut self, n: usize) -> Option<&[Float]> {
@@ -154,7 +150,7 @@ mod sampler_random_test {
                 let mut c = 0;
                 loop {
                     for _ in 1..n_1d_array {
-                        assert!(sampler.get_1d() != 0.0, "Empty sample");
+                        assert!(sampler.get_1d() != 0., "Empty sample");
                     }
                     for _ in 0..n_1d_array {
                         let array = sampler.get_1d_array(size).unwrap();
@@ -162,7 +158,7 @@ mod sampler_random_test {
 
                         if c > 0 {
                             let s = array[size / 2];
-                            assert!(s != 0.0, "Empty sample");
+                            assert!(s != 0., "Empty sample");
                         }
                     }
                     for _ in 0..n_2d_array {
@@ -171,7 +167,7 @@ mod sampler_random_test {
 
                         if c > 0 {
                             let s = array[size / 2];
-                            assert!(s.x != 0.0 && s.y != 0.0, "Empty sample");
+                            assert!(s.x != 0. && s.y != 0., "Empty sample");
                         }
                     }
 

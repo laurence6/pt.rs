@@ -33,7 +33,7 @@ impl BBox3f {
 
     pub fn surface_area(&self) -> Float {
         let d = self.diagonal();
-        return (d.x * d.y + d.x * d.z + d.y * d.z) * 2.0;
+        return (d.x * d.y + d.x * d.z + d.y * d.z) * 2.;
     }
 
     pub fn maximum_extent(&self) -> Axis {
@@ -46,11 +46,11 @@ impl BBox3f {
     }
 
     pub fn bounding_sphere(&self) -> (Point3f, Float) {
-        let center = (self.min + self.max) / 2.0;
+        let center = (self.min + self.max) / 2.;
         let radius = if self.point_inside(center) {
             center.distance(self.max)
         } else {
-            0.0
+            0.
         };
         return (center, radius);
     }
@@ -75,19 +75,19 @@ impl BBox3f {
     }
 
     pub fn intersect_p(&self, ray: &Ray) -> Option<(Float, Float)> {
-        let mut t0 = 0.0;
+        let mut t0 = 0.;
         let mut t1 = ray.t_max;
 
         let mut axis = Axis::X;
         for _ in 0..3 {
-            let inv_ray_dir = 1.0 / ray.direction[axis];
+            let inv_ray_dir = 1. / ray.direction[axis];
             let mut t_near = (self.min[axis] - ray.origin[axis]) * inv_ray_dir;
             let mut t_far  = (self.max[axis] - ray.origin[axis]) * inv_ray_dir;
             if t_near > t_far {
                 swap(&mut t_near, &mut t_far);
             }
             // to avoid epsilon
-            t_far *= 1.0 + 2.0 * gamma(3.0);
+            t_far *= 1. + 2. * gamma(3.);
 
             // notice that t_near and t_far could be NaN
             t0 = if t_near > t0 { t_near } else { t0 };
@@ -130,5 +130,5 @@ pub type BBox2u = BBox2<u32>;
 pub type BBox2f = BBox2<Float>;
 
 fn gamma(x: Float) -> Float {
-    (x * EPSILON) / (1.0 - x * EPSILON)
+    (x * EPSILON) / (1. - x * EPSILON)
 }

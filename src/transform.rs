@@ -35,16 +35,16 @@ impl Transform {
     pub fn translate(x: Float, y: Float, z: Float) -> Transform {
         Transform {
             m: Matrix::new(
-                1.0, 0.0, 0.0,   x,
-                0.0, 1.0, 0.0,   y,
-                0.0, 0.0, 1.0,   z,
-                0.0, 0.0, 0.0, 1.0,
+                1., 0., 0.,  x,
+                0., 1., 0.,  y,
+                0., 0., 1.,  z,
+                0., 0., 0., 1.,
             ),
             m_inv: Matrix::new(
-                1.0, 0.0, 0.0,  -x,
-                0.0, 1.0, 0.0,  -y,
-                0.0, 0.0, 1.0,  -z,
-                0.0, 0.0, 0.0, 1.0,
+                1., 0., 0., -x,
+                0., 1., 0., -y,
+                0., 0., 1., -z,
+                0., 0., 0., 1.,
             ),
         }
     }
@@ -52,16 +52,16 @@ impl Transform {
     pub fn scale(x: Float, y: Float, z: Float) -> Transform {
         Transform {
             m: Matrix::new(
-                  x, 0.0, 0.0, 0.0,
-                0.0,   y, 0.0, 0.0,
-                0.0, 0.0,   z, 0.0,
-                0.0, 0.0, 0.0, 1.0,
+                 x, 0., 0., 0.,
+                0.,  y, 0., 0.,
+                0., 0.,  z, 0.,
+                0., 0., 0., 1.,
             ),
             m_inv: Matrix::new(
-                1.0/x, 0.0,   0.0,   0.0,
-                0.0,   1.0/y, 0.0,   0.0,
-                0.0,   0.0,   1.0/z, 0.0,
-                0.0,   0.0,   0.0,   1.0,
+                1./x,   0.,   0., 0.,
+                  0., 1./y,   0., 0.,
+                  0.,   0., 1./z, 0.,
+                  0.,   0.,   0., 1.,
             ),
         }
     }
@@ -69,13 +69,13 @@ impl Transform {
     /// Compute perspective transformation from field-of-view angel, distance to a near z plane and a far z plane.
     pub fn perspective(fov: Float, n: Float, f: Float) -> Transform {
         let p = Matrix::new(
-            1.0, 0.0, 0.0, 0.0,
-            0.0, 1.0, 0.0, 0.0,
-            0.0, 0.0, f / (f-n), -f * n / (f-n),
-            0.0, 0.0, 1.0, 0.0,
+            1., 0., 0., 0.,
+            0., 1., 0., 0.,
+            0., 0., f / (f-n), -f * n / (f-n),
+            0., 0., 1., 0.,
         );
-        let inv_tan_ang = 1.0 / (fov.to_radians() / 2.0).tan();
-        return Transform::scale(inv_tan_ang, inv_tan_ang, 1.0)
+        let inv_tan_ang = 1. / (fov.to_radians() / 2.).tan();
+        return Transform::scale(inv_tan_ang, inv_tan_ang, 1.)
              * Transform::from(p);
     }
 
@@ -89,7 +89,7 @@ impl Transform {
             left.x, up.x, d.x, pos.x,
             left.y, up.y, d.y, pos.y,
             left.z, up.z, d.z, pos.z,
-               0.0,  0.0, 0.0,   1.0,
+                0.,   0.,  0.,    1.,
         );
 
         return Transform { m: camera_to_world, m_inv: camera_to_world.inverse() };
@@ -109,10 +109,10 @@ impl Transform {
     fn rotate_x(&self, theta: Float) -> Transform {
         let (sin_theta, cos_theta) = compute_sin_cos_in_degree(theta);
         let m = Matrix::new(
-            1.0,       0.0,        0.0, 0.0,
-            0.0, cos_theta, -sin_theta, 0.0,
-            0.0, sin_theta,  cos_theta, 0.0,
-            0.0,       0.0,        0.0, 1.0,
+            1.,        0.,         0., 0.,
+            0., cos_theta, -sin_theta, 0.,
+            0., sin_theta,  cos_theta, 0.,
+            0.,        0.,         0., 1.,
         );
         return Transform { m: m, m_inv: m.transpose() };
     }
@@ -120,10 +120,10 @@ impl Transform {
     fn rotate_y(&self, theta: Float) -> Transform {
         let (sin_theta, cos_theta) = compute_sin_cos_in_degree(theta);
         let m = Matrix::new(
-             cos_theta, 0.0, sin_theta, 0.0,
-                  0.0,  1.0,       0.0, 0.0,
-            -sin_theta, 0.0, cos_theta, 0.0,
-                  0.0,  0.0,       0.0, 1.0,
+             cos_theta, 0., sin_theta, 0.,
+                    0., 1.,        0., 0.,
+            -sin_theta, 0., cos_theta, 0.,
+                    0., 0.,        0., 1.,
         );
         return Transform { m: m, m_inv: m.transpose() };
     }
@@ -131,10 +131,10 @@ impl Transform {
     fn rotate_z(&self, theta: Float) -> Transform {
         let (sin_theta, cos_theta) = compute_sin_cos_in_degree(theta);
         let m = Matrix::new(
-            cos_theta, -sin_theta, 0.0, 0.0,
-            sin_theta,  cos_theta, 0.0, 0.0,
-                  0.0,        0.0, 1.0, 0.0,
-                  0.0,        0.0, 0.0, 1.0,
+            cos_theta, -sin_theta, 0., 0.,
+            sin_theta,  cos_theta, 0., 0.,
+                   0.,         0., 1., 0.,
+                   0.,         0., 0., 1.,
         );
         return Transform { m: m, m_inv: m.transpose() };
     }
@@ -194,10 +194,10 @@ impl Transformable for Point3f {
         let yp = t.m[1][0] * self.x + t.m[1][1] * self.y + t.m[1][2] * self.z + t.m[1][3];
         let zp = t.m[2][0] * self.x + t.m[2][1] * self.y + t.m[2][2] * self.z + t.m[2][3];
         let wp = t.m[3][0] * self.x + t.m[3][1] * self.y + t.m[3][2] * self.z + t.m[3][3];
-        debug_assert!(wp != 0.0);
+        debug_assert!(wp != 0.);
 
         let p = Point3f::new(xp, yp, zp);
-        if wp == 1.0 {
+        if wp == 1. {
             return p;
         } else {
             return p / wp;
@@ -230,25 +230,25 @@ mod transform_test {
     #[test]
     fn test_look_at() {
         let la = Transform::look_at(
-            Point3f::new(1.0, 1.0, 0.0),
-            Point3f::new(2.0, 1.0, 0.0),
-            Vector3f::new(0.0, 0.0, 1.0),
+            Point3f::new(1., 1., 0.),
+            Point3f::new(2., 1., 0.),
+            Vector3f::new(0., 0., 1.),
         );
         let la_e = Transform::from(Matrix::new(
-            0.0, 0.0, 1.0, 1.0,
-            1.0, 0.0, 0.0, 1.0,
-            0.0, 1.0, 0.0, 0.0,
-            0.0, 0.0, 0.0, 1.0,
+            0., 0., 1., 1.,
+            1., 0., 0., 1.,
+            0., 1., 0., 0.,
+            0., 0., 0., 1.,
         ));
         assert_eq!(la, la_e);
     }
 
     #[test]
     fn test_transform_point3f() {
-        let t = Transform::scale(3.0, 1.5, 1.0)
-              * Transform::translate(1.0, 2.0, 3.0);
-        let p = Point3f::new(0.0, 0.0, 0.0);
-        assert_eq!(t.apply(&p), Point3f::new(3.0, 3.0, 3.0));
+        let t = Transform::scale(3., 1.5, 1.)
+              * Transform::translate(1., 2., 3.);
+        let p = Point3f::new(0., 0., 0.);
+        assert_eq!(t.apply(&p), Point3f::new(3., 3., 3.));
     }
 
     #[test]

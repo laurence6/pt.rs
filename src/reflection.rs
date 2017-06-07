@@ -51,7 +51,7 @@ fn sin_theta(w: Vector3f) -> Float {
 }
 
 fn sin2_theta(w: Vector3f) -> Float {
-    (1.0 - cos2_theta(w)).max(0.0)
+    (1. - cos2_theta(w)).max(0.)
 }
 
 fn tan_theta(w: Vector3f) -> Float {
@@ -64,10 +64,10 @@ fn tan2_theta(w: Vector3f) -> Float {
 
 fn cos_phi(w: Vector3f) -> Float {
     let sin_theta = sin_theta(w);
-    if sin_theta == 0.0 {
-        return 1.0;
+    if sin_theta == 0. {
+        return 1.;
     } else {
-        return clamp(w.x / sin_theta, -1.0, 1.0);
+        return clamp(w.x / sin_theta, -1., 1.);
     }
 }
 
@@ -77,10 +77,10 @@ fn cos2_phi(w: Vector3f) -> Float {
 
 fn sin_phi(w: Vector3f) -> Float {
     let sin_theta = sin_theta(w);
-    if sin_theta == 0.0 {
-        return 0.0;
+    if sin_theta == 0. {
+        return 0.;
     } else {
-        return clamp(w.y / sin_theta, -1.0, 1.0);
+        return clamp(w.y / sin_theta, -1., 1.);
     }
 }
 
@@ -91,7 +91,7 @@ fn sin2_phi(w: Vector3f) -> Float {
 fn cos_dphi(wa: Vector3f, wb: Vector3f) -> Float {
     clamp(
            (wa.x * wb.x + wa.y * wb.y)
-        / ((wa.x * wa.x + wa.y * wa.y) * (wb.x * wb.x + wb.y * wb.y)).sqrt(),
-        -1.0, 1.0,
+        / ((wa.x * wa.x + wa.y * wa.y) * (wb.x * wb.x + wb.y * wb.y).sqrt()),
+        -1., 1.,
     )
 }

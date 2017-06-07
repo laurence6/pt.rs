@@ -8,7 +8,7 @@ macro_rules! defFloat {
         pub const EPSILON: Float       = $t::EPSILON * 0.5;
         pub const INFINITY: Float      = $t::INFINITY;
         /// Max number less than 1.
-        pub const ONE_MINUS_EPSILON: Float = 1.0 - EPSILON;
+        pub const ONE_MINUS_EPSILON: Float = 1. - EPSILON;
 
         pub const PI: Float = $t::consts::PI;
     );
@@ -33,5 +33,5 @@ pub fn clamp<T: PartialOrd>(x: T, low: T, high: T) -> T {
 }
 
 pub fn lerp(t: Float, v1: Float, v2: Float) -> Float {
-    (1.0 - t) * v1 + t * v2
+    (1. - t) * v1 + t * v2
 }

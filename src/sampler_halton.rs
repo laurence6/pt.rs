@@ -121,7 +121,7 @@ impl Sampler for HaltonSampler {
     fn req_1d_array(&mut self, n: usize) {
         debug_assert_eq!(self.round_count(n), n);
         self.sample_array_1d.push(
-            vec![0.0; n * self.samples_per_pixel]
+            vec![0.; n * self.samples_per_pixel]
             .into_boxed_slice()
         );
     }
@@ -129,7 +129,7 @@ impl Sampler for HaltonSampler {
     fn req_2d_array(&mut self, n: usize) {
         debug_assert_eq!(self.round_count(n), n);
         self.sample_array_2d.push(
-            vec![Point2f::new(0.0, 0.0); n * self.samples_per_pixel]
+            vec![Point2f::new(0., 0.); n * self.samples_per_pixel]
             .into_boxed_slice()
         );
     }
@@ -1261,7 +1261,7 @@ mod sampler_halton_test {
     #[test]
     fn test_radical_inverse_prime() {
         use super::radical_inverse;
-        assert_eq!(radical_inverse(10, 0), 0.0);
+        assert_eq!(radical_inverse(10, 0), 0.);
         assert_eq!(radical_inverse(10, 1), 0.1);
         assert_eq!(radical_inverse(10, 1234), 0.4321);
     }

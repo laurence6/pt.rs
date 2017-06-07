@@ -77,7 +77,7 @@ impl From<RGBSpectrum> for XYZ {
 
 impl RGBSpectrum {
     fn is_black(&self) -> bool {
-        self.r == 0.0 && self.g == 0.0 && self.b == 0.0
+        self.r == 0. && self.g == 0. && self.b == 0.
     }
 
     fn sqrt(&self) -> RGBSpectrum {
@@ -89,7 +89,7 @@ impl RGBSpectrum {
     }
 
     fn lerp(&self, s: &RGBSpectrum, t: Float) -> RGBSpectrum {
-        *self * (1.0 - t) + *s * t
+        *self * (1. - t) + *s * t
     }
 
     fn clamp(&self, low: Float, high: Float) -> RGBSpectrum {
