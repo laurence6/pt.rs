@@ -1,3 +1,5 @@
+use std::rc::Rc;
+
 use bbox::BBox3f;
 use common::Float;
 use interaction::Interaction;
@@ -34,7 +36,8 @@ impl Shape for Sphere {
     fn intersect(&self, r: &Ray) -> Option<Interaction> {
         unimplemented!()
     }
-}
 
-impl Material for Sphere {
+    fn material(&self) -> Rc<Material> {
+        unimplemented!()
+    }
 }

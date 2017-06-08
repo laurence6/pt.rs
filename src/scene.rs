@@ -1,16 +1,16 @@
 use bbox::BBox3f;
-use ray::Ray;
 use interaction::Interaction;
 use light::Light;
-use primitive::Primitive;
+use ray::Ray;
+use shape::Shape;
 
 pub struct Scene {
     lights: Box<[Box<Light>]>,
-    aggregate: Box<Primitive>,
+    aggregate: Box<Shape>,
 }
 
 impl Scene {
-    pub fn new(lights: Box<[Box<Light>]>, aggregate: Box<Primitive>) -> Scene {
+    pub fn new(lights: Box<[Box<Light>]>, aggregate: Box<Shape>) -> Scene {
         Scene {
             lights: lights,
             aggregate: aggregate,

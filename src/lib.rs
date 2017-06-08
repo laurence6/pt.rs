@@ -9,7 +9,6 @@
 #[allow(dead_code, unused_variables)] mod light;
 #[allow(dead_code, unused_variables)] mod material;
 #[allow(dead_code, unused_variables)] mod matrix;
-#[allow(dead_code, unused_variables)] mod primitive;
 #[allow(dead_code, unused_variables)] mod ray;
 #[allow(dead_code, unused_variables)] mod reflection;
 #[allow(dead_code, unused_variables)] mod sampler;
