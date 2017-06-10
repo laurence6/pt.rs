@@ -1,10 +1,10 @@
 use std::ops;
 
-use common::Float;
-use vector::{Vector3f, Normal3f, Point3f};
-use ray::Ray;
 use bbox::BBox3f;
+use common::Float;
 use matrix::Matrix;
+use ray::Ray;
+use vector::{Vector3f, Normal3f, Point3f};
 
 #[derive(Clone, Copy, Debug)]
 pub struct Transform {

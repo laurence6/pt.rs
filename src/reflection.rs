@@ -1,6 +1,6 @@
-use vector::{Vector3f, Point2f};
-use spectrum::Spectrum;
 use sampling::cosine_sample_hemisphere;
+use spectrum::Spectrum;
+use vector::{Vector3f, Point2f};
 
 pub type BxDFType = u8;
 pub const REFLECTION:   BxDFType = 1 << 0;

@@ -1,7 +1,6 @@
 use std::ops;
 
-use common::Float;
-use common::clamp;
+use common::{Float, clamp};
 
 pub struct RGB {
     pub r: Float,

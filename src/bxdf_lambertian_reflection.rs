@@ -1,5 +1,5 @@
 use common::PI;
-use reflection::{REFLECTION, DIFFUSE, BxDFType, BxDF};
+use reflection::{BxDF, BxDFType, REFLECTION, DIFFUSE};
 use spectrum::Spectrum;
 use vector::Vector3f;
 

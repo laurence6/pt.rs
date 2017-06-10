@@ -1,10 +1,9 @@
 extern crate rand;
-use self::rand::Rng;
-use self::rand::ThreadRng;
+use self::rand::{Rng, ThreadRng};
 
 use common::Float;
-use vector::{Point2u, Point2f};
 use sampler::Sampler;
+use vector::{Point2u, Point2f};
 
 pub struct RandomSampler {
     // General sampler

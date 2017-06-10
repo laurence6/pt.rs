@@ -1,8 +1,8 @@
 use common::Float;
-use vector::{Vector3f, Point3f};
-use spectrum::Spectrum;
 use interaction::Interaction;
 use scene::Scene;
+use spectrum::Spectrum;
+use vector::{Vector3f, Point3f};
 
 pub trait Light {
     /// sample_li takes a world space point and returns the radiance arriving at that point,

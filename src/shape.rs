@@ -1,9 +1,9 @@
 use std::rc::Rc;
 
 use bbox::BBox3f;
-use ray::Ray;
 use interaction::Interaction;
 use material::Material;
+use ray::Ray;
 
 pub trait Shape {
     fn bbox(&self) -> BBox3f;

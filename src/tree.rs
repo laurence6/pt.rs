@@ -1,11 +1,11 @@
 use std::cmp::Ordering;
 use std::rc::Rc;
 
-use bbox::BBox3f;
 use axis::Axis;
-use common::Float;
+use bbox::BBox3f;
 use common::FLOAT_MAX;
 use common::FLOAT_MIN_POS;
+use common::Float;
 use interaction::Interaction;
 use ray::Ray;
 use shape::Shape;

@@ -1,7 +1,7 @@
-use common::{Float, ONE_MINUS_EPSILON};
-use vector::{Point2u, Point2f};
 use bbox::BBox2u;
+use common::{Float, ONE_MINUS_EPSILON};
 use sampler::{Sampler, GlobalSampler};
+use vector::{Point2u, Point2f};
 
 /// Max resoltion of one tile.
 const K_MAX_RESOLUTION: u32 = 128;

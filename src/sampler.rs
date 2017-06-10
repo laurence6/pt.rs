@@ -1,6 +1,6 @@
+use camera::CameraSample;
 use common::Float;
 use vector::{Point2u, Point2f};
-use camera::CameraSample;
 
 pub trait Sampler {
     /// Set current pixel. Reset sample number.

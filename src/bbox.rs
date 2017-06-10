@@ -6,7 +6,7 @@ use axis::Axis;
 use common::{Float, EPSILON};
 use ray::Ray;
 use shape::Shape;
-use vector::{Vector2, Vector3f, Point2, Point3f};
+use vector::{Vector3f, Point3f, Vector2, Point2};
 
 #[derive(Clone, Copy)]
 pub struct BBox3f {

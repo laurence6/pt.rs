@@ -1,8 +1,8 @@
-use ray::Ray;
-use vector::{Point2u, Point2f, Vector3f, Point3f};
-use transform::Transform;
 use bbox::BBox2f;
 use common::Float;
+use ray::Ray;
+use transform::Transform;
+use vector::{Vector3f, Point3f, Point2u, Point2f};
 
 /// Records the position on Film that Camera should generate corresponding ray.
 pub struct CameraSample {
