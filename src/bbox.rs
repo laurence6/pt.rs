@@ -19,10 +19,10 @@ impl BBox3f {
         BBox3f { min: min, max: max }
     }
 
-    pub fn bbox_of_shapes(shapes: &Vec<Rc<Shape>>) -> BBox3f {
-        let mut bbox = BBox3f::new(Point3f::default(), Point3f::default());
-        for shape in shapes {
-            bbox = bbox.union(&shape.bbox());
+    pub fn bbox_of_shapes(shapes: &Box<[Rc<Shape>]>) -> BBox3f {
+        let mut bbox = shapes[0].bbox();
+        for s in shapes[1..].iter() {
+            bbox = bbox.union(&s.bbox());
         }
         return bbox;
     }

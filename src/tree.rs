@@ -35,7 +35,7 @@ impl Tree {
         print!("Building k-d tree ({} shapes) ... ", shapes.len());
 
         // Compute BBox
-        let bbox = BBox3f::bbox_of_shapes(&shapes);
+        let bbox = BBox3f::bbox_of_shapes(&shapes.clone().into_boxed_slice());
         let tree = Tree {
             shapes: shapes,
             shape_indices: Vec::<usize>::new(),
