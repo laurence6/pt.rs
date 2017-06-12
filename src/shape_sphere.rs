@@ -29,11 +29,11 @@ impl Shape for Sphere {
         return self.bbox;
     }
 
-    fn intersect_p(&self, r: &Ray) -> bool {
+    fn intersect_p(&self, ray: &Ray) -> bool {
         unimplemented!()
     }
 
-    fn intersect(&self, r: &Ray) -> Option<Interaction> {
+    fn intersect(&self, ray: &Ray) -> Option<Interaction> {
         unimplemented!()
     }
 

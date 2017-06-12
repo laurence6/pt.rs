@@ -7,7 +7,7 @@ use ray::Ray;
 
 pub trait Shape {
     fn bbox(&self) -> BBox3f;
-    fn intersect_p(&self, &Ray) -> bool;
-    fn intersect(&self, &Ray) -> Option<Interaction>;
+    fn intersect_p(&self, ray: &Ray) -> bool;
+    fn intersect(&self, ray: &Ray) -> Option<Interaction>;
     fn material(&self) -> Rc<Material>;
 }
