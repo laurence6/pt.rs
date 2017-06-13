@@ -125,7 +125,7 @@ impl Sampler for RandomSampler {
 }
 
 #[cfg(test)]
-mod sampler_random_test {
+mod test {
     #[test]
     fn test_random_sampler() {
         use sampler::Sampler;

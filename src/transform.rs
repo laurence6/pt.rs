@@ -222,7 +222,7 @@ impl Transformable for BBox3f {
 }
 
 #[cfg(test)]
-mod transform_test {
+mod test {
     use matrix::Matrix;
     use transform::Transform;
     use vector::{Vector3f, Point3f};

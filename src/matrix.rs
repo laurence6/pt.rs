@@ -128,7 +128,7 @@ impl Debug for Matrix {
 }
 
 #[cfg(test)]
-mod matrix_test {
+mod test {
     use matrix::Matrix;
 
     #[test]
