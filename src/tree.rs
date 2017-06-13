@@ -263,7 +263,7 @@ fn build_tree(
                 let t = edges[axis as usize][i].t;
                 if node_bbox.min[axis] < t && t < node_bbox.max[axis] {
                     let (p_below, p_above) = {
-                        let (axis1, axis2) = axis.other_axes();
+                        let (axis1, axis2) = axis.others();
                         (
                             2. * (d[axis1] * d[axis2] + (t - node_bbox.min[axis]) * (d[axis1] + d[axis2])) * inv_tot_sa,
                             2. * (d[axis1] * d[axis2] + (node_bbox.min[axis] - t) * (d[axis1] + d[axis2])) * inv_tot_sa,
@@ -289,7 +289,7 @@ fn build_tree(
             debug_assert!(n_below == shapes.len() && n_above == 0);
 
             if best_axis.is_none() {
-                axis = axis.next_axis();
+                axis = axis.next();
             } else {
                 break
             }

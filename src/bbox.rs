@@ -97,7 +97,7 @@ impl BBox3f {
                 return None;
             }
 
-            axis = axis.next_axis();
+            axis = axis.next();
         }
         return Some((t0, t1));
     }
