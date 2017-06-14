@@ -74,7 +74,7 @@ impl Tree {
             }
         }
 
-        let isec = self.bbox.intersect_p(ray);
+        let isec = self.bbox.intersect(ray);
         if isec.is_none() {
             return None;
         }

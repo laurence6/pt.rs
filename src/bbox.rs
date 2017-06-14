@@ -74,7 +74,7 @@ impl BBox3f {
         }
     }
 
-    pub fn intersect_p(&self, ray: &Ray) -> Option<(Float, Float)> {
+    pub fn intersect(&self, ray: &Ray) -> Option<(Float, Float)> {
         let mut t0 = 0.;
         let mut t1 = ray.t_max;
 
