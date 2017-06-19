@@ -1,31 +1,31 @@
 use bbox::BBox3f;
+use container::Container;
 use interaction::Interaction;
 use light::Light;
 use ray::Ray;
-use shape::Shape;
 
 pub struct Scene {
     lights: Box<[Box<Light>]>,
-    aggregate: Box<Shape>,
+    shapes: Box<Container>,
 }
 
 impl Scene {
-    pub fn new(lights: Box<[Box<Light>]>, aggregate: Box<Shape>) -> Scene {
+    pub fn new(lights: Box<[Box<Light>]>, shapes: Box<Container>) -> Scene {
         Scene {
             lights: lights,
-            aggregate: aggregate,
+            shapes: shapes,
         }
     }
 
     pub fn bbox(&self) -> BBox3f {
-        self.aggregate.bbox()
+        self.shapes.bbox()
     }
 
     pub fn intersect_p(&self, ray: &Ray) -> bool {
-        self.aggregate.intersect_p(ray)
+        self.shapes.intersect_p(ray)
     }
 
     pub fn intersect(&self, ray: &Ray) -> Option<Interaction> {
-        self.aggregate.intersect(ray)
+        self.shapes.intersect(ray)
     }
 }
