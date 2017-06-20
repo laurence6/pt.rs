@@ -30,7 +30,7 @@ impl Shape for Sphere {
         unimplemented!()
     }
 
-    fn intersect(&self, ray: &Ray) -> Option<Interaction> {
+    fn intersect(&self, ray: &Ray) -> Option<(Interaction, Float)> {
         let to = ray.origin - self.center;
         let b = ray.direction.dot(to);
         let c = to.dot(to) - self.radius.powi(2);
@@ -46,22 +46,28 @@ impl Shape for Sphere {
         if EPSILON < t && t < ray.t_max {
             let p = ray.position(t);
             let n = Normal3f::from((p - self.center).normalize());
-            return Some(Interaction {
-                p: p,
-                n: n,
-                ..Default::default()
-            });
+            return Some((
+                Interaction {
+                    p: p,
+                    n: n,
+                    ..Default::default()
+                },
+                t,
+            ));
         }
 
         let t = -b + d;
         if EPSILON < t && t < ray.t_max {
             let p = ray.position(t);
             let n = Normal3f::from((self.center - p).normalize());
-            return Some(Interaction {
-                p: p,
-                n: n,
-                ..Default::default()
-            });
+            return Some((
+                Interaction {
+                    p: p,
+                    n: n,
+                    ..Default::default()
+                },
+                t,
+            ));
         }
 
         return None;
@@ -88,7 +94,7 @@ mod test {
             direction: Vector3f::new(0., 1., 0.),
             t_max: 10.,
         };
-        let interaction = sphere.intersect(&ray).unwrap();
+        let (interaction, _) = sphere.intersect(&ray).unwrap();
         assert_eq!(interaction.p, Point3f::new(2., 1., 2.));
         assert_eq!(interaction.n, Normal3f::new(0., -1., 0.));
 
@@ -97,7 +103,7 @@ mod test {
             direction: Vector3f::new(0., -1., 0.),
             t_max: 10.,
         };
-        let interaction = sphere.intersect(&ray).unwrap();
+        let (interaction, _) = sphere.intersect(&ray).unwrap();
         assert_eq!(interaction.p, Point3f::new(2., 3., 2.));
         assert_eq!(interaction.n, Normal3f::new(0., 1., 0.));
 
@@ -106,7 +112,7 @@ mod test {
             direction: Vector3f::new(0., 1., 0.),
             t_max: 10.,
         };
-        let interaction = sphere.intersect(&ray).unwrap();
+        let (interaction, _) = sphere.intersect(&ray).unwrap();
         assert_eq!(interaction.p, Point3f::new(2., 3., 2.));
         assert_eq!(interaction.n, Normal3f::new(0., -1., 0.));
 
@@ -115,7 +121,7 @@ mod test {
             direction: Vector3f::new(7.109401, 6.9729223, 2.91366),
             t_max: 10.,
         };
-        let interaction = sphere.intersect(&ray).unwrap();
+        let (interaction, _) = sphere.intersect(&ray).unwrap();
 
         let ray = Ray {
             origin: Point3f::new(2., 0., 2.),
@@ -124,7 +130,7 @@ mod test {
         };
         let interaction = sphere.intersect(&ray);
         if let None = interaction {
-            let interaction = interaction.unwrap();
+            let (interaction, _) = interaction.unwrap();
             panic!("interaction found: p:{:?} n:{:?}", interaction.p, interaction.n);
         }
     }

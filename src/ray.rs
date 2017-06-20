@@ -1,6 +1,7 @@
 use common::{Float, INFINITY};
 use vector::{Vector3f, Point3f};
 
+#[derive(Clone)]
 pub struct Ray {
     pub origin: Point3f,
     pub direction: Vector3f,

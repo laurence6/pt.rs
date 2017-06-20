@@ -8,7 +8,7 @@ use common::FLOAT_MIN_POS;
 use common::Float;
 use interaction::Interaction;
 use ray::Ray;
-use shape::Shape;
+use shape::{Shape, intersect};
 
 // k-d tree
 pub struct Tree {
@@ -74,7 +74,9 @@ impl Tree {
             }
         }
 
-        let isec = self.bbox.intersect(ray);
+        let mut ray = ray.clone();
+
+        let isec = self.bbox.intersect(&ray);
         if isec.is_none() {
             return None;
         }
@@ -118,14 +120,14 @@ impl Tree {
                 SplitOrShape::Shape(n) => {
                     if n == 1 {
                         let shape = &self.shapes[node.index];
-                        let i = shape.intersect(ray);
+                        let i = intersect(shape, &mut ray);
                         if i.is_some() {
                             return i;
                         }
                     } else {
                         for i in 0..n {
                             let shape = &self.shapes[self.shape_indices[node.index + i]];
-                            let i = shape.intersect(ray);
+                            let i = intersect(shape, &mut ray);
                             if i.is_some() {
                                 return i;
                             }
