@@ -5,6 +5,7 @@
 #[allow(dead_code, unused_variables)] mod camera;
 #[allow(dead_code, unused_variables)] mod common;
 #[allow(dead_code, unused_variables)] mod container;
+#[allow(dead_code, unused_variables)] mod container_simple;
 #[allow(dead_code, unused_variables)] mod film;
 #[allow(dead_code, unused_variables)] mod integrator;
 #[allow(dead_code, unused_variables)] mod interaction;
