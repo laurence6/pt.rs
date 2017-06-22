@@ -6,26 +6,26 @@ use bbox::BBox3f;
 use common::FLOAT_MAX;
 use common::FLOAT_MIN_POS;
 use common::Float;
-use interaction::Interaction;
-use ray::Ray;
-use shape::{Shape, intersect};
+use shape::Shape;
 
-// k-d tree
+/// k-d tree.
 pub struct Tree {
-    pub shapes: Vec<Rc<Shape>>,
-    pub shape_indices: Vec<usize>,
+    shapes: Vec<Rc<Shape>>,
+    shape_indices: Vec<usize>,
 
-    pub nodes: Vec<Node>,
+    nodes: Vec<Node>,
 
     bbox: BBox3f,
 }
 
-pub struct Node {
-    pub split_or_shape: SplitOrShape,
-    pub index: usize,
+//impl Container for Tree {} // FIXME
+
+struct Node {
+    split_or_shape: SplitOrShape,
+    index: usize,
 }
 
-pub enum SplitOrShape {
+enum SplitOrShape {
     Split(Axis, Float), // Splite Point
     Shape(usize),       // Number of shapes
 }
@@ -58,94 +58,6 @@ impl Tree {
         println!("Done");
 
         return build_tree(tree, shapes, node_bbox, 0, max_depth);
-    }
-
-    pub fn intersect(&self, ray: &Ray) -> Option<Interaction> {
-        #[derive(Clone, Copy)]
-        struct Todo {
-            node: usize,
-            t_min: Float,
-            t_max: Float,
-        }
-
-        impl Todo {
-            fn new() -> Todo {
-                return Todo { node: 0, t_min: 0., t_max: 0. };
-            }
-        }
-
-        let mut ray = ray.clone();
-
-        let isec = self.bbox.intersect(&ray);
-        if isec.is_none() {
-            return None;
-        }
-        let (mut t_min, mut t_max) = isec.unwrap();
-
-        let inv_dir = ray.direction.inv();
-
-        let mut todos = [Todo::new(); MAX_TODO];
-        let mut todo_i = 0;
-
-        let interaction: Option<Interaction> = None;
-        let mut node_index = 0;
-        loop {
-            if ray.t_max < t_min {
-                break;
-            }
-            let node = &self.nodes[node_index];
-            match node.split_or_shape {
-                SplitOrShape::Split(axis, point) => {
-                    let t_plane = (point - ray.origin[axis]) * inv_dir[axis];
-                    // below first?
-                    let (child1, child2) = if ray.origin[axis] < point || ray.origin[axis] == point && ray.direction[axis] <= 0. {
-                        (node_index+1, node.index)
-                    } else {
-                        (node.index, node_index+1)
-                    };
-                    if t_plane > t_max || t_plane <= 0. {
-                        node_index = child1;
-                    } else if t_plane < t_min {
-                        node_index = child2;
-                    } else {
-                        node_index = child1;
-                        t_max = t_plane;
-                        // put child2 into Todo
-                        todos[todo_i].node = child2;
-                        todos[todo_i].t_min = t_plane;
-                        todos[todo_i].t_max = t_max;
-                        todo_i += 1;
-                    }
-                },
-                SplitOrShape::Shape(n) => {
-                    if n == 1 {
-                        let shape = &self.shapes[node.index];
-                        let i = intersect(shape, &mut ray);
-                        if i.is_some() {
-                            return i;
-                        }
-                    } else {
-                        for i in 0..n {
-                            let shape = &self.shapes[self.shape_indices[node.index + i]];
-                            let i = intersect(shape, &mut ray);
-                            if i.is_some() {
-                                return i;
-                            }
-                        }
-                    }
-
-                    if todo_i > 0 {
-                        todo_i -= 1;
-                        node_index = todos[todo_i].node;
-                        t_min = todos[todo_i].t_min;
-                        t_max = todos[todo_i].t_max;
-                    } else {
-                        break;
-                    }
-                },
-            }
-        }
-        return interaction;
     }
 }
 
