@@ -30,14 +30,6 @@ impl Vector3f {
         )
     }
 
-    pub fn inv(&self) -> Vector3f {
-        Vector3f::new(
-            1 as Float / self.x,
-            1 as Float / self.y,
-            1 as Float / self.z,
-        )
-    }
-
     pub fn dot(&self, v: Vector3f) -> Float {
         self.x * v.x + self.y * v.y + self.z * v.z
     }
