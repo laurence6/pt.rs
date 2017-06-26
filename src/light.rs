@@ -5,10 +5,11 @@ use spectrum::Spectrum;
 use vector::{Vector3f, Point3f};
 
 pub trait Light {
+    fn pre_process(&mut self, &Scene) {}
+
     /// sample_li takes a world space point and returns the radiance arriving at that point,
     /// incident direction, and VisibilityTester.
     fn sample_li(&self, &Interaction) -> (Spectrum, Vector3f, VisibilityTester);
-    fn pre_process(&mut self, &Scene) {}
 }
 
 pub struct VisibilityTester {
@@ -30,6 +31,12 @@ pub struct DistantLight {
 }
 
 impl Light for DistantLight {
+    fn pre_process(&mut self, scene: &Scene) {
+        let (center, radius) = scene.bbox().bounding_sphere();
+        self.world_center = center;
+        self.world_radius = radius;
+    }
+
     fn sample_li(&self, i: &Interaction) -> (Spectrum, Vector3f, VisibilityTester) {
         let mut p1 = Interaction::default();
         // A point outside the scene
@@ -40,11 +47,5 @@ impl Light for DistantLight {
         };
 
         return (self.l, self.w_light, vis);
-    }
-
-    fn pre_process(&mut self, scene: &Scene) {
-        let (center, radius) = scene.bbox().bounding_sphere();
-        self.world_center = center;
-        self.world_radius = radius;
     }
 }

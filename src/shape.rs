@@ -8,11 +8,14 @@ use ray::Ray;
 
 pub trait Shape {
     fn bbox(&self) -> BBox3f;
+
     /// intersect_p returns whether or not the ray intersects this shape.
     fn intersect_p(&self, ray: &Ray) -> bool;
+
     /// intersect determines whether the ray intersects this shape.
     /// If an intersection occurs, it returns the detail of the intersection (Interaction.shape is NOT initialized in this method) and t value of the ray at the intersection point.
     fn intersect(&self, ray: &Ray) -> Option<(Interaction, Float)>;
+
     fn material(&self) -> Rc<Material>;
 }
 

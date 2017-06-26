@@ -13,8 +13,10 @@ pub const ALL:          BxDFType = REFLECTION | TRANSMISSION | DIFFUSE | GLOSSY 
 pub trait BxDF {
     /// Return BxDF type.
     fn bxdf_type(&self) -> BxDFType;
+
     /// Return value of distribution function for the given pair of direction.
     fn f(&self, wo: Vector3f, wi: Vector3f) -> Spectrum;
+
     /// Return the direction of incident ray, value of distribution function.
     fn sample_f(&self, wo: Vector3f, sample: Point2f) -> (Vector3f, Spectrum) {
         let mut wi = cosine_sample_hemisphere(sample);
