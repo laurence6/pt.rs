@@ -39,60 +39,58 @@ impl From<RGB> for XYZ {
     }
 }
 
-pub type Spectrum = RGBSpectrum;
-
 #[derive(Clone, Copy)]
-pub struct RGBSpectrum {
+pub struct Spectrum {
     r: Float,
     g: Float,
     b: Float,
 }
-impl_vector3f_new_and_ops!(RGBSpectrum, r, g, b);
-impl_vector3f_add!(RGBSpectrum, RGBSpectrum, RGBSpectrum, r, g, b);
+impl_vector3f_new_and_ops!(Spectrum, r, g, b);
+impl_vector3f_add!(Spectrum, Spectrum, Spectrum, r, g, b);
 
-impl From<RGB> for RGBSpectrum {
-    fn from(RGB { r, g, b }: RGB) -> RGBSpectrum {
-        RGBSpectrum::new(r, g, b)
+impl From<RGB> for Spectrum {
+    fn from(RGB { r, g, b }: RGB) -> Spectrum {
+        Spectrum::new(r, g, b)
     }
 }
 
-impl From<XYZ> for RGBSpectrum {
-    fn from(xyz: XYZ) -> RGBSpectrum {
-        RGBSpectrum::from(RGB::from(xyz))
+impl From<XYZ> for Spectrum {
+    fn from(xyz: XYZ) -> Spectrum {
+        Spectrum::from(RGB::from(xyz))
     }
 }
 
-impl From<RGBSpectrum> for RGB {
-    fn from(RGBSpectrum { r, g, b }: RGBSpectrum) -> RGB {
+impl From<Spectrum> for RGB {
+    fn from(Spectrum { r, g, b }: Spectrum) -> RGB {
         RGB::new(r, g, b)
     }
 }
 
-impl From<RGBSpectrum> for XYZ {
-    fn from(rgbs: RGBSpectrum) -> XYZ {
+impl From<Spectrum> for XYZ {
+    fn from(rgbs: Spectrum) -> XYZ {
         XYZ::from(RGB::from(rgbs))
     }
 }
 
-impl RGBSpectrum {
+impl Spectrum {
     fn is_black(&self) -> bool {
         self.r == 0. && self.g == 0. && self.b == 0.
     }
 
-    fn sqrt(&self) -> RGBSpectrum {
-        RGBSpectrum::new(
+    fn sqrt(&self) -> Spectrum {
+        Spectrum::new(
             self.r.sqrt(),
             self.g.sqrt(),
             self.b.sqrt(),
         )
     }
 
-    fn lerp(&self, s: &RGBSpectrum, t: Float) -> RGBSpectrum {
+    fn lerp(&self, s: &Spectrum, t: Float) -> Spectrum {
         *self * (1. - t) + *s * t
     }
 
-    fn clamp(&self, low: Float, high: Float) -> RGBSpectrum {
-        RGBSpectrum::new(
+    fn clamp(&self, low: Float, high: Float) -> Spectrum {
+        Spectrum::new(
             clamp(self.r, low, high),
             clamp(self.g, low, high),
             clamp(self.b, low, high),
