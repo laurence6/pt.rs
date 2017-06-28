@@ -12,7 +12,7 @@ pub struct Vector3f {
 impl_vector3f_new_and_ops!(Vector3f, x, y, z);
 impl_vector3f_add!(Vector3f, Vector3f, Vector3f, x, y, z);
 impl_vector3f_sub!(Vector3f, Vector3f, Vector3f, x, y, z);
-impl_vector3f_index_axis!(Vector3f);
+impl_vector3f_index!(Vector3f);
 impl_vector3f_from!(Point3f, Vector3f);
 impl_vector3f_from!(Normal3f, Vector3f);
 
@@ -63,7 +63,7 @@ impl_vector3f_add!(Point3f, Point3f, Point3f, x, y, z);
 impl_vector3f_add!(Point3f, Vector3f, Point3f, x, y, z);
 impl_vector3f_sub!(Point3f, Point3f, Vector3f, x, y, z);
 impl_vector3f_sub!(Point3f, Vector3f, Point3f, x, y, z);
-impl_vector3f_index_axis!(Point3f);
+impl_vector3f_index!(Point3f);
 impl_vector3f_from!(Vector3f, Point3f);
 
 impl Point3f {
@@ -96,6 +96,7 @@ pub struct Vector2<T> {
 impl_vector2_new_and_ops!(Vector2, x, y);
 impl_vector2_add!(Vector2, Vector2, Vector2, x, y);
 impl_vector2_sub!(Vector2, Vector2, Vector2, x, y);
+impl_vector2_index!(Vector2);
 
 #[derive(Default, Clone, Copy, Debug, PartialEq)]
 pub struct Point2<T> {
@@ -105,6 +106,7 @@ pub struct Point2<T> {
 impl_vector2_new_and_ops!(Point2, x, y);
 impl_vector2_add!(Point2, Point2, Point2, x, y);
 impl_vector2_sub!(Point2, Point2, Vector2, x, y);
+impl_vector2_index!(Point2);
 impl_vector2_from!(Vector2, Point2);
 
 pub type Point2u = Point2<u32>;
