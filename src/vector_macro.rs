@@ -1,8 +1,8 @@
 macro_rules! impl_vector3f_new_and_ops {
     ($vector3f: ident, $x: ident, $y: ident, $z: ident) => (
         impl $vector3f {
-            pub fn new(x: Float, y: Float, z: Float) -> $vector3f {
-                $vector3f { $x: x, $y: y, $z: z }
+            pub fn new($x: Float, $y: Float, $z: Float) -> $vector3f {
+                $vector3f { $x, $y, $z }
             }
         }
 
@@ -200,8 +200,8 @@ macro_rules! impl_vector3f_from {
 macro_rules! impl_vector2_new_and_ops {
     ($vector2: ident, $x: ident, $y: ident) => (
         impl<T> $vector2<T> {
-            pub fn new(x: T, y: T) -> $vector2<T> {
-                $vector2::<T> { $x: x, $y: y }
+            pub fn new($x: T, $y: T) -> $vector2<T> {
+                $vector2::<T> { $x, $y }
             }
         }
 

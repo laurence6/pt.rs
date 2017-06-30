@@ -26,7 +26,7 @@ pub struct RandomSampler {
 impl RandomSampler {
     pub fn new(samples_per_pixel: usize) -> RandomSampler {
         RandomSampler {
-            samples_per_pixel: samples_per_pixel,
+            samples_per_pixel,
 
             current_pixel_sample_index: 0,
 

@@ -34,16 +34,14 @@ pub trait Sampler {
     }
 
     fn get_camera_sample(&mut self, p_raster: Point2u) -> CameraSample {
-        let p_film = Point2f::from(p_raster) + self.get_2d();
-        let p_lens = self.get_2d();
-        return CameraSample {
-            p_film: p_film,
-            p_lens: p_lens,
-        };
+        CameraSample {
+            p_film: Point2f::from(p_raster) + self.get_2d(),
+            p_lens: self.get_2d(),
+        }
     }
 }
 
-pub trait GlobalSampler : Sampler {
+pub trait GlobalSampler: Sampler {
     /// Return index to the sample in the overall set of samples based on current pixel and sample index.
     fn get_index_for_sample(&mut self, usize) -> usize;
 

@@ -15,11 +15,10 @@ pub struct Interaction {
 
 impl Interaction {
     pub fn spawn_ray_to(&self, i: Point3f) -> Ray {
-        let d = i - self.p;
-        return Ray {
+        Ray {
             origin: self.p,
-            direction: d,
+            direction: i - self.p,
             t_max: ONE_MINUS_EPSILON,
-        };
+        }
     }
 }

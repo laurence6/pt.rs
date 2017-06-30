@@ -16,7 +16,7 @@ pub struct BBox3f {
 
 impl BBox3f {
     pub fn new(min: Point3f, max: Point3f) -> BBox3f {
-        BBox3f { min: min, max: max }
+        BBox3f { min, max }
     }
 
     pub fn bbox_of_shapes(shapes: &Box<[Rc<Shape>]>) -> BBox3f {
@@ -111,7 +111,7 @@ pub struct BBox2<T> where T: Copy {
 
 impl<T> BBox2<T> where T: Copy {
     pub fn new(min: Point2<T>, max: Point2<T>) -> BBox2<T> {
-        BBox2::<T> { min: min, max: max }
+        BBox2::<T> { min, max }
     }
 }
 

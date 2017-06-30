@@ -14,10 +14,7 @@ pub struct Simple {
 impl Simple {
     pub fn new(shapes: Box<[Rc<Shape>]>) -> Simple {
         let bbox = BBox3f::bbox_of_shapes(&shapes);
-        return Simple {
-            shapes: shapes,
-            bbox: bbox,
-        };
+        return Simple { shapes, bbox };
     }
 }
 

@@ -10,7 +10,7 @@ pub struct Matrix {
 
 impl From<[[Float; 4]; 4]> for Matrix {
     fn from(m: [[Float; 4]; 4]) -> Matrix {
-        Matrix { m: m }
+        Matrix { m }
     }
 }
 

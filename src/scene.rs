@@ -11,10 +11,7 @@ pub struct Scene {
 
 impl Scene {
     pub fn new(lights: Box<[Box<Light>]>, shapes: Box<Container>) -> Scene {
-        Scene {
-            lights: lights,
-            shapes: shapes,
-        }
+        Scene { lights, shapes }
     }
 
     pub fn bbox(&self) -> BBox3f {

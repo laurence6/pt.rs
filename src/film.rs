@@ -20,10 +20,7 @@ impl Film {
             pixels.into_boxed_slice()
         };
 
-        return Film {
-            resolution: resolution,
-            pixels: pixels,
-        };
+        return Film { resolution, pixels };
     }
 
     pub fn add_sample(&mut self, p_film: Point2f, sample: &Spectrum) {

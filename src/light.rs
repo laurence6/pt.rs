@@ -38,12 +38,12 @@ impl Light for DistantLight {
     }
 
     fn sample_li(&self, i: &Interaction) -> (Spectrum, Vector3f, VisibilityTester) {
-        let mut p1 = Interaction::default();
-        // A point outside the scene
-        p1.p = i.p + self.w_light * (2. * self.world_radius);
         let vis = VisibilityTester {
             p0: i.clone(),
-            p1: p1,
+            p1: Interaction {
+                p: i.p + self.w_light * (2. * self.world_radius), // A point outside the scene
+                ..Default::default()
+            },
         };
 
         return (self.l, self.w_light, vis);

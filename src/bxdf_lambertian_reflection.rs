@@ -10,7 +10,7 @@ pub struct LambertianReflectionBRDF {
 
 impl LambertianReflectionBRDF {
     pub fn new(r: Spectrum) -> LambertianReflectionBRDF {
-        LambertianReflectionBRDF { r: r }
+        LambertianReflectionBRDF { r }
     }
 }
 

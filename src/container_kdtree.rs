@@ -56,7 +56,7 @@ impl Tree {
 
         impl BEdge {
             fn new(edge_type: BEdgeType, t: Float, shape: Rc<Shape>) -> BEdge {
-                BEdge { edge_type: edge_type, t: t, shape: shape }
+                BEdge { edge_type, t, shape }
             }
         }
 
@@ -217,11 +217,7 @@ impl Container for Tree {
 
         impl Todo {
             fn new(node: usize, t_min: Float, t_max: Float) -> Todo {
-                Todo {
-                    node: node,
-                    t_min: t_min,
-                    t_max: t_max,
-                }
+                Todo { node, t_min, t_max }
             }
         }
 

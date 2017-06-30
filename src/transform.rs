@@ -15,7 +15,7 @@ pub struct Transform {
 impl From<Matrix> for Transform {
     fn from(m: Matrix) -> Transform {
         Transform {
-            m: m,
+            m,
             m_inv: m.inverse(),
         }
     }
@@ -23,10 +23,10 @@ impl From<Matrix> for Transform {
 
 impl From<[[Float; 4]; 4]> for Transform {
     fn from(m: [[Float; 4]; 4]) -> Transform {
-        let mat = Matrix::from(m);
+        let m = Matrix::from(m);
         return Transform {
-            m: mat,
-            m_inv: mat.inverse(),
+            m,
+            m_inv: m.inverse(),
         };
     }
 }
@@ -92,7 +92,10 @@ impl Transform {
                 0.,   0.,  0.,    1.,
         );
 
-        return Transform { m: camera_to_world, m_inv: camera_to_world.inverse() };
+        return Transform {
+            m: camera_to_world,
+            m_inv: camera_to_world.inverse(),
+        };
     }
 
     fn transpose(&self) -> Transform {
@@ -114,7 +117,10 @@ impl Transform {
             0., sin_theta,  cos_theta, 0.,
             0.,        0.,         0., 1.,
         );
-        return Transform { m: m, m_inv: m.transpose() };
+        return Transform {
+            m,
+            m_inv: m.transpose(),
+        };
     }
 
     fn rotate_y(&self, theta: Float) -> Transform {
@@ -125,7 +131,10 @@ impl Transform {
             -sin_theta, 0., cos_theta, 0.,
                     0., 0.,        0., 1.,
         );
-        return Transform { m: m, m_inv: m.transpose() };
+        return Transform {
+            m,
+            m_inv: m.transpose(),
+        };
     }
 
     fn rotate_z(&self, theta: Float) -> Transform {
@@ -136,7 +145,10 @@ impl Transform {
                    0.,         0., 1., 0.,
                    0.,         0., 0., 1.,
         );
-        return Transform { m: m, m_inv: m.transpose() };
+        return Transform {
+            m,
+            m_inv: m.transpose(),
+        };
     }
 
     pub fn apply<T>(&self, t: &T) -> T where T: Transformable {

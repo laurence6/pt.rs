@@ -48,12 +48,12 @@ impl PerspectiveCamera {
         let raster_to_camera = camera_to_screen.inverse() * raster_to_screen;
 
         return PerspectiveCamera {
-            camera_to_world: camera_to_world,
+            camera_to_world,
 
-            raster_to_camera: raster_to_camera,
-            camera_to_screen: camera_to_screen,
-            screen_to_raster: screen_to_raster,
-            raster_to_screen: raster_to_screen,
+            raster_to_camera,
+            camera_to_screen,
+            screen_to_raster,
+            raster_to_screen,
         };
     }
 }

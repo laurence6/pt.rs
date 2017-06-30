@@ -15,7 +15,7 @@ pub struct Sphere {
 
 impl Sphere {
     pub fn new(center: Point3f, radius: Float) -> Sphere {
-        Sphere { center: center, radius: radius }
+        Sphere { center, radius }
     }
 }
 
@@ -23,7 +23,7 @@ impl Shape for Sphere {
     fn bbox(&self) -> BBox3f {
         let min = Point3f::new(self.center.x - self.radius, self.center.y - self.radius, self.center.z - self.radius);
         let max = Point3f::new(self.center.x + self.radius, self.center.y + self.radius, self.center.z + self.radius);
-        return BBox3f { min: min, max: max };
+        return BBox3f::new(min, max);
     }
 
     fn intersect_p(&self, ray: &Ray) -> bool {
@@ -47,11 +47,7 @@ impl Shape for Sphere {
             let p = ray.position(t);
             let n = Normal3f::from((p - self.center).normalize());
             return Some((
-                Interaction {
-                    p: p,
-                    n: n,
-                    ..Default::default()
-                },
+                Interaction { p, n, ..Default::default() },
                 t,
             ));
         }
@@ -61,11 +57,7 @@ impl Shape for Sphere {
             let p = ray.position(t);
             let n = Normal3f::from((self.center - p).normalize());
             return Some((
-                Interaction {
-                    p: p,
-                    n: n,
-                    ..Default::default()
-                },
+                Interaction { p, n, ..Default::default() },
                 t,
             ));
         }

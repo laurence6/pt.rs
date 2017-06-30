@@ -19,12 +19,7 @@ pub struct Integrator<S, C> where S: Sampler, C: Camera {
 
 impl<S, C> Integrator<S, C> where S: Sampler, C: Camera {
     pub fn new(scene: Scene, sampler: S, camera: C, film: Film) -> Integrator<S, C> {
-        Integrator::<S, C> {
-            scene: scene,
-            sampler: sampler,
-            camera: camera,
-            film: film,
-        }
+        Integrator::<S, C> { scene, sampler, camera, film }
     }
 
     /// Sampler generates a sequence of sample, point on image. Camera turns a sample into ray.
