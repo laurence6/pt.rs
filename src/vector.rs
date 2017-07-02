@@ -1,5 +1,3 @@
-use std::ops;
-
 use axis::Axis;
 use common::Float;
 

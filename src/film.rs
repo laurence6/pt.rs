@@ -59,6 +59,6 @@ struct Pixel {
 impl Pixel {
     fn add_sample(&mut self, sample: &Spectrum) {
         self.n_samples += 1;
-        self.xyz = self.xyz + (XYZ::from(*sample) - self.xyz) / self.n_samples as Float;
+        self.xyz += (XYZ::from(*sample) - self.xyz) / self.n_samples as Float;
     }
 }

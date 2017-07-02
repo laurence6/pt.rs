@@ -1,5 +1,3 @@
-use std::ops;
-
 use common::{Float, clamp};
 
 pub struct RGB {
