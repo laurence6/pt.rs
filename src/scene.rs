@@ -14,6 +14,10 @@ impl Scene {
         Scene { lights, shapes }
     }
 
+    pub fn lights(&self) -> &Box<[Box<Light>]> {
+        &self.lights
+    }
+
     pub fn bbox(&self) -> BBox3f {
         self.shapes.bbox()
     }
