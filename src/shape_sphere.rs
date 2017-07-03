@@ -117,12 +117,11 @@ mod test {
 
         let ray = Ray {
             origin: Point3f::new(2., 0., 2.),
-            direction: Vector3f::new(0., 1., 1.),
+            direction: Vector3f::new(0., 1., 1.).normalize(),
             t_max: 10.,
         };
         let interaction = sphere.intersect(&ray);
-        if let None = interaction {
-            let (interaction, _) = interaction.unwrap();
+        if let Some((interaction, _)) = interaction {
             panic!("interaction found: p:{:?} n:{:?}", interaction.p, interaction.n);
         }
     }
