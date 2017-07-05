@@ -1,6 +1,5 @@
 use std::ops;
 
-use bbox::BBox3f;
 use common::Float;
 use matrix::Matrix;
 use ray::Ray;
@@ -154,6 +153,10 @@ impl Transform {
     pub fn apply<T>(&self, t: &T) -> T where T: Transformable {
         t.transform(self)
     }
+
+    pub fn inverse_apply<T>(&self, t: &T) -> T where T: Transformable {
+        t.inverse_transform(self)
+    }
 }
 
 impl PartialEq for Transform {
@@ -176,36 +179,42 @@ fn compute_sin_cos_in_degree(deg: Float) -> (Float, Float) {
     (deg.to_radians().sin(), deg.to_radians().cos())
 }
 
-pub trait Transformable {
-    fn transform(&self, &Transform) -> Self;
+pub trait Transformable where Self: Sized {
+    fn _transform(&self, m: &Matrix, m_inv: &Matrix) -> Self;
+    fn transform(&self, t: &Transform) -> Self {
+        self._transform(&t.m, &t.m_inv)
+    }
+    fn inverse_transform(&self, t: &Transform) -> Self {
+        self._transform(&t.m_inv, &t.m)
+    }
 }
 
 impl Transformable for Vector3f {
-    fn transform(&self, t: &Transform) -> Vector3f {
+    fn _transform(&self, m: &Matrix, m_inv: &Matrix) -> Vector3f {
         Vector3f::new(
-            t.m[0][0] * self.x + t.m[0][1] * self.y + t.m[0][2] * self.z,
-            t.m[1][0] * self.x + t.m[1][1] * self.y + t.m[1][2] * self.z,
-            t.m[2][0] * self.x + t.m[2][1] * self.y + t.m[2][2] * self.z,
+            m[0][0] * self.x + m[0][1] * self.y + m[0][2] * self.z,
+            m[1][0] * self.x + m[1][1] * self.y + m[1][2] * self.z,
+            m[2][0] * self.x + m[2][1] * self.y + m[2][2] * self.z,
         )
     }
 }
 
 impl Transformable for Normal3f {
-    fn transform(&self, t: &Transform) -> Normal3f {
+    fn _transform(&self, m: &Matrix, m_inv: &Matrix) -> Normal3f {
         Normal3f::new(
-            t.m_inv[0][0] * self.x + t.m_inv[1][0] * self.y + t.m_inv[2][0] * self.z,
-            t.m_inv[0][1] * self.x + t.m_inv[1][1] * self.y + t.m_inv[2][1] * self.z,
-            t.m_inv[0][2] * self.x + t.m_inv[1][2] * self.y + t.m_inv[2][2] * self.z,
+            m_inv[0][0] * self.x + m_inv[1][0] * self.y + m_inv[2][0] * self.z,
+            m_inv[0][1] * self.x + m_inv[1][1] * self.y + m_inv[2][1] * self.z,
+            m_inv[0][2] * self.x + m_inv[1][2] * self.y + m_inv[2][2] * self.z,
         )
     }
 }
 
 impl Transformable for Point3f {
-    fn transform(&self, t: &Transform) -> Point3f {
-        let xp = t.m[0][0] * self.x + t.m[0][1] * self.y + t.m[0][2] * self.z + t.m[0][3];
-        let yp = t.m[1][0] * self.x + t.m[1][1] * self.y + t.m[1][2] * self.z + t.m[1][3];
-        let zp = t.m[2][0] * self.x + t.m[2][1] * self.y + t.m[2][2] * self.z + t.m[2][3];
-        let wp = t.m[3][0] * self.x + t.m[3][1] * self.y + t.m[3][2] * self.z + t.m[3][3];
+    fn _transform(&self, m: &Matrix, m_inv: &Matrix) -> Point3f {
+        let xp = m[0][0] * self.x + m[0][1] * self.y + m[0][2] * self.z + m[0][3];
+        let yp = m[1][0] * self.x + m[1][1] * self.y + m[1][2] * self.z + m[1][3];
+        let zp = m[2][0] * self.x + m[2][1] * self.y + m[2][2] * self.z + m[2][3];
+        let wp = m[3][0] * self.x + m[3][1] * self.y + m[3][2] * self.z + m[3][3];
         debug_assert!(wp != 0.);
 
         let p = Point3f::new(xp, yp, zp);
@@ -218,18 +227,12 @@ impl Transformable for Point3f {
 }
 
 impl Transformable for Ray {
-    fn transform(&self, t: &Transform) -> Ray {
+    fn _transform(&self, m: &Matrix, m_inv: &Matrix) -> Ray {
         Ray {
-            origin: t.apply(&self.origin),
-            direction: t.apply(&self.direction),
+            origin: self.origin._transform(m, m_inv),
+            direction: self.direction._transform(m, m_inv),
             t_max: self.t_max,
         }
-    }
-}
-
-impl Transformable for BBox3f {
-    fn transform(&self, t: &Transform) -> BBox3f {
-        unimplemented!()
     }
 }
 
