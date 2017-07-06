@@ -1,7 +1,6 @@
 extern crate rand;
 use self::rand::{Rng, ThreadRng};
 
-use common::Float;
 use sampler::Sampler;
 use vector::{Point2u, Point2f};
 
@@ -11,7 +10,7 @@ pub struct RandomSampler {
 
     current_pixel_sample_index: usize,
 
-    sample_array_1d: Vec<Box<[Float]>>,
+    sample_array_1d: Vec<Box<[f32]>>,
     sample_array_2d: Vec<Box<[Point2f]>>,
 
     // Next 1d array to be returned
@@ -30,7 +29,7 @@ impl RandomSampler {
 
             current_pixel_sample_index: 0,
 
-            sample_array_1d: Vec::<Box<[Float]>>::new(),
+            sample_array_1d: Vec::<Box<[f32]>>::new(),
             sample_array_2d: Vec::<Box<[Point2f]>>::new(),
 
             array_1d_offset: 0,
@@ -67,7 +66,7 @@ impl Sampler for RandomSampler {
         return self.current_pixel_sample_index < self.samples_per_pixel;
     }
 
-    fn get_1d(&mut self) -> Float {
+    fn get_1d(&mut self) -> f32 {
         debug_assert!(self.current_pixel_sample_index < self.samples_per_pixel);
         return self.rng.gen();
     }
@@ -89,7 +88,7 @@ impl Sampler for RandomSampler {
             .push(vec![Point2f::new(0., 0.); n * self.samples_per_pixel].into_boxed_slice());
     }
 
-    fn get_1d_array(&mut self, n: usize) -> Option<&[Float]> {
+    fn get_1d_array(&mut self, n: usize) -> Option<&[f32]> {
         if self.array_1d_offset >= self.sample_array_1d.len() {
             return None;
         }

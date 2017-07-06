@@ -3,16 +3,16 @@ use std::rc::Rc;
 
 use axis::Axis;
 use bbox::BBox3f;
-use common::{Float, FLOAT_MAX};
+use common::FLOAT_MAX;
 use container::Container;
 use interaction::Interaction;
 use ray::Ray;
 use shape::{Shape, intersect};
 
 const MAX_SHAPES_IN_NODE: usize = 8;
-const ISECT_COST: Float = 80.;
-const TRAV_COST: Float = 1.;
-const EMPTY_BONUS: Float = 0.5;
+const ISECT_COST: f32 = 80.;
+const TRAV_COST: f32 = 1.;
+const EMPTY_BONUS: f32 = 0.5;
 
 /// k-d tree.
 pub struct Tree {
@@ -21,7 +21,7 @@ pub struct Tree {
 }
 
 enum Node {
-    Split(Axis, Float, usize), // split axis, split point, the index of the upper child node
+    Split(Axis, f32, usize), // split axis, split point, the index of the upper child node
     Empty,
     Shape(Rc<Shape>),
     Shapes(Box<[Rc<Shape>]>),
@@ -50,12 +50,12 @@ impl Tree {
         // Bounding edge
         struct BEdge {
             edge_type: BEdgeType,
-            t: Float,
+            t: f32,
             shape: Rc<Shape>,
         }
 
         impl BEdge {
-            fn new(edge_type: BEdgeType, t: Float, shape: Rc<Shape>) -> BEdge {
+            fn new(edge_type: BEdgeType, t: f32, shape: Rc<Shape>) -> BEdge {
                 BEdge { edge_type, t, shape }
             }
         }
@@ -78,7 +78,7 @@ impl Tree {
 
         let d = node_bbox.diagonal();
         let tot_sa = node_bbox.surface_area();
-        let old_cost = ISECT_COST * n_shapes as Float; // cost if not split
+        let old_cost = ISECT_COST * n_shapes as f32; // cost if not split
 
         let mut best_axis: Option<Axis> = None;
         let mut best_edge: Option<usize> = None;
@@ -130,7 +130,7 @@ impl Tree {
                         (below_sa / tot_sa, above_sa / tot_sa)
                     };
                     let empty_bonus = if n_below == 0 || n_above == 0 { EMPTY_BONUS } else { 0. };
-                    let cost = TRAV_COST + ISECT_COST * (1. - empty_bonus) * (p_below * n_below as Float + p_above * n_above as Float);
+                    let cost = TRAV_COST + ISECT_COST * (1. - empty_bonus) * (p_below * n_below as f32 + p_above * n_above as f32);
                     if cost < best_cost {
                         best_cost = cost;
                         best_axis = Some(axis);
@@ -211,12 +211,12 @@ impl Container for Tree {
         #[derive(Clone, Copy)]
         struct Todo {
             node: usize,
-            t_min: Float,
-            t_max: Float,
+            t_min: f32,
+            t_max: f32,
         }
 
         impl Todo {
-            fn new(node: usize, t_min: Float, t_max: Float) -> Todo {
+            fn new(node: usize, t_min: f32, t_max: f32) -> Todo {
                 Todo { node, t_min, t_max }
             }
         }

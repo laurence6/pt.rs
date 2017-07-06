@@ -3,7 +3,7 @@ use std::rc::Rc;
 use std::mem::swap;
 
 use axis::Axis;
-use common::{Float, EPSILON};
+use common::gamma;
 use ray::Ray;
 use shape::Shape;
 use vector::{Vector3f, Point3f, Vector2, Point2};
@@ -31,7 +31,7 @@ impl BBox3f {
         self.max - self.min
     }
 
-    pub fn surface_area(&self) -> Float {
+    pub fn surface_area(&self) -> f32 {
         let d = self.diagonal();
         return (d.x * d.y + d.x * d.z + d.y * d.z) * 2.;
     }
@@ -45,7 +45,7 @@ impl BBox3f {
         }
     }
 
-    pub fn bounding_sphere(&self) -> (Point3f, Float) {
+    pub fn bounding_sphere(&self) -> (Point3f, f32) {
         let center = (self.min + self.max) / 2.;
         let radius = if self.point_inside(center) {
             center.distance(self.max)
@@ -74,7 +74,7 @@ impl BBox3f {
         }
     }
 
-    pub fn intersect(&self, ray: &Ray) -> Option<(Float, Float)> {
+    pub fn intersect(&self, ray: &Ray) -> Option<(f32, f32)> {
         let mut t0 = 0.;
         let mut t1 = ray.t_max;
 
@@ -127,8 +127,4 @@ impl<T> BBox2<T> where T: Copy + ops::Sub<Output = T> + ops::Mul<Output = T> {
 }
 
 pub type BBox2u = BBox2<u32>;
-pub type BBox2f = BBox2<Float>;
-
-fn gamma(x: Float) -> Float {
-    (x * EPSILON) / (1. - x * EPSILON)
-}
+pub type BBox2f = BBox2<f32>;

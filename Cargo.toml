@@ -3,10 +3,6 @@ name = "pt"
 version = "0.0.1"
 authors = ["Laurence Liu <liuxy6@gmail.com>"]
 
-[features]
-f32 = []
-f64 = []
-
 [dependencies]
 rand = "0.3"
 

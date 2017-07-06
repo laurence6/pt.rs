@@ -1,7 +1,6 @@
 use std::rc::Rc;
 
 use bbox::BBox3f;
-use common::Float;
 use interaction::Interaction;
 use material::Material;
 use ray::Ray;
@@ -14,7 +13,7 @@ pub trait Shape {
 
     /// intersect determines whether the ray intersects this shape.
     /// If an intersection occurs, it returns the detail of the intersection (Interaction.shape is NOT initialized in this method) and t value of the ray at the intersection point.
-    fn intersect(&self, ray: &Ray) -> Option<(Interaction, Float)>;
+    fn intersect(&self, ray: &Ray) -> Option<(Interaction, f32)>;
 
     fn material(&self) -> Rc<Material>;
 }

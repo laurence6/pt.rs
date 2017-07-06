@@ -1,6 +1,5 @@
 use std::io::Write;
 
-use common::Float;
 use spectrum::{Spectrum, RGB, XYZ};
 use vector::{Point2u, Point2f};
 
@@ -59,6 +58,6 @@ struct Pixel {
 impl Pixel {
     fn add_sample(&mut self, sample: &Spectrum) {
         self.n_samples += 1;
-        self.xyz += (XYZ::from(*sample) - self.xyz) / self.n_samples as Float;
+        self.xyz += (XYZ::from(*sample) - self.xyz) / self.n_samples as f32;
     }
 }

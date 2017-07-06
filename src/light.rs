@@ -1,4 +1,3 @@
-use common::Float;
 use interaction::Interaction;
 use scene::Scene;
 use spectrum::Spectrum;
@@ -27,7 +26,7 @@ pub struct DistantLight {
     l: Spectrum,
     w_light: Vector3f,
     world_center: Point3f,
-    world_radius: Float,
+    world_radius: f32,
 }
 
 impl Light for DistantLight {

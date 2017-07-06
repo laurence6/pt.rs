@@ -1,7 +1,7 @@
 use std::rc::Rc;
 
 use bbox::BBox3f;
-use common::{Float, EPSILON};
+use common::EPSILON;
 use interaction::Interaction;
 use material::Material;
 use ray::Ray;
@@ -10,11 +10,11 @@ use vector::{Normal3f, Point3f};
 
 pub struct Sphere {
     center: Point3f,
-    radius: Float,
+    radius: f32,
 }
 
 impl Sphere {
-    pub fn new(center: Point3f, radius: Float) -> Sphere {
+    pub fn new(center: Point3f, radius: f32) -> Sphere {
         Sphere { center, radius }
     }
 }
@@ -30,7 +30,7 @@ impl Shape for Sphere {
         unimplemented!()
     }
 
-    fn intersect(&self, ray: &Ray) -> Option<(Interaction, Float)> {
+    fn intersect(&self, ray: &Ray) -> Option<(Interaction, f32)> {
         let to = ray.origin - self.center;
         let b = ray.direction.dot(to);
         let c = to.dot(to) - self.radius.powi(2);

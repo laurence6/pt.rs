@@ -1,11 +1,10 @@
 use axis::Axis;
-use common::Float;
 
 #[derive(Default, Clone, Copy, Debug, PartialEq)]
 pub struct Vector3f {
-    pub x: Float,
-    pub y: Float,
-    pub z: Float,
+    pub x: f32,
+    pub y: f32,
+    pub z: f32,
 }
 impl_vector3f_new_and_ops!(Vector3f, x, y, z);
 impl_vector3f_add!(Vector3f, Vector3f, Vector3f, x, y, z);
@@ -15,7 +14,7 @@ impl_vector3f_from!(Point3f, Vector3f);
 impl_vector3f_from!(Normal3f, Vector3f);
 
 impl Vector3f {
-    pub fn length(&self) -> Float {
+    pub fn length(&self) -> f32 {
         (self.x * self.x + self.y * self.y + self.z * self.z).sqrt()
     }
 
@@ -28,7 +27,7 @@ impl Vector3f {
         )
     }
 
-    pub fn dot(&self, v: Vector3f) -> Float {
+    pub fn dot(&self, v: Vector3f) -> f32 {
         self.x * v.x + self.y * v.y + self.z * v.z
     }
 
@@ -43,18 +42,18 @@ impl Vector3f {
 
 #[derive(Default, Clone, Copy, Debug, PartialEq)]
 pub struct Normal3f {
-    pub x: Float,
-    pub y: Float,
-    pub z: Float,
+    pub x: f32,
+    pub y: f32,
+    pub z: f32,
 }
 impl_vector3f_new_and_ops!(Normal3f, x, y, z);
 impl_vector3f_from!(Vector3f, Normal3f);
 
 #[derive(Default, Clone, Copy, Debug, PartialEq)]
 pub struct Point3f {
-    pub x: Float,
-    pub y: Float,
-    pub z: Float,
+    pub x: f32,
+    pub y: f32,
+    pub z: f32,
 }
 impl_vector3f_new_and_ops!(Point3f, x, y, z);
 impl_vector3f_add!(Point3f, Point3f, Point3f, x, y, z);
@@ -65,7 +64,7 @@ impl_vector3f_index!(Point3f);
 impl_vector3f_from!(Vector3f, Point3f);
 
 impl Point3f {
-    pub fn distance(&self, p: Point3f) -> Float {
+    pub fn distance(&self, p: Point3f) -> f32 {
         (*self - p).length()
     }
 
@@ -108,13 +107,13 @@ impl_vector2_index!(Point2);
 impl_vector2_from!(Vector2, Point2);
 
 pub type Point2u = Point2<u32>;
-pub type Point2f = Point2<Float>;
+pub type Point2f = Point2<f32>;
 
 impl From<Point2u> for Point2f {
     fn from(Point2u { x, y }: Point2u) -> Point2f {
         Point2f::new(
-            x as Float,
-            y as Float,
+            x as f32,
+            y as f32,
         )
     }
 }

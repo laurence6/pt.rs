@@ -1,5 +1,4 @@
 use camera::CameraSample;
-use common::Float;
 use vector::{Point2u, Point2f};
 
 pub trait Sampler {
@@ -11,7 +10,7 @@ pub trait Sampler {
     fn start_next_sample(&mut self) -> bool;
 
     /// Return next 1 dimension of current sample.
-    fn get_1d(&mut self) -> Float;
+    fn get_1d(&mut self) -> f32;
 
     /// Return next 2 dimensions of current sample.
     fn get_2d(&mut self) -> Point2f;
@@ -23,7 +22,7 @@ pub trait Sampler {
     fn req_2d_array(&mut self, usize);
 
     /// Get an array of samples with 1 dimension.
-    fn get_1d_array(&mut self, usize) -> Option<&[Float]>;
+    fn get_1d_array(&mut self, usize) -> Option<&[f32]>;
 
     /// Get an array of samples with 2 dimensions.
     fn get_2d_array(&mut self, usize) -> Option<&[Point2f]>;
@@ -46,5 +45,5 @@ pub trait GlobalSampler: Sampler {
     fn get_index_for_sample(&mut self, usize) -> usize;
 
     /// Return sample value for the given dimension of the indexth sample in the overall set of samples.
-    fn sample_dimension(&self, index: usize, d: usize) -> Float;
+    fn sample_dimension(&self, index: usize, d: usize) -> f32;
 }

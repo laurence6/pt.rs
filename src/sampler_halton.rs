@@ -1,5 +1,5 @@
 use bbox::BBox2u;
-use common::{Float, ONE_MINUS_EPSILON};
+use common::ONE_MINUS_EPSILON;
 use sampler::{Sampler, GlobalSampler};
 use vector::{Point2u, Point2f};
 
@@ -15,7 +15,7 @@ pub struct HaltonSampler {
     current_pixel: Point2u,
     current_pixel_sample_index: usize,
 
-    sample_array_1d: Vec<Box<[Float]>>,
+    sample_array_1d: Vec<Box<[f32]>>,
     sample_array_2d: Vec<Box<[Point2f]>>,
 
     // Next 1d array to be returned
@@ -98,7 +98,7 @@ impl Sampler for HaltonSampler {
         return self.current_pixel_sample_index < self.samples_per_pixel;
     }
 
-    fn get_1d(&mut self) -> Float {
+    fn get_1d(&mut self) -> f32 {
         if ARRAY_START_DIM <= self.dimension && self.dimension <= self.array_end_dim {
             self.dimension = self.array_end_dim;
         }
@@ -134,7 +134,7 @@ impl Sampler for HaltonSampler {
         );
     }
 
-    fn get_1d_array(&mut self, n: usize) -> Option<&[Float]> {
+    fn get_1d_array(&mut self, n: usize) -> Option<&[f32]> {
         if self.array_1d_offset == self.sample_array_1d.len() {
             return None;
         }
@@ -194,7 +194,7 @@ impl GlobalSampler for HaltonSampler {
         return self.offset_for_current_pixel + sample_num * self.sample_stride;
     }
 
-    fn sample_dimension(&self, index: usize, d: usize) -> Float {
+    fn sample_dimension(&self, index: usize, d: usize) -> f32 {
         let index = index as u32;
         let d = d as u32;
         match d {
@@ -205,7 +205,7 @@ impl GlobalSampler for HaltonSampler {
     }
 }
 
-fn radical_inverse(base: u32, mut a: u32) -> Float {
+fn radical_inverse(base: u32, mut a: u32) -> f32 {
     let mut x = 0;
     let mut base_n = 1;
     while a > 0 {
@@ -213,10 +213,10 @@ fn radical_inverse(base: u32, mut a: u32) -> Float {
         a /= base;
         base_n *= base;
     }
-    return ONE_MINUS_EPSILON.min(x as Float / base_n as Float);
+    return ONE_MINUS_EPSILON.min(x as f32 / base_n as f32);
 }
 
-fn radical_inverse_prime(base_index: u32, a: u32) -> Float {
+fn radical_inverse_prime(base_index: u32, a: u32) -> f32 {
     match base_index {
         0 => radical_inverse(2, a),
         1 => radical_inverse(3, a),

@@ -1,5 +1,4 @@
 use bbox::BBox2f;
-use common::Float;
 use ray::Ray;
 use transform::Transform;
 use vector::{Vector3f, Point3f, Point2u, Point2f};
@@ -25,12 +24,12 @@ pub struct PerspectiveCamera {
 }
 
 impl PerspectiveCamera {
-    pub fn new(camera_to_world: Transform, screen_window: BBox2f, film_res: Point2u, fov: Float) -> PerspectiveCamera {
+    pub fn new(camera_to_world: Transform, screen_window: BBox2f, film_res: Point2u, fov: f32) -> PerspectiveCamera {
         let camera_to_screen = Transform::perspective(fov, 0.01, 1000.);
 
         let screen_to_raster = Transform::scale(
-                                   film_res.x as Float,
-                                   film_res.y as Float,
+                                   film_res.x as f32,
+                                   film_res.y as f32,
                                    1.,
                                )  // 3. scale to raster space
                              * Transform::scale(

@@ -1,7 +1,7 @@
 macro_rules! impl_vector3f_new_and_ops {
     ($vector3f: ident, $x: ident, $y: ident, $z: ident) => (
         impl $vector3f {
-            pub fn new($x: Float, $y: Float, $z: Float) -> $vector3f {
+            pub fn new($x: f32, $y: f32, $z: f32) -> $vector3f {
                 $vector3f { $x, $y, $z }
             }
         }
@@ -17,9 +17,9 @@ macro_rules! impl_vector3f_new_and_ops {
             }
         }
 
-        impl ::std::ops::Add<Float> for $vector3f {
+        impl ::std::ops::Add<f32> for $vector3f {
             type Output = $vector3f;
-            fn add(self, a: Float) -> $vector3f {
+            fn add(self, a: f32) -> $vector3f {
                 $vector3f::new(
                     self.$x + a,
                     self.$y + a,
@@ -28,17 +28,17 @@ macro_rules! impl_vector3f_new_and_ops {
             }
         }
 
-        impl ::std::ops::AddAssign<Float> for $vector3f {
-            fn add_assign(&mut self, a: Float) {
+        impl ::std::ops::AddAssign<f32> for $vector3f {
+            fn add_assign(&mut self, a: f32) {
                 self.$x += a;
                 self.$y += a;
                 self.$z += a;
             }
         }
 
-        impl ::std::ops::Sub<Float> for $vector3f {
+        impl ::std::ops::Sub<f32> for $vector3f {
             type Output = $vector3f;
-            fn sub(self, a: Float) -> $vector3f {
+            fn sub(self, a: f32) -> $vector3f {
                 $vector3f::new(
                     self.$x - a,
                     self.$y - a,
@@ -47,17 +47,17 @@ macro_rules! impl_vector3f_new_and_ops {
             }
         }
 
-        impl ::std::ops::SubAssign<Float> for $vector3f {
-            fn sub_assign(&mut self, a: Float) {
+        impl ::std::ops::SubAssign<f32> for $vector3f {
+            fn sub_assign(&mut self, a: f32) {
                 self.$x -= a;
                 self.$y -= a;
                 self.$z -= a;
             }
         }
 
-        impl ::std::ops::Mul<Float> for $vector3f {
+        impl ::std::ops::Mul<f32> for $vector3f {
             type Output = $vector3f;
-            fn mul(self, a: Float) -> $vector3f {
+            fn mul(self, a: f32) -> $vector3f {
                 $vector3f::new(
                     self.$x * a,
                     self.$y * a,
@@ -66,17 +66,17 @@ macro_rules! impl_vector3f_new_and_ops {
             }
         }
 
-        impl ::std::ops::MulAssign<Float> for $vector3f {
-            fn mul_assign(&mut self, a: Float) {
+        impl ::std::ops::MulAssign<f32> for $vector3f {
+            fn mul_assign(&mut self, a: f32) {
                 self.$x *= a;
                 self.$y *= a;
                 self.$z *= a;
             }
         }
 
-        impl ::std::ops::Div<Float> for $vector3f {
+        impl ::std::ops::Div<f32> for $vector3f {
             type Output = $vector3f;
-            fn div(self, a: Float) -> $vector3f {
+            fn div(self, a: f32) -> $vector3f {
                 $vector3f::new(
                     self.$x / a,
                     self.$y / a,
@@ -85,8 +85,8 @@ macro_rules! impl_vector3f_new_and_ops {
             }
         }
 
-        impl ::std::ops::DivAssign<Float> for $vector3f {
-            fn div_assign(&mut self, a: Float) {
+        impl ::std::ops::DivAssign<f32> for $vector3f {
+            fn div_assign(&mut self, a: f32) {
                 self.$x /= a;
                 self.$y /= a;
                 self.$z /= a;
@@ -190,8 +190,8 @@ macro_rules! impl_vector3f_div {
 macro_rules! impl_vector3f_index {
     ($vector3f: ident) => (
         impl ::std::ops::Index<usize> for $vector3f {
-            type Output = Float;
-            fn index(&self, i: usize) -> &Float {
+            type Output = f32;
+            fn index(&self, i: usize) -> &f32 {
                 match i {
                     0 => &self.x,
                     1 => &self.y,
@@ -202,7 +202,7 @@ macro_rules! impl_vector3f_index {
         }
 
         impl ::std::ops::IndexMut<usize> for $vector3f {
-            fn index_mut(&mut self, i: usize) -> &mut Float {
+            fn index_mut(&mut self, i: usize) -> &mut f32 {
                 match i {
                     0 => &mut self.x,
                     1 => &mut self.y,
@@ -213,8 +213,8 @@ macro_rules! impl_vector3f_index {
         }
 
         impl ::std::ops::Index<Axis> for $vector3f {
-            type Output = Float;
-            fn index(&self, axis: Axis) -> &Float {
+            type Output = f32;
+            fn index(&self, axis: Axis) -> &f32 {
                 match axis {
                     Axis::X => &self.x,
                     Axis::Y => &self.y,
@@ -224,7 +224,7 @@ macro_rules! impl_vector3f_index {
         }
 
         impl ::std::ops::IndexMut<Axis> for $vector3f {
-            fn index_mut(&mut self, axis: Axis) -> &mut Float {
+            fn index_mut(&mut self, axis: Axis) -> &mut f32 {
                 match axis {
                     Axis::X => &mut self.x,
                     Axis::Y => &mut self.y,

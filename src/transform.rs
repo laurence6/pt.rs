@@ -1,6 +1,5 @@
 use std::ops;
 
-use common::Float;
 use matrix::Matrix;
 use ray::Ray;
 use vector::{Vector3f, Normal3f, Point3f};
@@ -20,8 +19,8 @@ impl From<Matrix> for Transform {
     }
 }
 
-impl From<[[Float; 4]; 4]> for Transform {
-    fn from(m: [[Float; 4]; 4]) -> Transform {
+impl From<[[f32; 4]; 4]> for Transform {
+    fn from(m: [[f32; 4]; 4]) -> Transform {
         let m = Matrix::from(m);
         return Transform {
             m,
@@ -31,7 +30,7 @@ impl From<[[Float; 4]; 4]> for Transform {
 }
 
 impl Transform {
-    pub fn translate(x: Float, y: Float, z: Float) -> Transform {
+    pub fn translate(x: f32, y: f32, z: f32) -> Transform {
         Transform {
             m: Matrix::new(
                 1., 0., 0.,  x,
@@ -48,7 +47,7 @@ impl Transform {
         }
     }
 
-    pub fn scale(x: Float, y: Float, z: Float) -> Transform {
+    pub fn scale(x: f32, y: f32, z: f32) -> Transform {
         Transform {
             m: Matrix::new(
                  x, 0., 0., 0.,
@@ -66,7 +65,7 @@ impl Transform {
     }
 
     /// Compute perspective transformation from field-of-view angel, distance to a near z plane and a far z plane.
-    pub fn perspective(fov: Float, n: Float, f: Float) -> Transform {
+    pub fn perspective(fov: f32, n: f32, f: f32) -> Transform {
         let p = Matrix::new(
             1., 0., 0., 0.,
             0., 1., 0., 0.,
@@ -108,7 +107,7 @@ impl Transform {
         Transform { m: self.m_inv, m_inv: self.m }
     }
 
-    fn rotate_x(&self, theta: Float) -> Transform {
+    fn rotate_x(&self, theta: f32) -> Transform {
         let (sin_theta, cos_theta) = compute_sin_cos_in_degree(theta);
         let m = Matrix::new(
             1.,        0.,         0., 0.,
@@ -122,7 +121,7 @@ impl Transform {
         };
     }
 
-    fn rotate_y(&self, theta: Float) -> Transform {
+    fn rotate_y(&self, theta: f32) -> Transform {
         let (sin_theta, cos_theta) = compute_sin_cos_in_degree(theta);
         let m = Matrix::new(
              cos_theta, 0., sin_theta, 0.,
@@ -136,7 +135,7 @@ impl Transform {
         };
     }
 
-    fn rotate_z(&self, theta: Float) -> Transform {
+    fn rotate_z(&self, theta: f32) -> Transform {
         let (sin_theta, cos_theta) = compute_sin_cos_in_degree(theta);
         let m = Matrix::new(
             cos_theta, -sin_theta, 0., 0.,
@@ -175,7 +174,7 @@ impl ops::Mul<Transform> for Transform {
     }
 }
 
-fn compute_sin_cos_in_degree(deg: Float) -> (Float, Float) {
+fn compute_sin_cos_in_degree(deg: f32) -> (f32, f32) {
     (deg.to_radians().sin(), deg.to_radians().cos())
 }
 

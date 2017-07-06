@@ -1,9 +1,9 @@
-use common::{Float, clamp};
+use common::clamp;
 
 pub struct RGB {
-    pub r: Float,
-    pub g: Float,
-    pub b: Float,
+    pub r: f32,
+    pub g: f32,
+    pub b: f32,
 }
 impl_vector3f_new_and_ops!(RGB, r, g, b);
 impl_vector3f_add!(RGB, RGB, RGB, r, g, b);
@@ -20,9 +20,9 @@ impl From<XYZ> for RGB {
 
 #[derive(Default, Clone, Copy)]
 pub struct XYZ {
-    x: Float,
-    y: Float,
-    z: Float,
+    x: f32,
+    y: f32,
+    z: f32,
 }
 impl_vector3f_new_and_ops!(XYZ, x, y, z);
 impl_vector3f_add!(XYZ, XYZ, XYZ, x, y, z);
@@ -39,9 +39,9 @@ impl From<RGB> for XYZ {
 
 #[derive(Clone, Copy)]
 pub struct Spectrum {
-    r: Float,
-    g: Float,
-    b: Float,
+    r: f32,
+    g: f32,
+    b: f32,
 }
 impl_vector3f_new_and_ops!(Spectrum, r, g, b);
 impl_vector3f_add!(Spectrum, Spectrum, Spectrum, r, g, b);
@@ -83,11 +83,11 @@ impl Spectrum {
         )
     }
 
-    fn lerp(&self, s: &Spectrum, t: Float) -> Spectrum {
+    fn lerp(&self, s: &Spectrum, t: f32) -> Spectrum {
         *self * (1. - t) + *s * t
     }
 
-    fn clamp(&self, low: Float, high: Float) -> Spectrum {
+    fn clamp(&self, low: f32, high: f32) -> Spectrum {
         Spectrum::new(
             clamp(self.r, low, high),
             clamp(self.g, low, high),

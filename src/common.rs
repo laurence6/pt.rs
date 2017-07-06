@@ -1,26 +1,14 @@
-macro_rules! defFloat {
-    ($t: ident) => (
-        pub type Float = $t;
+use std::f32;
 
-        use std::$t;
-        pub const FLOAT_MAX: Float     = $t::MAX;
-        pub const FLOAT_MIN_POS: Float = $t::MIN_POSITIVE;
-        pub const EPSILON: Float       = $t::EPSILON * 0.5;
-        pub const INFINITY: Float      = $t::INFINITY;
-        /// Max number less than 1.
-        pub const ONE_MINUS_EPSILON: Float = 1. - EPSILON;
+pub const FLOAT_MAX: f32     = f32::MAX;
+pub const FLOAT_MIN_POS: f32 = f32::MIN_POSITIVE;
+pub const EPSILON: f32       = f32::EPSILON * 0.5;
+pub const INFINITY: f32      = f32::INFINITY;
+/// Max number less than 1.
+pub const ONE_MINUS_EPSILON: f32 = 1. - EPSILON;
 
-        pub const PI: Float = $t::consts::PI;
-    );
-}
+pub const PI: f32 = f32::consts::PI;
 
-// Use f32 by default
-#[cfg(not(feature = "f64"))]
-defFloat!(f32);
-#[cfg(feature = "f64")]
-defFloat!(f64);
-
-// Funcs
 pub fn clamp<T: PartialOrd>(x: T, low: T, high: T) -> T {
     debug_assert!(low <= high);
     if x < low {
@@ -32,6 +20,10 @@ pub fn clamp<T: PartialOrd>(x: T, low: T, high: T) -> T {
     }
 }
 
-pub fn lerp(t: Float, v1: Float, v2: Float) -> Float {
+pub fn lerp(t: f32, v1: f32, v2: f32) -> f32 {
     (1. - t) * v1 + t * v2
+}
+
+pub fn gamma(x: f32) -> f32 {
+    (x * EPSILON) / (1. - x * EPSILON)
 }

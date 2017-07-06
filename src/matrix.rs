@@ -1,25 +1,23 @@
 use std::ops;
 use std::fmt::{Debug, Formatter, Error};
 
-use common::Float;
-
 #[derive(Default, Clone, Copy, PartialEq)]
 pub struct Matrix {
-    m: [[Float; 4]; 4],
+    m: [[f32; 4]; 4],
 }
 
-impl From<[[Float; 4]; 4]> for Matrix {
-    fn from(m: [[Float; 4]; 4]) -> Matrix {
+impl From<[[f32; 4]; 4]> for Matrix {
+    fn from(m: [[f32; 4]; 4]) -> Matrix {
         Matrix { m }
     }
 }
 
 impl Matrix {
     pub fn new(
-        m00: Float, m01: Float, m02: Float, m03: Float,
-        m10: Float, m11: Float, m12: Float, m13: Float,
-        m20: Float, m21: Float, m22: Float, m23: Float,
-        m30: Float, m31: Float, m32: Float, m33: Float,
+        m00: f32, m01: f32, m02: f32, m03: f32,
+        m10: f32, m11: f32, m12: f32, m13: f32,
+        m20: f32, m21: f32, m22: f32, m23: f32,
+        m30: f32, m31: f32, m32: f32, m33: f32,
     ) -> Matrix {
         Matrix { m: [
             [m00, m01, m02, m03],
@@ -90,9 +88,9 @@ impl ops::Mul<Matrix> for Matrix {
     }
 }
 
-impl ops::Div<Float> for Matrix {
+impl ops::Div<f32> for Matrix {
     type Output = Matrix;
-    fn div(self, n: Float) -> Matrix {
+    fn div(self, n: f32) -> Matrix {
         let mut r = Matrix::default();
         for i in 0..4 {
             for j in 0..4 {
@@ -104,14 +102,14 @@ impl ops::Div<Float> for Matrix {
 }
 
 impl ops::Index<usize> for Matrix {
-    type Output = [Float; 4];
-    fn index(&self, i: usize) -> &[Float; 4] {
+    type Output = [f32; 4];
+    fn index(&self, i: usize) -> &[f32; 4] {
         &self.m[i]
     }
 }
 
 impl ops::IndexMut<usize> for Matrix {
-    fn index_mut(&mut self, i: usize) -> &mut [Float; 4] {
+    fn index_mut(&mut self, i: usize) -> &mut [f32; 4] {
         &mut self.m[i]
     }
 }
