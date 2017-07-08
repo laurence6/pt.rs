@@ -35,7 +35,6 @@ pub trait Sampler {
     fn get_camera_sample(&mut self, p_raster: Point2u) -> CameraSample {
         CameraSample {
             p_film: Point2f::from(p_raster) + self.get_2d(),
-            p_lens: self.get_2d(),
         }
     }
 }

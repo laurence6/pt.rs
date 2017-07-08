@@ -6,7 +6,6 @@ use vector::{Vector3f, Point3f, Point2u, Point2f};
 /// Records the position on Film that Camera should generate corresponding ray.
 pub struct CameraSample {
     pub p_film: Point2f,
-    pub p_lens: Point2f,
 }
 
 pub trait Camera {
