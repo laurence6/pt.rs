@@ -1,5 +1,5 @@
 use common::PI;
-use reflection::{BxDF, BxDFType, REFLECTION, DIFFUSE};
+use reflection::{BxDF, BxDFFlag, REFLECTION, DIFFUSE};
 use spectrum::Spectrum;
 use vector::Vector3f;
 
@@ -15,7 +15,7 @@ impl LambertianReflectionBRDF {
 }
 
 impl BxDF for LambertianReflectionBRDF {
-    fn bxdf_type(&self) -> BxDFType {
+    fn flag(&self) -> BxDFFlag {
         REFLECTION | DIFFUSE
     }
 

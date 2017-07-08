@@ -2,17 +2,17 @@ use sampling::cosine_sample_hemisphere;
 use spectrum::Spectrum;
 use vector::{Vector3f, Point2f};
 
-pub type BxDFType = u8;
-pub const REFLECTION:   BxDFType = 1 << 0;
-pub const TRANSMISSION: BxDFType = 1 << 1;
-pub const DIFFUSE:      BxDFType = 1 << 2;
-pub const GLOSSY:       BxDFType = 1 << 3;
-pub const SPECULAR:     BxDFType = 1 << 4;
-pub const ALL:          BxDFType = REFLECTION | TRANSMISSION | DIFFUSE | GLOSSY | SPECULAR;
+pub type BxDFFlag = u8;
+pub const REFLECTION:   BxDFFlag = 1 << 0;
+pub const TRANSMISSION: BxDFFlag = 1 << 1;
+pub const DIFFUSE:      BxDFFlag = 1 << 2;
+pub const GLOSSY:       BxDFFlag = 1 << 3;
+pub const SPECULAR:     BxDFFlag = 1 << 4;
+pub const ALL:          BxDFFlag = REFLECTION | TRANSMISSION | DIFFUSE | GLOSSY | SPECULAR;
 
 pub trait BxDF {
-    /// Return BxDF type.
-    fn bxdf_type(&self) -> BxDFType;
+    /// Return BxDF flag.
+    fn flag(&self) -> BxDFFlag;
 
     /// Return value of distribution function for the given pair of direction.
     fn f(&self, wo: Vector3f, wi: Vector3f) -> Spectrum;
@@ -26,16 +26,10 @@ pub trait BxDF {
         }
         return (wi, self.f(wo, wi));
     }
-}
 
-trait BxDFMatchType {
-    fn match_type(&self, t: BxDFType) -> bool;
-}
-
-impl<T> BxDFMatchType for T where T: BxDF {
-    fn match_type(&self, t: BxDFType) -> bool {
-        let bxdf_type = self.bxdf_type();
-        debug_assert!(bxdf_type <= ALL);
-        return (bxdf_type & t) == bxdf_type;
+    fn has_flag(&self, t: BxDFFlag) -> bool {
+        let flag = self.flag();
+        debug_assert!(flag <= ALL);
+        return (t & flag) == t;
     }
 }
