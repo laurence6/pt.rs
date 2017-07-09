@@ -37,7 +37,7 @@ impl From<RGB> for XYZ {
     }
 }
 
-#[derive(Clone, Copy)]
+#[derive(Default, Clone, Copy)]
 pub struct Spectrum {
     r: f32,
     g: f32,
@@ -45,6 +45,7 @@ pub struct Spectrum {
 }
 impl_vector3f_new_and_ops!(Spectrum, r, g, b);
 impl_vector3f_add!(Spectrum, Spectrum, Spectrum, r, g, b);
+impl_vector3f_mul!(Spectrum, Spectrum, Spectrum, r, g, b);
 
 impl From<RGB> for Spectrum {
     fn from(RGB { r, g, b }: RGB) -> Spectrum {
@@ -71,7 +72,7 @@ impl From<Spectrum> for XYZ {
 }
 
 impl Spectrum {
-    fn is_black(&self) -> bool {
+    pub fn is_black(&self) -> bool {
         self.r == 0. && self.g == 0. && self.b == 0.
     }
 
