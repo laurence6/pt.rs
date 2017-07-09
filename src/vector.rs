@@ -18,6 +18,14 @@ impl Vector3f {
         (self.x * self.x + self.y * self.y + self.z * self.z).sqrt()
     }
 
+    pub fn abs(&self) -> Vector3f {
+        Vector3f::new(
+            self.x.abs(),
+            self.y.abs(),
+            self.z.abs(),
+        )
+    }
+
     pub fn normalize(&self) -> Vector3f {
         let l = self.length();
         Vector3f::new(
@@ -28,7 +36,9 @@ impl Vector3f {
     }
 
     pub fn dot(&self, v: Vector3f) -> f32 {
-        self.x * v.x + self.y * v.y + self.z * v.z
+          self.x * v.x
+        + self.y * v.y
+        + self.z * v.z
     }
 
     pub fn cross(&self, v: Vector3f) -> Vector3f {
