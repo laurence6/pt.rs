@@ -1,14 +1,19 @@
 use interaction::Interaction;
+use ray::Ray;
 use scene::Scene;
 use spectrum::Spectrum;
-use vector::{Vector3f, Point3f};
+use vector::{Vector3f, Point3f, Point2f};
 
 pub trait Light {
     fn pre_process(&mut self, &Scene) {}
 
+    fn le(&self, ray: &Ray) -> Spectrum {
+        Spectrum::default()
+    }
+
     /// sample_li takes a world space point and returns the radiance arriving at that point,
-    /// incident direction, and VisibilityTester.
-    fn sample_li(&self, &Interaction) -> (Spectrum, Vector3f, VisibilityTester);
+    /// incident direction (direction radiance is arriving from), and VisibilityTester.
+    fn sample_li(&self, i: &Interaction, sample: Point2f) -> (Spectrum, Vector3f, VisibilityTester);
 }
 
 pub struct VisibilityTester {
@@ -17,7 +22,7 @@ pub struct VisibilityTester {
 }
 
 impl VisibilityTester {
-    fn unoccluded(&self, scene: &Scene) -> bool {
+    pub fn unoccluded(&self, scene: &Scene) -> bool {
         !scene.intersect_p(&self.p0.spawn_ray_to(self.p1.p))
     }
 }
@@ -36,7 +41,7 @@ impl Light for DistantLight {
         self.world_radius = radius;
     }
 
-    fn sample_li(&self, i: &Interaction) -> (Spectrum, Vector3f, VisibilityTester) {
+    fn sample_li(&self, i: &Interaction, sample: Point2f) -> (Spectrum, Vector3f, VisibilityTester) {
         let vis = VisibilityTester {
             p0: i.clone(),
             p1: Interaction {
