@@ -22,7 +22,7 @@ impl Film {
         return Film { resolution, pixels };
     }
 
-    pub fn add_sample(&mut self, p_film: Point2f, sample: &Spectrum) {
+    pub fn add_sample(&mut self, p_film: Point2f, sample: Spectrum) {
         self.pixels[self.pixel_offset(p_film)].add_sample(sample);
     }
 
@@ -56,8 +56,8 @@ struct Pixel {
 }
 
 impl Pixel {
-    fn add_sample(&mut self, sample: &Spectrum) {
+    fn add_sample(&mut self, sample: Spectrum) {
         self.n_samples += 1;
-        self.xyz += (XYZ::from(*sample) - self.xyz) / self.n_samples as f32;
+        self.xyz += (XYZ::from(sample) - self.xyz) / self.n_samples as f32;
     }
 }
