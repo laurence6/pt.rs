@@ -34,6 +34,17 @@ pub struct DistantLight {
     world_radius: f32,
 }
 
+impl DistantLight {
+    pub fn new(l: Spectrum, w_light: Vector3f) -> DistantLight {
+        DistantLight {
+            l,
+            w_light,
+            world_center: Point3f::default(),
+            world_radius: f32::default(),
+        }
+    }
+}
+
 impl Light for DistantLight {
     fn pre_process(&mut self, scene: &Scene) {
         let (center, radius) = scene.bbox().bounding_sphere();
