@@ -4,6 +4,7 @@ use bbox::BBox3f;
 use interaction::Interaction;
 use material::Material;
 use ray::Ray;
+use reflection::BSDF;
 
 pub trait Shape {
     fn bbox(&self) -> BBox3f;
@@ -16,6 +17,10 @@ pub trait Shape {
     fn intersect(&self, ray: &Ray) -> Option<(Interaction, f32)>;
 
     fn material(&self) -> Rc<Material>;
+
+    fn compute_scattering(&self, i: &Interaction) -> BSDF {
+        self.material().compute_scattering(i)
+    }
 }
 
 /// intersect determines whether the ray intersects this shape.
