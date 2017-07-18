@@ -23,5 +23,6 @@
 #[allow(dead_code, unused_variables)] mod shape;
 #[allow(dead_code, unused_variables)] mod shape_sphere;
 #[allow(dead_code, unused_variables)] mod spectrum;
+#[allow(dead_code, unused_variables)] mod texture;
 #[allow(dead_code, unused_variables)] mod transform;
 #[allow(dead_code, unused_variables)] mod vector;
