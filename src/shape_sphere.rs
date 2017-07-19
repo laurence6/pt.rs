@@ -11,11 +11,12 @@ use vector::{Vector3f, Normal3f, Point3f};
 pub struct Sphere {
     center: Point3f,
     radius: f32,
+    material: Rc<Material>,
 }
 
 impl Sphere {
-    pub fn new(center: Point3f, radius: f32) -> Sphere {
-        Sphere { center, radius }
+    pub fn new(center: Point3f, radius: f32, material: Rc<Material>) -> Sphere {
+        Sphere { center, radius, material }
     }
 
     fn world_to_local(&self, p: Point3f) -> Point3f {
@@ -113,20 +114,32 @@ impl Shape for Sphere {
     }
 
     fn material(&self) -> Rc<Material> {
-        unimplemented!()
+        self.material.clone()
     }
 }
 
 #[cfg(test)]
 mod test {
+    use std::rc::Rc;
+
+    use interaction::Interaction;
+    use material::Material;
     use ray::Ray;
+    use reflection::BSDF;
     use shape::Shape;
     use shape_sphere::Sphere;
     use vector::{Vector3f, Normal3f, Point3f};
 
     #[test]
     fn test_intersect() {
-        let sphere = Sphere::new(Point3f::new(2., 2., 2.), 1.);
+        struct M {}
+        impl Material for M {
+            fn compute_scattering(&self, _: &Interaction) -> BSDF {
+                unimplemented!()
+            }
+        }
+
+        let sphere = Sphere::new(Point3f::new(2., 2., 2.), 1., Rc::new(M {}));
 
         let ray = Ray {
             origin: Point3f::new(2., 0., 2.),
