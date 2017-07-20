@@ -249,14 +249,14 @@ macro_rules! impl_vector2_new_and_ops {
     ($vector2: ident, $x: ident, $y: ident) => (
         impl<T> $vector2<T> {
             pub fn new($x: T, $y: T) -> $vector2<T> {
-                $vector2::<T> { $x, $y }
+                $vector2 { $x, $y }
             }
         }
 
         impl<T> ::std::ops::Neg for $vector2<T> where T: Copy + ::std::ops::Neg<Output = T> {
             type Output = $vector2<T>;
             fn neg(self) -> $vector2<T> {
-                $vector2::<T>::new(
+                $vector2::new(
                     -self.$x,
                     -self.$y,
                 )
@@ -266,7 +266,7 @@ macro_rules! impl_vector2_new_and_ops {
         impl<T> ::std::ops::Add<T> for $vector2<T> where T: Copy + ::std::ops::Add<Output = T> {
             type Output = $vector2<T>;
             fn add(self, n: T) -> $vector2<T> {
-                $vector2::<T>::new(
+                $vector2::new(
                     self.$x + n,
                     self.$y + n,
                 )
@@ -283,7 +283,7 @@ macro_rules! impl_vector2_new_and_ops {
         impl<T> ::std::ops::Sub<T> for $vector2<T> where T: Copy + ::std::ops::Sub<Output = T> {
             type Output = $vector2<T>;
             fn sub(self, n: T) -> $vector2<T> {
-                $vector2::<T>::new(
+                $vector2::new(
                     self.$x - n,
                     self.$y - n,
                 )
@@ -300,7 +300,7 @@ macro_rules! impl_vector2_new_and_ops {
         impl<T> ::std::ops::Mul<T> for $vector2<T> where T: Copy + ::std::ops::Mul<Output = T> {
             type Output = $vector2<T>;
             fn mul(self, n: T) -> $vector2<T> {
-                $vector2::<T>::new(
+                $vector2::new(
                     self.$x * n,
                     self.$y * n,
                 )
@@ -317,7 +317,7 @@ macro_rules! impl_vector2_new_and_ops {
         impl<T> ::std::ops::Div<T> for $vector2<T> where T: Copy + ::std::ops::Div<Output = T> {
             type Output = $vector2<T>;
             fn div(self, n: T) -> $vector2<T> {
-                $vector2::<T>::new(
+                $vector2::new(
                     self.$x / n,
                     self.$y / n,
                 )
@@ -338,7 +338,7 @@ macro_rules! impl_vector2_add {
         impl<T> ::std::ops::Add<$vector2_other<T>> for $vector2<T> where T: Copy + ::std::ops::Add<Output = T> {
             type Output = $vector2_output<T>;
             fn add(self, v: $vector2_other<T>) -> $vector2_output<T> {
-                $vector2_output::<T>::new(
+                $vector2_output::new(
                     self.$x + v.$x,
                     self.$y + v.$y,
                 )
@@ -359,7 +359,7 @@ macro_rules! impl_vector2_sub {
         impl<T> ::std::ops::Sub<$vector2_other<T>> for $vector2<T> where T: Copy + ::std::ops::Sub<Output = T> {
             type Output = $vector2_output<T>;
             fn sub(self, v: $vector2_other<T>) -> $vector2_output<T> {
-                $vector2_output::<T>::new(
+                $vector2_output::new(
                     self.$x - v.$x,
                     self.$y - v.$y,
                 )
@@ -403,8 +403,8 @@ macro_rules! impl_vector2_index {
 macro_rules! impl_vector2_from {
     ($vector2_from: ident, $vector2_to: ident) => (
         impl<T> From<$vector2_from<T>> for $vector2_to<T> where T: Copy {
-            fn from($vector2_from::<T> { x, y }: $vector2_from<T>) -> $vector2_to<T> {
-                $vector2_to::<T>::new(x, y)
+            fn from($vector2_from { x, y }: $vector2_from<T>) -> $vector2_to<T> {
+                $vector2_to::new(x, y)
             }
         }
     );

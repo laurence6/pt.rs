@@ -111,7 +111,7 @@ pub struct BBox2<T> where T: Copy {
 
 impl<T> BBox2<T> where T: Copy {
     pub fn new(min: Point2<T>, max: Point2<T>) -> BBox2<T> {
-        BBox2::<T> { min, max }
+        BBox2 { min, max }
     }
 }
 

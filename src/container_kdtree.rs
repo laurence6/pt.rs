@@ -84,9 +84,9 @@ impl Tree {
         let mut best_edge: Option<usize> = None;
         let mut best_cost = FLOAT_MAX;
         let mut edges = [
-            Vec::<BEdge>::with_capacity(n_shapes * 2), // X
-            Vec::<BEdge>::with_capacity(n_shapes * 2), // Y
-            Vec::<BEdge>::with_capacity(n_shapes * 2), // Z
+            Vec::with_capacity(n_shapes * 2), // X
+            Vec::with_capacity(n_shapes * 2), // Y
+            Vec::with_capacity(n_shapes * 2), // Z
         ];
 
         let mut axis = node_bbox.maximum_extent();
@@ -230,7 +230,7 @@ impl Container for Tree {
                 return None;
             };
 
-        let mut todos = Vec::<Todo>::new();
+        let mut todos = Vec::new();
 
         let mut interaction = None;
         let mut node_i = 0;

@@ -29,8 +29,8 @@ impl RandomSampler {
 
             current_pixel_sample_index: 0,
 
-            sample_array_1d: Vec::<Box<[f32]>>::new(),
-            sample_array_2d: Vec::<Box<[Point2f]>>::new(),
+            sample_array_1d: Vec::new(),
+            sample_array_2d: Vec::new(),
 
             array_1d_offset: 0,
             array_2d_offset: 0,
