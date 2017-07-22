@@ -10,8 +10,16 @@ pub struct Scene {
 }
 
 impl Scene {
-    pub fn new(lights: Box<[Box<Light>]>, shapes: Box<Container>) -> Scene {
-        Scene { lights, shapes }
+    pub fn new(mut lights: Box<[Box<Light>]>, shapes: Box<Container>) -> Scene {
+        let mut scene = Scene {
+            lights: Default::default(),
+            shapes,
+        };
+        for light in lights.iter_mut() {
+            light.pre_process(&scene)
+        }
+        scene.lights = lights;
+        return scene;
     }
 
     pub fn lights(&self) -> &Box<[Box<Light>]> {
