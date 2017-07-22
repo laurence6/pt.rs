@@ -1,13 +1,16 @@
+use std::cmp::min;
 use std::fs::OpenOptions;
 use std::io::BufWriter;
 
 use camera::Camera;
 use film::Film;
+use interaction::Interaction;
 use ray::Ray;
+use reflection::{SPECULAR, BSDF};
 use sampler::Sampler;
 use scene::Scene;
 use spectrum::Spectrum;
-use vector::Point2u;
+use vector::{Vector3f, Point2u};
 
 /// PathIntegrator.
 pub struct Integrator<S, C> where S: Sampler, C: Camera {
@@ -41,7 +44,7 @@ impl<S, C> Integrator<S, C> where S: Sampler, C: Camera {
             loop {
                 let camera_sample = self.sampler.get_camera_sample(pixel);
                 let ray = self.camera.generate_ray(&camera_sample);
-                let l = self.li(&ray, 0);
+                let l = self.li(ray);
                 self.film.add_sample(camera_sample.p_film, l);
 
                 if !self.sampler.start_next_sample() {
@@ -63,7 +66,71 @@ impl<S, C> Integrator<S, C> where S: Sampler, C: Camera {
         self.film.write_image_ppm(&mut file);
     }
 
-    fn li(&mut self, ray: &Ray, depth: u16) -> Spectrum {
-        unimplemented!()
+    fn estimate_direct(&mut self, light: usize, i: &Interaction, bsdf: &BSDF) -> Spectrum {
+        let mut ld = Spectrum::default();
+        let (li, wi, visibility) = self.scene.lights()[light].sample_li(i, self.sampler.get_2d());
+        if !li.is_black() {
+            let f = bsdf.f(i.wo, wi);
+            if !f.is_black() {
+                if visibility.unoccluded(&self.scene) {
+                    ld += f * li;
+                }
+            }
+        }
+        return ld;
+    }
+
+    fn uniform_sample_one_light(&mut self, i: &Interaction, bsdf: &BSDF) -> Spectrum {
+        let n_lights = self.scene.lights().len();
+        if n_lights == 0 {
+            return Spectrum::default();
+        }
+        let light_i = min(
+            (n_lights as f32 * self.sampler.get_1d()) as usize,
+            n_lights - 1,
+        );
+        return self.estimate_direct(light_i, i, bsdf) * n_lights as f32;
+    }
+
+    fn li(&mut self, mut ray: Ray) -> Spectrum {
+        let mut l = Spectrum::default();
+        let mut beta = Spectrum::new(1., 1., 1.);
+        let mut specular_bounce = false;
+        let mut bounces = 0;
+        loop {
+            let i = self.scene.intersect(&ray);
+
+            if bounces == 0 || specular_bounce {
+                if let Some(ref i) = i {
+                } else {
+                    for light in self.scene.lights().iter() {
+                        l += beta * light.le(&ray);
+                    }
+                }
+            }
+
+            if i.is_none() {
+                break;
+            }
+
+            let i = i.unwrap();
+            let bsdf = i.compute_scattering();
+
+            l += beta * self.uniform_sample_one_light(&i, &bsdf);
+
+            let (wi, f, bxdf_flag) = bsdf.sample_f(i.wo, self.sampler.get_2d());
+            ray = i.spawn_ray(wi);
+            if f.is_black() {
+                break;
+            }
+            beta *= f * Vector3f::from(i.n).dot(wi).abs();
+            specular_bounce = bxdf_flag & SPECULAR != 0;
+
+            bounces += 1;
+            if bounces > 10 {
+                break;
+            }
+        }
+        return l;
     }
 }
