@@ -1,6 +1,6 @@
 use std::io::Write;
 
-use spectrum::{Spectrum, RGB, XYZ};
+use spectrum::Spectrum;
 use vector::{Point2u, Point2f};
 
 pub struct Film {
@@ -27,8 +27,14 @@ impl Film {
     }
 
     fn pixel_offset(&self, Point2f { x, y }: Point2f) -> usize {
-        let width = self.resolution.x as usize;
-        let (x, y) = (x.floor() as usize, y.floor() as usize);
+        let (width, height) = (self.resolution.x as usize, self.resolution.y as usize);
+        let (mut x, mut y) = (x.floor() as usize, y.floor() as usize);
+        if x >= width {
+            x = width - 1;
+        }
+        if y >= height {
+            y = height - 1;
+        }
         return y * width + x;
     }
 
@@ -38,12 +44,12 @@ impl Film {
         file.write_all(header.as_bytes()).unwrap();
 
         for p in self.pixels.iter() {
-            let rgb = RGB::from(p.xyz);
+            let Spectrum { r, g, b } = (p.color * 255.).clamp(0., 255.);
             file.write_all(format!(
-                    "{} {} {}\n",
-                    rgb.r.round() as u32,
-                    rgb.g.round() as u32,
-                    rgb.b.round() as u32,
+                "{} {} {}\n",
+                r.round() as u32,
+                g.round() as u32,
+                b.round() as u32,
             ).as_bytes()).unwrap();
         }
     }
@@ -52,12 +58,12 @@ impl Film {
 #[derive(Default)]
 struct Pixel {
     n_samples: u32,
-    xyz: XYZ,
+    color: Spectrum,
 }
 
 impl Pixel {
     fn add_sample(&mut self, sample: Spectrum) {
         self.n_samples += 1;
-        self.xyz += (XYZ::from(sample) - self.xyz) / self.n_samples as f32;
+        self.color += (sample - self.color) / self.n_samples as f32;
     }
 }
