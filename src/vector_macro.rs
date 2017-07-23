@@ -188,14 +188,14 @@ macro_rules! impl_vector3f_div {
 }
 
 macro_rules! impl_vector3f_index {
-    ($vector3f: ident) => (
+    ($vector3f: ident, $x: ident, $y: ident, $z: ident) => (
         impl ::std::ops::Index<usize> for $vector3f {
             type Output = f32;
             fn index(&self, i: usize) -> &f32 {
                 match i {
-                    0 => &self.x,
-                    1 => &self.y,
-                    2 => &self.z,
+                    0 => &self.$x,
+                    1 => &self.$y,
+                    2 => &self.$z,
                     _ => panic!(),
                 }
             }
@@ -204,21 +204,25 @@ macro_rules! impl_vector3f_index {
         impl ::std::ops::IndexMut<usize> for $vector3f {
             fn index_mut(&mut self, i: usize) -> &mut f32 {
                 match i {
-                    0 => &mut self.x,
-                    1 => &mut self.y,
-                    2 => &mut self.z,
+                    0 => &mut self.$x,
+                    1 => &mut self.$y,
+                    2 => &mut self.$z,
                     _ => panic!(),
                 }
             }
         }
+    );
+}
 
+macro_rules! impl_vector3f_index_axis {
+    ($vector3f: ident, $x: ident, $y: ident, $z: ident) => (
         impl ::std::ops::Index<Axis> for $vector3f {
             type Output = f32;
             fn index(&self, axis: Axis) -> &f32 {
                 match axis {
-                    Axis::X => &self.x,
-                    Axis::Y => &self.y,
-                    Axis::Z => &self.z,
+                    Axis::X => &self.$x,
+                    Axis::Y => &self.$y,
+                    Axis::Z => &self.$z,
                 }
             }
         }
@@ -226,9 +230,9 @@ macro_rules! impl_vector3f_index {
         impl ::std::ops::IndexMut<Axis> for $vector3f {
             fn index_mut(&mut self, axis: Axis) -> &mut f32 {
                 match axis {
-                    Axis::X => &mut self.x,
-                    Axis::Y => &mut self.y,
-                    Axis::Z => &mut self.z,
+                    Axis::X => &mut self.$x,
+                    Axis::Y => &mut self.$y,
+                    Axis::Z => &mut self.$z,
                 }
             }
         }

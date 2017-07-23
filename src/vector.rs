@@ -9,7 +9,8 @@ pub struct Vector3f {
 impl_vector3f_new_and_ops!(Vector3f, x, y, z);
 impl_vector3f_add!(Vector3f, Vector3f, Vector3f, x, y, z);
 impl_vector3f_sub!(Vector3f, Vector3f, Vector3f, x, y, z);
-impl_vector3f_index!(Vector3f);
+impl_vector3f_index!(Vector3f, x, y, z);
+impl_vector3f_index_axis!(Vector3f, x, y, z);
 impl_vector3f_from!(Point3f, Vector3f);
 impl_vector3f_from!(Normal3f, Vector3f);
 
@@ -70,7 +71,8 @@ impl_vector3f_add!(Point3f, Point3f, Point3f, x, y, z);
 impl_vector3f_add!(Point3f, Vector3f, Point3f, x, y, z);
 impl_vector3f_sub!(Point3f, Point3f, Vector3f, x, y, z);
 impl_vector3f_sub!(Point3f, Vector3f, Point3f, x, y, z);
-impl_vector3f_index!(Point3f);
+impl_vector3f_index!(Point3f, x, y, z);
+impl_vector3f_index_axis!(Point3f, x, y, z);
 impl_vector3f_from!(Vector3f, Point3f);
 
 impl Point3f {

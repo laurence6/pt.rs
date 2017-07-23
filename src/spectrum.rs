@@ -10,6 +10,7 @@ impl_vector3f_new_and_ops!(Spectrum, r, g, b);
 impl_vector3f_add!(Spectrum, Spectrum, Spectrum, r, g, b);
 impl_vector3f_sub!(Spectrum, Spectrum, Spectrum, r, g, b);
 impl_vector3f_mul!(Spectrum, Spectrum, Spectrum, r, g, b);
+impl_vector3f_index!(Spectrum, r, g, b);
 
 impl Spectrum {
     pub fn is_black(&self) -> bool {
