@@ -70,7 +70,7 @@ impl<S, C> Integrator<S, C> where S: Sampler, C: Camera {
         let mut ld = Spectrum::default();
         let (li, wi, visibility) = self.scene.lights()[light].sample_li(i, self.sampler.get_2d());
         if !li.is_black() {
-            let f = bsdf.f(i.wo, wi);
+            let f = bsdf.f(i.wo, wi) * (Vector3f::from(i.n).dot(wi).abs());
             if !f.is_black() {
                 if visibility.unoccluded(&self.scene) {
                     ld += f * li;
