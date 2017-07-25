@@ -17,6 +17,12 @@ impl Spectrum {
         self.r == 0. && self.g == 0. && self.b == 0.
     }
 
+    pub fn y(&self) -> f32 {
+          0.212671 * self.r
+        + 0.715160 * self.g
+        + 0.072169 * self.b
+    }
+
     fn sqrt(&self) -> Spectrum {
         Spectrum::new(
             self.r.sqrt(),

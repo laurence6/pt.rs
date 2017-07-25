@@ -127,8 +127,12 @@ impl<S, C> Integrator<S, C> where S: Sampler, C: Camera {
             ray = i.spawn_ray(wi);
 
             bounces += 1;
-            if bounces > 10 {
-                break;
+            if bounces > 3 {
+                let q = beta.y().min(0.95);
+                if self.sampler.get_1d() > q {
+                    break;
+                }
+                beta /= q;
             }
         }
         return l;
