@@ -204,7 +204,83 @@ impl Container for Tree {
     }
 
     fn intersect_p(&self, ray: &Ray) -> bool {
-        unimplemented!()
+        #[derive(Clone, Copy)]
+        struct Todo {
+            node: usize,
+            t_min: f32,
+            t_max: f32,
+        }
+
+        impl Todo {
+            fn new(node: usize, t_min: f32, t_max: f32) -> Todo {
+                Todo { node, t_min, t_max }
+            }
+        }
+
+        let (mut t_min, mut t_max) =
+            if let Some((t_min, t_max)) = self.bbox.intersect(&ray) {
+                (t_min, t_max)
+            } else {
+                return false;
+            };
+
+        let mut todos = Vec::new();
+
+        let mut node_i = 0;
+        loop {
+            if ray.t_max < t_min {
+                break;
+            }
+
+            let node = &self.nodes[node_i];
+            if let &Node::Split(axis, t, above_index) = node {
+                let t_split = (t - ray.origin[axis]) / ray.direction[axis];
+
+                let (child_1, child_2) =
+                    if ray.origin[axis] < t || ray.origin[axis] == t && ray.direction[axis] <= 0. {
+                        (node_i + 1, above_index)
+                    } else {
+                        (above_index, node_i + 1)
+                    };
+
+                if t_split > t_max || t_split <= 0. { // ray does not intersect child_2
+                    node_i = child_1;
+                } else if t_split < t_min {           // ray does not intersect child_1
+                    node_i = child_2;
+                } else {
+                    todos.push(Todo::new(child_2, t_split, t_max));
+                    node_i = child_1;
+                    t_max = t_split;
+                }
+            } else {
+                match node {
+                    &Node::Empty => (),
+                    &Node::Shape(ref shape) => {
+                        if shape.intersect_p(&ray) {
+                            return true;
+                        }
+                    },
+                    &Node::Shapes(ref shapes) => {
+                        for shape in shapes.iter() {
+                            if shape.intersect_p(&ray) {
+                                return true;
+                            }
+                        }
+                    },
+                    _ => panic!(),
+                }
+
+                if let Some(todo) = todos.pop() {
+                    node_i = todo.node;
+                    t_min = todo.t_min;
+                    t_max = todo.t_max;
+                } else {
+                    break;
+                }
+            }
+        }
+
+        return false;
     }
 
     fn intersect(&self, ray: &Ray) -> Option<Interaction> {
