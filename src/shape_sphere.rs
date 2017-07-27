@@ -80,7 +80,33 @@ impl Shape for Sphere {
     }
 
     fn intersect_p(&self, ray: &Ray) -> bool {
-        unimplemented!()
+        let mut ray = ray.clone();
+        ray.origin = self.world_to_local(ray.origin);
+
+        let o = ray.origin;
+        let d = ray.direction;
+        let (ox, oy, oz) = (o.x as f64, o.y as f64, o.z as f64);
+        let (dx, dy, dz) = (d.x as f64, d.y as f64, d.z as f64);
+        let r = self.radius as f64;
+        let a = dx * dx + dy * dy + dz * dz;
+        let b = 2. * (dx * ox + dy * oy + dz * oz);
+        let c = ox * ox + oy * oy + oz * oz - r * r;
+
+        let s = quadratic(a, b, c);
+        if s.is_none() {
+            return false;
+        }
+
+        let (t0, t1) = s.unwrap();
+        let (t0, t1) = (t0 as f32, t1 as f32);
+        if 0. < t0 && t0 < ray.t_max {
+            return true;
+        }
+        if 0. < t1 && t1 < ray.t_max {
+            return true;
+        }
+
+        return false;
     }
 
     fn intersect(&self, ray: &Ray) -> Option<(Interaction, f32)> {
