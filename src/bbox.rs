@@ -80,16 +80,15 @@ impl BBox3f {
 
         let mut axis = Axis::X;
         for _ in 0..3 {
-            let inv_ray_dir = 1. / ray.direction[axis];
-            let mut t_near = (self.min[axis] - ray.origin[axis]) * inv_ray_dir;
-            let mut t_far  = (self.max[axis] - ray.origin[axis]) * inv_ray_dir;
+            // t_near and t_far could be NaN or Infinity
+            let mut t_near = (self.min[axis] - ray.origin[axis]) / ray.direction[axis];
+            let mut t_far  = (self.max[axis] - ray.origin[axis]) / ray.direction[axis];
             if t_near > t_far {
                 swap(&mut t_near, &mut t_far);
             }
             // to avoid epsilon
             t_far *= 1. + 2. * gamma(3.);
 
-            // notice that t_near and t_far could be NaN
             t0 = if t_near > t0 { t_near } else { t0 };
             t1 = if t_far  < t1 { t_far  } else { t1 };
 

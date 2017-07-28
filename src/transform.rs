@@ -1,5 +1,7 @@
 use std::ops;
 
+use bbox::BBox3f;
+use interaction::Interaction;
 use matrix::Matrix;
 use ray::Ray;
 use vector::{Vector3f, Normal3f, Point3f};
@@ -225,12 +227,35 @@ impl Transformable for Point3f {
     }
 }
 
+impl Transformable for BBox3f {
+    fn _transform(&self, m: &Matrix, m_inv: &Matrix) -> BBox3f {
+        BBox3f {
+            min: self.min._transform(m, m_inv),
+            max: self.max._transform(m, m_inv),
+        }
+    }
+}
+
 impl Transformable for Ray {
     fn _transform(&self, m: &Matrix, m_inv: &Matrix) -> Ray {
         Ray {
             origin: self.origin._transform(m, m_inv),
             direction: self.direction._transform(m, m_inv),
             t_max: self.t_max,
+        }
+    }
+}
+
+impl Transformable for Interaction {
+    fn _transform(&self, m: &Matrix, m_inv: &Matrix) -> Interaction {
+        Interaction {
+            p: self.p._transform(m, m_inv),
+            p_err: self.p_err._transform(m, m_inv),
+            n: self.n._transform(m, m_inv),
+            dpdu: self.dpdu._transform(m, m_inv),
+            dpdv: self.dpdv._transform(m, m_inv),
+            wo: self.wo._transform(m, m_inv),
+            shape: self.shape.clone(),
         }
     }
 }
