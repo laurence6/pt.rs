@@ -182,9 +182,11 @@ fn compute_sin_cos_in_degree(deg: f32) -> (f32, f32) {
 
 pub trait Transformable where Self: Sized {
     fn _transform(&self, m: &Matrix, m_inv: &Matrix) -> Self;
+
     fn transform(&self, t: &Transform) -> Self {
         self._transform(&t.m, &t.m_inv)
     }
+
     fn inverse_transform(&self, t: &Transform) -> Self {
         self._transform(&t.m_inv, &t.m)
     }
@@ -229,10 +231,10 @@ impl Transformable for Point3f {
 
 impl Transformable for BBox3f {
     fn _transform(&self, m: &Matrix, m_inv: &Matrix) -> BBox3f {
-        BBox3f {
-            min: self.min._transform(m, m_inv),
-            max: self.max._transform(m, m_inv),
-        }
+        BBox3f::new(
+            self.min._transform(m, m_inv),
+            self.max._transform(m, m_inv),
+        )
     }
 }
 

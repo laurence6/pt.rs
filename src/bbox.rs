@@ -16,7 +16,10 @@ pub struct BBox3f {
 
 impl BBox3f {
     pub fn new(min: Point3f, max: Point3f) -> BBox3f {
-        BBox3f { min, max }
+        BBox3f {
+            min: min.min(max),
+            max: max.max(min),
+        }
     }
 
     pub fn bbox_of_shapes(shapes: &Box<[Rc<Shape>]>) -> BBox3f {
@@ -104,18 +107,21 @@ impl BBox3f {
 }
 
 #[derive(Clone, Copy)]
-pub struct BBox2<T> where T: Copy {
+pub struct BBox2<T> where T: PartialOrd {
     pub min: Point2<T>,
     pub max: Point2<T>,
 }
 
-impl<T> BBox2<T> where T: Copy {
+impl<T> BBox2<T> where T: Copy + PartialOrd {
     pub fn new(min: Point2<T>, max: Point2<T>) -> BBox2<T> {
-        BBox2 { min, max }
+        BBox2 {
+            min: min.min(max),
+            max: max.max(min),
+        }
     }
 }
 
-impl<T> BBox2<T> where T: Copy + ops::Sub<Output = T> + ops::Mul<Output = T> {
+impl<T> BBox2<T> where T: Copy + PartialOrd + ops::Sub<Output = T> + ops::Mul<Output = T> {
     pub fn diagonal(&self) -> Vector2<T> {
         self.max - self.min
     }

@@ -80,19 +80,19 @@ impl Point3f {
         (*self - p).length()
     }
 
-    pub fn min(&self, v: Point3f) -> Point3f {
+    pub fn min(&self, p: Point3f) -> Point3f {
         Point3f::new(
-            self.x.min(v.x),
-            self.y.min(v.y),
-            self.z.min(v.z),
+            self.x.min(p.x),
+            self.y.min(p.y),
+            self.z.min(p.z),
         )
     }
 
-    pub fn max(&self, v: Point3f) -> Point3f {
+    pub fn max(&self, p: Point3f) -> Point3f {
         Point3f::new(
-            self.x.max(v.x),
-            self.y.max(v.y),
-            self.z.max(v.z),
+            self.x.max(p.x),
+            self.y.max(p.y),
+            self.z.max(p.z),
         )
     }
 }
@@ -108,7 +108,7 @@ impl_vector2_sub!(Vector2, Vector2, Vector2, x, y);
 impl_vector2_index!(Vector2);
 
 #[derive(Default, Clone, Copy, Debug, PartialEq)]
-pub struct Point2<T> {
+pub struct Point2<T> where T: PartialOrd {
     pub x: T,
     pub y: T,
 }
@@ -121,11 +121,43 @@ impl_vector2_from!(Vector2, Point2);
 pub type Point2u = Point2<u32>;
 pub type Point2f = Point2<f32>;
 
+impl<T> Point2<T> where T: Copy + PartialOrd {
+    pub fn min(&self, p: Point2<T>) -> Point2<T> {
+        Point2::new(
+            min(self.x, p.x),
+            min(self.y, p.y),
+        )
+    }
+
+    pub fn max(&self, p: Point2<T>) -> Point2<T> {
+        Point2::new(
+            max(self.x, p.x),
+            max(self.y, p.y),
+        )
+    }
+}
+
 impl From<Point2u> for Point2f {
     fn from(Point2u { x, y }: Point2u) -> Point2f {
         Point2f::new(
             x as f32,
             y as f32,
         )
+    }
+}
+
+fn min<T>(v1: T, v2: T) -> T where T: PartialOrd {
+    if v1 < v2 {
+        v1
+    } else {
+        v2
+    }
+}
+
+fn max<T>(v1: T, v2: T) -> T where T: PartialOrd {
+    if v1 > v2 {
+        v1
+    } else {
+        v2
     }
 }
