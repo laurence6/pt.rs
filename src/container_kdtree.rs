@@ -89,7 +89,7 @@ impl Tree {
             Vec::with_capacity(n_shapes * 2), // Z
         ];
 
-        let mut axis = node_bbox.maximum_extent();
+        let mut axis = node_bbox.max_extent();
         // Try different axes to find the best split point
         for _ in 0..3 {
             for s in shapes.iter() {

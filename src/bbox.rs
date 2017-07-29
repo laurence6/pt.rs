@@ -36,12 +36,13 @@ impl BBox3f {
         return (d.x * d.y + d.x * d.z + d.y * d.z) * 2.;
     }
 
-    pub fn maximum_extent(&self) -> Axis {
-        let d = self.diagonal();
-        match (d.x <= d.y, d.y <= d.z) {
-            (true,  true) => return Axis::X,
-            (false, true) => return Axis::Y,
-            _             => return Axis::Z,
+    pub fn max_extent(&self) -> Axis {
+        let Vector3f { x, y, z } = self.diagonal();
+        match (x >= y, x >= z, y >= z) {
+            ( true,  true,     _) => Axis::X,
+            (false,     _,  true) => Axis::Y,
+            (    _, false, false) => Axis::Z,
+            _                     => panic!(),
         }
     }
 
