@@ -66,6 +66,48 @@ impl Transform {
         }
     }
 
+    pub fn rotate_x(theta: f32) -> Transform {
+        let (sin_theta, cos_theta) = compute_sin_cos_in_degree(theta);
+        let m = Matrix::new(
+            1.,        0.,         0., 0.,
+            0., cos_theta, -sin_theta, 0.,
+            0., sin_theta,  cos_theta, 0.,
+            0.,        0.,         0., 1.,
+        );
+        return Transform {
+            m,
+            m_inv: m.transpose(),
+        };
+    }
+
+    pub fn rotate_y(theta: f32) -> Transform {
+        let (sin_theta, cos_theta) = compute_sin_cos_in_degree(theta);
+        let m = Matrix::new(
+             cos_theta, 0., sin_theta, 0.,
+                    0., 1.,        0., 0.,
+            -sin_theta, 0., cos_theta, 0.,
+                    0., 0.,        0., 1.,
+        );
+        return Transform {
+            m,
+            m_inv: m.transpose(),
+        };
+    }
+
+    pub fn rotate_z(theta: f32) -> Transform {
+        let (sin_theta, cos_theta) = compute_sin_cos_in_degree(theta);
+        let m = Matrix::new(
+            cos_theta, -sin_theta, 0., 0.,
+            sin_theta,  cos_theta, 0., 0.,
+                   0.,         0., 1., 0.,
+                   0.,         0., 0., 1.,
+        );
+        return Transform {
+            m,
+            m_inv: m.transpose(),
+        };
+    }
+
     /// Compute perspective transformation from field-of-view angel, distance to a near z plane and a far z plane.
     pub fn perspective(fov: f32, n: f32, f: f32) -> Transform {
         let p = Matrix::new(
@@ -107,48 +149,6 @@ impl Transform {
 
     pub fn inverse(&self) -> Transform {
         Transform { m: self.m_inv, m_inv: self.m }
-    }
-
-    fn rotate_x(&self, theta: f32) -> Transform {
-        let (sin_theta, cos_theta) = compute_sin_cos_in_degree(theta);
-        let m = Matrix::new(
-            1.,        0.,         0., 0.,
-            0., cos_theta, -sin_theta, 0.,
-            0., sin_theta,  cos_theta, 0.,
-            0.,        0.,         0., 1.,
-        );
-        return Transform {
-            m,
-            m_inv: m.transpose(),
-        };
-    }
-
-    fn rotate_y(&self, theta: f32) -> Transform {
-        let (sin_theta, cos_theta) = compute_sin_cos_in_degree(theta);
-        let m = Matrix::new(
-             cos_theta, 0., sin_theta, 0.,
-                    0., 1.,        0., 0.,
-            -sin_theta, 0., cos_theta, 0.,
-                    0., 0.,        0., 1.,
-        );
-        return Transform {
-            m,
-            m_inv: m.transpose(),
-        };
-    }
-
-    fn rotate_z(&self, theta: f32) -> Transform {
-        let (sin_theta, cos_theta) = compute_sin_cos_in_degree(theta);
-        let m = Matrix::new(
-            cos_theta, -sin_theta, 0., 0.,
-            sin_theta,  cos_theta, 0., 0.,
-                   0.,         0., 1., 0.,
-                   0.,         0., 0., 1.,
-        );
-        return Transform {
-            m,
-            m_inv: m.transpose(),
-        };
     }
 
     pub fn apply<T>(&self, t: &T) -> T where T: Transformable {
