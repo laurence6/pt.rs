@@ -1,5 +1,6 @@
 use std::rc::Rc;
 
+use common::PI;
 use interaction::Interaction;
 use sampling::cosine_sample_hemisphere;
 use spectrum::Spectrum;
@@ -17,23 +18,32 @@ pub trait BxDF {
     /// Return BxDF flag.
     fn flag(&self) -> BxDFFlag;
 
+    fn has_flag(&self, t: BxDFFlag) -> bool {
+        let flag = self.flag();
+        debug_assert!(flag <= ALL);
+        return (t & flag) == t;
+    }
+
     /// Return value of distribution function for the given pair of direction.
     fn f(&self, wo: Vector3f, wi: Vector3f) -> Spectrum;
 
-    /// Return the direction of incident ray, value of distribution function.
-    fn sample_f(&self, wo: Vector3f, sample: Point2f) -> (Vector3f, Spectrum) {
+    /// Return pdf for the given pair of direction.
+    fn pdf(&self, wo: Vector3f, wi: Vector3f) -> f32 {
+        if same_hemisphere(wo, wi) {
+            abs_cos_theta(wi) / PI
+        } else {
+            0.
+        }
+    }
+
+    /// Return the direction of incident ray, value of distribution function, pdf.
+    fn sample_f(&self, wo: Vector3f, sample: Point2f) -> (Vector3f, Spectrum, f32) {
         let mut wi = cosine_sample_hemisphere(sample);
         // flip wi to make sure that wi and wo are in the same hemisphere
         if wo.z < 0. {
             wi.z *= -1.;
         }
-        return (wi, self.f(wo, wi));
-    }
-
-    fn has_flag(&self, t: BxDFFlag) -> bool {
-        let flag = self.flag();
-        debug_assert!(flag <= ALL);
-        return (t & flag) == t;
+        return (wi, self.f(wo, wi), self.pdf(wo, wi));
     }
 }
 
@@ -107,7 +117,12 @@ impl BSDF {
         return f;
     }
 
-    pub fn sample_f(&self, wo_w: Vector3f, sample: Point2f) -> (Vector3f, Spectrum, BxDFFlag) {
+    /// Return the direction of incident ray, value of distribution function, pdf, flag of the chosen BxDF.
+    pub fn sample_f(&self, wo_w: Vector3f, sample: Point2f) -> (Vector3f, Spectrum, f32, BxDFFlag) {
+        if self.n_bxdf == 0 {
+            return Default::default();
+        }
+
         let n_bxdf_f = sample[0] * self.n_bxdf as f32;
         let n_bxdf = n_bxdf_f.floor() as usize;
         let bxdf = self.bxdfs[n_bxdf].clone().unwrap();
@@ -119,10 +134,22 @@ impl BSDF {
         if wo.z == 0. {
             return Default::default();
         }
-        let (wi, mut f) = bxdf.sample_f(wo, sample);
+        let (wi, mut f, mut pdf) = bxdf.sample_f(wo, sample);
+        if pdf == 0. {
+            return Default::default();
+        }
         let wi_w = self.local_to_world(wi);
 
         if !bxdf.has_flag(SPECULAR) {
+            for i in 0..self.n_bxdf {
+                if i != n_bxdf {
+                    pdf += self.bxdfs[i].clone().unwrap().pdf(wo, wi);
+                }
+            }
+            if self.n_bxdf > 1 {
+                pdf /= self.n_bxdf as f32;
+            }
+
             let reflect = wi_w.dot(self.n) * wo_w.dot(self.n) > 0.;
             f = Spectrum::default();
             for i in 0..self.n_bxdf {
@@ -133,8 +160,16 @@ impl BSDF {
             }
         }
 
-        return (wi_w, f, bxdf.flag());
+        return (wi_w, f, pdf, bxdf.flag());
     }
+}
+
+fn abs_cos_theta(w: Vector3f) -> f32 {
+    w.z.abs()
+}
+
+fn same_hemisphere(w1: Vector3f, w2: Vector3f) -> bool {
+    w1.z * w2.z > 0.
 }
 
 #[cfg(test)]

@@ -118,11 +118,11 @@ impl<S, C> Integrator<S, C> where S: Sampler, C: Camera {
 
             l += beta * self.uniform_sample_one_light(&i, &bsdf);
 
-            let (wi, f, bxdf_flag) = bsdf.sample_f(i.wo, self.sampler.get_2d());
-            if f.is_black() {
+            let (wi, f, pdf, bxdf_flag) = bsdf.sample_f(i.wo, self.sampler.get_2d());
+            if pdf == 0. || f.is_black() {
                 break;
             }
-            beta *= f * Vector3f::from(i.n).dot(wi).abs();
+            beta *= f * Vector3f::from(i.n).dot(wi).abs() / pdf;
             specular_bounce = bxdf_flag & SPECULAR != 0;
             ray = i.spawn_ray(wi);
 
