@@ -11,9 +11,8 @@ pub trait Light {
         Spectrum::default()
     }
 
-    /// sample_li takes a world space point and returns the radiance arriving at that point,
-    /// incident direction (direction radiance is arriving from), and VisibilityTester.
-    fn sample_li(&self, i: &Interaction, sample: Point2f) -> (Spectrum, Vector3f, VisibilityTester);
+    /// sample_li takes a world space point and returns incident direction (direction radiance is arriving from), the radiance arriving at that point, pdf, and VisibilityTester.
+    fn sample_li(&self, i: &Interaction, sample: Point2f) -> (Vector3f, Spectrum, f32, VisibilityTester);
 }
 
 pub struct VisibilityTester {
@@ -52,7 +51,7 @@ impl Light for DistantLight {
         self.world_radius = radius;
     }
 
-    fn sample_li(&self, i: &Interaction, sample: Point2f) -> (Spectrum, Vector3f, VisibilityTester) {
+    fn sample_li(&self, i: &Interaction, sample: Point2f) -> (Vector3f, Spectrum, f32, VisibilityTester) {
         let vis = VisibilityTester {
             p0: i.clone(),
             p1: Interaction {
@@ -61,6 +60,6 @@ impl Light for DistantLight {
             },
         };
 
-        return (self.l, self.w_light, vis);
+        return (self.w_light, self.l, 1., vis);
     }
 }
