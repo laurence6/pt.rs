@@ -133,23 +133,24 @@ impl BSDF {
         }
         let wi_w = self.local_to_world(wi);
 
-        if !bxdf.has_flag(SPECULAR) {
+        if !bxdf.has_flag(SPECULAR) && n_bxdfs > 1 {
             for i in 0..n_bxdfs {
                 if i != n_bxdf {
                     pdf += self.bxdfs[i].pdf(wo, wi);
                 }
             }
-            if n_bxdfs > 1 {
-                pdf /= n_bxdfs as f32;
-            }
 
             let reflect = wi_w.dot(self.n) * wo_w.dot(self.n) > 0.;
             f = Spectrum::default();
             for bxdf in self.bxdfs.iter() {
-                if (reflect && bxdf.has_flag(REFLECTION)) || (!reflect && bxdf.has_flag(TRANSMISSION)) {
+                if (reflect && bxdf.has_flag(REFLECTION))
+                    || (!reflect && bxdf.has_flag(TRANSMISSION)) {
                     f += bxdf.f(wo, wi);
                 }
             }
+        }
+        if n_bxdfs > 1 {
+            pdf /= n_bxdfs as f32;
         }
 
         return (wi_w, f, pdf, bxdf.flag());
