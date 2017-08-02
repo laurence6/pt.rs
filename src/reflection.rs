@@ -50,7 +50,7 @@ pub trait BxDF {
 const MAX_BXDF: usize = 4;
 
 pub struct BSDF {
-    n_bxdf: usize,
+    n_bxdfs: usize,
     bxdfs: [Option<Rc<BxDF>>; MAX_BXDF],
     eta: f32,
     n: Vector3f,
@@ -65,7 +65,7 @@ impl BSDF {
         let s = i.dpdu.normalize();
         let t = n.cross(s);
         return BSDF {
-            n_bxdf: 0,
+            n_bxdfs: 0,
             bxdfs: Default::default(),
             eta,
             n,
@@ -76,8 +76,8 @@ impl BSDF {
 
     /// Add a BxDF component.
     pub fn add(&mut self, bxdf: Rc<BxDF>) {
-        self.bxdfs[self.n_bxdf] = Some(bxdf);
-        self.n_bxdf += 1;
+        self.bxdfs[self.n_bxdfs] = Some(bxdf);
+        self.n_bxdfs += 1;
     }
 
     fn world_to_local(&self, v: Vector3f) -> Vector3f {
@@ -106,7 +106,7 @@ impl BSDF {
         let reflect = wi_w.dot(self.n) * wo_w.dot(self.n) > 0.;
 
         let mut f = Spectrum::default();
-        for i in 0..self.n_bxdf {
+        for i in 0..self.n_bxdfs {
             let bxdf = self.bxdfs[i].clone().unwrap();
             if (reflect && bxdf.has_flag(REFLECTION))
                 || (!reflect && bxdf.has_flag(TRANSMISSION)) {
@@ -119,11 +119,11 @@ impl BSDF {
 
     /// Return the direction of incident ray, value of distribution function, pdf, flag of the chosen BxDF.
     pub fn sample_f(&self, wo_w: Vector3f, sample: Point2f) -> (Vector3f, Spectrum, f32, BxDFFlag) {
-        if self.n_bxdf == 0 {
+        if self.n_bxdfs == 0 {
             return Default::default();
         }
 
-        let n_bxdf_f = sample[0] * self.n_bxdf as f32;
+        let n_bxdf_f = sample[0] * self.n_bxdfs as f32;
         let n_bxdf = n_bxdf_f.floor() as usize;
         let bxdf = self.bxdfs[n_bxdf].clone().unwrap();
 
@@ -141,18 +141,18 @@ impl BSDF {
         let wi_w = self.local_to_world(wi);
 
         if !bxdf.has_flag(SPECULAR) {
-            for i in 0..self.n_bxdf {
+            for i in 0..self.n_bxdfs {
                 if i != n_bxdf {
                     pdf += self.bxdfs[i].clone().unwrap().pdf(wo, wi);
                 }
             }
-            if self.n_bxdf > 1 {
-                pdf /= self.n_bxdf as f32;
+            if self.n_bxdfs > 1 {
+                pdf /= self.n_bxdfs as f32;
             }
 
             let reflect = wi_w.dot(self.n) * wo_w.dot(self.n) > 0.;
             f = Spectrum::default();
-            for i in 0..self.n_bxdf {
+            for i in 0..self.n_bxdfs {
                 let bxdf = self.bxdfs[i].clone().unwrap();
                 if (reflect && bxdf.has_flag(REFLECTION)) || (!reflect && bxdf.has_flag(TRANSMISSION)) {
                     f += bxdf.f(wo, wi);
