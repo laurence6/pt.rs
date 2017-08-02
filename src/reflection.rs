@@ -1,5 +1,3 @@
-use std::rc::Rc;
-
 use common::PI;
 use interaction::Interaction;
 use sampling::cosine_sample_hemisphere;
@@ -47,11 +45,8 @@ pub trait BxDF {
     }
 }
 
-const MAX_BXDF: usize = 4;
-
 pub struct BSDF {
-    n_bxdfs: usize,
-    bxdfs: [Option<Rc<BxDF>>; MAX_BXDF],
+    bxdfs: Vec<Box<BxDF>>,
     eta: f32,
     n: Vector3f,
     s: Vector3f,
@@ -65,8 +60,7 @@ impl BSDF {
         let s = i.dpdu.normalize();
         let t = n.cross(s);
         return BSDF {
-            n_bxdfs: 0,
-            bxdfs: Default::default(),
+            bxdfs: Vec::new(),
             eta,
             n,
             s,
@@ -75,9 +69,8 @@ impl BSDF {
     }
 
     /// Add a BxDF component.
-    pub fn add(&mut self, bxdf: Rc<BxDF>) {
-        self.bxdfs[self.n_bxdfs] = Some(bxdf);
-        self.n_bxdfs += 1;
+    pub fn add(&mut self, bxdf: Box<BxDF>) {
+        self.bxdfs.push(bxdf);
     }
 
     fn world_to_local(&self, v: Vector3f) -> Vector3f {
@@ -106,8 +99,7 @@ impl BSDF {
         let reflect = wi_w.dot(self.n) * wo_w.dot(self.n) > 0.;
 
         let mut f = Spectrum::default();
-        for i in 0..self.n_bxdfs {
-            let bxdf = self.bxdfs[i].clone().unwrap();
+        for bxdf in self.bxdfs.iter() {
             if (reflect && bxdf.has_flag(REFLECTION))
                 || (!reflect && bxdf.has_flag(TRANSMISSION)) {
                 f += bxdf.f(wo, wi);
@@ -119,13 +111,14 @@ impl BSDF {
 
     /// Return the direction of incident ray, value of distribution function, pdf, flag of the chosen BxDF.
     pub fn sample_f(&self, wo_w: Vector3f, sample: Point2f) -> (Vector3f, Spectrum, f32, BxDFFlag) {
-        if self.n_bxdfs == 0 {
+        let n_bxdfs = self.bxdfs.len();
+        if n_bxdfs == 0 {
             return Default::default();
         }
 
-        let n_bxdf_f = sample[0] * self.n_bxdfs as f32;
+        let n_bxdf_f = sample[0] * n_bxdfs as f32;
         let n_bxdf = n_bxdf_f.floor() as usize;
-        let bxdf = self.bxdfs[n_bxdf].clone().unwrap();
+        let bxdf = &self.bxdfs[n_bxdf];
 
         // remap sample to [0, 1)
         let sample = Point2f::new(n_bxdf_f - n_bxdf as f32, sample[1]);
@@ -141,19 +134,18 @@ impl BSDF {
         let wi_w = self.local_to_world(wi);
 
         if !bxdf.has_flag(SPECULAR) {
-            for i in 0..self.n_bxdfs {
+            for i in 0..n_bxdfs {
                 if i != n_bxdf {
-                    pdf += self.bxdfs[i].clone().unwrap().pdf(wo, wi);
+                    pdf += self.bxdfs[i].pdf(wo, wi);
                 }
             }
-            if self.n_bxdfs > 1 {
-                pdf /= self.n_bxdfs as f32;
+            if n_bxdfs > 1 {
+                pdf /= n_bxdfs as f32;
             }
 
             let reflect = wi_w.dot(self.n) * wo_w.dot(self.n) > 0.;
             f = Spectrum::default();
-            for i in 0..self.n_bxdfs {
-                let bxdf = self.bxdfs[i].clone().unwrap();
+            for bxdf in self.bxdfs.iter() {
                 if (reflect && bxdf.has_flag(REFLECTION)) || (!reflect && bxdf.has_flag(TRANSMISSION)) {
                     f += bxdf.f(wo, wi);
                 }

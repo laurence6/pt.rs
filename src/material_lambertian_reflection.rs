@@ -21,7 +21,7 @@ impl Material for LambertianReflectionMaterial {
         let r = self.kd.evaluate(i);
         let mut bsdf = BSDF::new(1., i);
         if !r.is_black() {
-            bsdf.add(Rc::new(LambertianReflectionBRDF::new(r)));
+            bsdf.add(Box::new(LambertianReflectionBRDF::new(r)));
         }
         return bsdf;
     }
