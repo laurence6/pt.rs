@@ -78,6 +78,13 @@ impl BBox3f {
         }
     }
 
+    pub fn union_point(&self, p: Point3f) -> BBox3f {
+        BBox3f {
+            min: self.min.min(p),
+            max: self.max.max(p),
+        }
+    }
+
     pub fn intersect(&self, ray: &Ray) -> Option<(f32, f32)> {
         let mut t0 = 0.;
         let mut t1 = ray.t_max;

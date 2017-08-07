@@ -36,6 +36,35 @@ impl Vector3f {
         )
     }
 
+    pub fn max_axis(&self) -> Axis {
+        let Vector3f { x, y, z } = self.abs();
+        match (x >= y, x >= z, y >= z) {
+            ( true,  true,     _) => Axis::X,
+            (false,     _,  true) => Axis::Y,
+            (    _, false, false) => Axis::Z,
+            _                     => panic!(),
+        }
+    }
+
+    pub fn permute(&self, x: Axis, y: Axis, z: Axis) -> Point3f {
+        Point3f::new(
+            self[x],
+            self[y],
+            self[z],
+        )
+    }
+
+    /// Construct a coordinate system based on a normalized vector.
+    pub fn construct_coordinate_system(&self) -> (Vector3f, Vector3f) {
+        let v1 = if self.x.abs() > self.y.abs() {
+            Vector3f::new(-self.z, 0., self.x) / (self.x * self.x + self.z * self.z).sqrt()
+        } else {
+            Vector3f::new(0., self.z, -self.y) / (self.y * self.y + self.z * self.z).sqrt()
+        };
+        let v2 = self.cross(v1);
+        return (v1, v2);
+    }
+
     pub fn dot(&self, v: Vector3f) -> f32 {
           self.x * v.x
         + self.y * v.y
@@ -76,6 +105,14 @@ impl_vector3f_index_axis!(Point3f, x, y, z);
 impl_vector3f_from!(Vector3f, Point3f);
 
 impl Point3f {
+    pub fn permute(&self, x: Axis, y: Axis, z: Axis) -> Point3f {
+        Point3f::new(
+            self[x],
+            self[y],
+            self[z],
+        )
+    }
+
     pub fn distance(&self, p: Point3f) -> f32 {
         (*self - p).length()
     }
