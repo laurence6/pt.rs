@@ -10,13 +10,14 @@ use vector::{Vector3f, Normal3f, Point3f, Point2f};
 
 pub struct Triangle {
     vertices: [Point3f; 3],
+    reverse_orientation: bool,
 
     material: Rc<Material>,
 }
 
 impl Triangle {
-    pub fn new(vertices: [Point3f; 3], material: Rc<Material>) -> Triangle {
-        Triangle { vertices, material }
+    pub fn new(vertices: [Point3f; 3], reverse_orientation: bool, material: Rc<Material>) -> Triangle {
+        Triangle { vertices, reverse_orientation, material }
     }
 
     fn get_uv(&self) -> [Point2f; 3] {
@@ -112,7 +113,10 @@ impl Shape for Triangle {
             (dpdu, dpdv)
         };
 
-        let n = Normal3f::from(dp02.cross(dp12).normalize());
+        let mut n = Normal3f::from(dp02.cross(dp12).normalize());
+        if self.reverse_orientation {
+            n *= -1.;
+        }
 
         return Some((
             Interaction {
