@@ -1,6 +1,7 @@
 use std::rc::Rc;
 
 use bxdf_lambertian_reflection::LambertianReflectionBRDF;
+use common::INFINITY;
 use interaction::Interaction;
 use material::Material;
 use reflection::BSDF;
@@ -18,8 +19,8 @@ impl LambertianReflectionMaterial {
 
 impl Material for LambertianReflectionMaterial {
     fn compute_scattering(&self, i: &Interaction) -> BSDF {
-        let r = self.kd.evaluate(i);
         let mut bsdf = BSDF::new(1., i);
+        let r = self.kd.evaluate(i).clamp(0., INFINITY);
         if !r.is_black() {
             bsdf.add(Box::new(LambertianReflectionBRDF::new(r)));
         }
