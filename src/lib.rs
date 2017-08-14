@@ -2,6 +2,7 @@
 #[allow(dead_code, unused_variables)] mod axis;
 #[allow(dead_code, unused_variables)] mod bbox;
 #[allow(dead_code, unused_variables)] mod bxdf_lambertian_reflection;
+#[allow(dead_code, unused_variables)] mod bxdf_specular_reflection;
 #[allow(dead_code, unused_variables)] mod camera;
 #[allow(dead_code, unused_variables)] mod common;
 #[allow(dead_code, unused_variables)] mod container;

@@ -157,7 +157,11 @@ impl BSDF {
     }
 }
 
-fn abs_cos_theta(w: Vector3f) -> f32 {
+pub fn cos_theta(w: Vector3f) -> f32 {
+    w.z
+}
+
+pub fn abs_cos_theta(w: Vector3f) -> f32 {
     w.z.abs()
 }
 
