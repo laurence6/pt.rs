@@ -6,7 +6,7 @@ use axis::Axis;
 use common::gamma;
 use ray::Ray;
 use shape::Shape;
-use vector::{Vector3f, Point3f, Vector2, Point2};
+use vector::{Vector3f, Point3f, Vector2, Point2, Point2u, Point2f};
 
 #[derive(Clone, Copy)]
 pub struct BBox3f {
@@ -141,3 +141,21 @@ impl<T> BBox2<T> where T: Copy + PartialOrd + ops::Sub<Output = T> + ops::Mul<Ou
 
 pub type BBox2u = BBox2<u32>;
 pub type BBox2f = BBox2<f32>;
+
+impl From<BBox2f> for BBox2u {
+    fn from(BBox2f { min, max }: BBox2f) -> BBox2u {
+        BBox2u {
+            min: Point2u::from(min),
+            max: Point2u::from(max),
+        }
+    }
+}
+
+impl From<BBox2u> for BBox2f {
+    fn from(BBox2u { min, max }: BBox2u) -> BBox2f {
+        BBox2f {
+            min: Point2f::from(min),
+            max: Point2f::from(max),
+        }
+    }
+}
