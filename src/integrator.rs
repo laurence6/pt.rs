@@ -45,7 +45,7 @@ impl<S, C> Integrator<S, C> where S: Sampler, C: Camera {
                 let camera_sample = self.sampler.get_camera_sample(pixel);
                 let ray = self.camera.generate_ray(&camera_sample);
                 let l = self.li(ray);
-                self.film.add_sample(camera_sample.p_film, l);
+                //self.film.add_sample(camera_sample.p_film, l);
 
                 if !self.sampler.start_next_sample() {
                     break;

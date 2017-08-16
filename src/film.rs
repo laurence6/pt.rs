@@ -1,8 +1,9 @@
 use std::io::Write;
 
+use bbox::{BBox2u, BBox2f};
 use common::clamp;
 use spectrum::Spectrum;
-use vector::{Point2u, Point2f};
+use vector::{Vector2u, Vector2f, Point2u, Point2f};
 
 pub struct Film {
     pub resolution: Point2u,
@@ -14,7 +15,7 @@ impl Film {
         let area = (resolution.x * resolution.y) as usize;
         let pixels = {
             let mut pixels = Vec::with_capacity(area);
-            for i in 0..area {
+            for _ in 0..area {
                 pixels.push(Pixel::default());
             }
             pixels.into_boxed_slice()
@@ -23,20 +24,17 @@ impl Film {
         return Film { resolution, pixels };
     }
 
-    fn pixel_offset(&self, Point2f { x, y }: Point2f) -> usize {
-        let (width, height) = (self.resolution.x as usize, self.resolution.y as usize);
-        let (mut x, mut y) = (x.floor() as usize, y.floor() as usize);
-        if x >= width {
-            x = width - 1;
-        }
-        if y >= height {
-            y = height - 1;
-        }
-        return y * width + x;
+    pub fn get_film_tile(&self, bbox: BBox2u) -> FilmTile {
+        let bbox = BBox2f::from(bbox);
+        let half_pixel = Vector2f::new(0.5, 0.5);
+        let min = (bbox.min - half_pixel).ceil();
+        let max = (bbox.max + half_pixel).floor();
+        let bbox = BBox2u::from(BBox2f::new(min, max));
+        return FilmTile::new(bbox);
     }
 
-    pub fn add_sample(&mut self, p_film: Point2f, sample: Spectrum) {
-        self.pixels[self.pixel_offset(p_film)].add_sample(sample);
+    pub fn merge_film_tile(&self, tile: &FilmTile) {
+        unimplemented!()
     }
 
     /// Write an image file in plain ppm format.
@@ -57,6 +55,43 @@ impl Film {
                 b as u32,
             ).as_bytes()).unwrap();
         }
+    }
+}
+
+pub struct FilmTile {
+    pub bbox: BBox2u,
+    pixels: Box<[Pixel]>,
+}
+
+impl FilmTile {
+    fn new(bbox: BBox2u) -> FilmTile {
+        let area = bbox.area() as usize;
+        let pixels = {
+            let mut pixels = Vec::with_capacity(area);
+            for _ in 0..area {
+                pixels.push(Pixel::default());
+            }
+            pixels.into_boxed_slice()
+        };
+
+        return FilmTile { bbox, pixels };
+    }
+
+    fn pixel_offset(&self, p_film: Point2u) -> usize {
+        let Vector2u { x, y } = p_film - self.bbox.min;
+        let width = self.bbox.max.x - self.bbox.min.x;
+        return (width * y + x) as usize;
+    }
+
+    pub fn add_sample(&mut self, p_film: Point2f, sample: Spectrum) {
+        let mut p_film = Point2u::from(p_film.floor());
+        for i in 0..2 {
+            if p_film[i] >= self.bbox.max[i] {
+                p_film[i] -= 1;
+            }
+        }
+        let pixel_offset = self.pixel_offset(p_film);
+        self.pixels[pixel_offset].add_sample(sample);
     }
 }
 
