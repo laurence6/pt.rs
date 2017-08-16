@@ -144,6 +144,9 @@ impl_vector2_add!(Vector2, Vector2, Vector2, x, y);
 impl_vector2_sub!(Vector2, Vector2, Vector2, x, y);
 impl_vector2_index!(Vector2);
 
+pub type Vector2u = Vector2<u32>;
+pub type Vector2f = Vector2<f32>;
+
 #[derive(Default, Clone, Copy, Debug, PartialEq)]
 pub struct Point2<T> where T: PartialOrd {
     pub x: T,
@@ -152,6 +155,8 @@ pub struct Point2<T> where T: PartialOrd {
 impl_vector2_new_and_ops!(Point2, x, y);
 impl_vector2_add!(Point2, Point2, Point2, x, y);
 impl_vector2_sub!(Point2, Point2, Vector2, x, y);
+impl_vector2_add!(Point2, Vector2, Point2, x, y);
+impl_vector2_sub!(Point2, Vector2, Point2, x, y);
 impl_vector2_index!(Point2);
 impl_vector2_from!(Vector2, Point2);
 
@@ -170,6 +175,31 @@ impl<T> Point2<T> where T: Copy + PartialOrd {
         Point2::new(
             max(self.x, p.x),
             max(self.y, p.y),
+        )
+    }
+}
+
+impl Point2f {
+    pub fn floor(&self) -> Point2f {
+        Point2f::new(
+            self.x.floor(),
+            self.y.floor(),
+        )
+    }
+
+    pub fn ceil(&self) -> Point2f {
+        Point2f::new(
+            self.x.ceil(),
+            self.y.ceil(),
+        )
+    }
+}
+
+impl From<Point2f> for Point2u {
+    fn from(Point2f { x, y }: Point2f) -> Point2u {
+        Point2u::new(
+            x as u32,
+            y as u32,
         )
     }
 }
