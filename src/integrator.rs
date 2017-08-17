@@ -100,10 +100,7 @@ impl<S, C> IntegratorLocal<S, C> where S: 'static + Sampler, C: 'static + Camera
     /// Sampler generates a sequence of sample, point on image. Camera turns a sample into ray.
     /// Call li() to compute the radiance along the ray arriving at the film.
     fn render(&mut self) {
-        let mut x = self.tile.bbox.min.x;
-        let mut y = self.tile.bbox.min.y;
-        loop {
-            let pixel = Point2u::new(x, y);
+        for pixel in self.tile.bbox.iter() {
             self.sampler.start_pixel(pixel);
 
             loop {
@@ -116,16 +113,6 @@ impl<S, C> IntegratorLocal<S, C> where S: 'static + Sampler, C: 'static + Camera
                     break;
                 }
             }
-
-            if x < (self.tile.bbox.max.x - 1) {
-                x += 1;
-            } else {
-                x = self.tile.bbox.min.x;
-                y += 1;
-                if y >= self.tile.bbox.max.y {
-                    break;
-                }
-            };
         }
 
         let film = self.film.lock().unwrap();

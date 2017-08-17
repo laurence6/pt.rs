@@ -142,6 +142,12 @@ impl<T> BBox2<T> where T: Copy + PartialOrd + ops::Sub<Output = T> + ops::Mul<Ou
 pub type BBox2u = BBox2<u32>;
 pub type BBox2f = BBox2<f32>;
 
+impl BBox2u {
+    pub fn iter(&self) -> BBox2uIter {
+        BBox2uIter::new(self.min, self.max)
+    }
+}
+
 impl From<BBox2f> for BBox2u {
     fn from(BBox2f { min, max }: BBox2f) -> BBox2u {
         BBox2u {
@@ -157,5 +163,39 @@ impl From<BBox2u> for BBox2f {
             min: Point2f::from(min),
             max: Point2f::from(max),
         }
+    }
+}
+
+pub struct BBox2uIter {
+    min: Point2<u32>,
+    max: Point2<u32>,
+    x: u32,
+    y: u32,
+}
+
+impl BBox2uIter {
+    fn new(min: Point2<u32>, max: Point2<u32>) -> BBox2uIter {
+        BBox2uIter {
+            min,
+            max,
+            x: min.x,
+            y: min.y,
+        }
+    }
+}
+
+impl Iterator for BBox2uIter {
+    type Item = Point2<u32>;
+    fn next(&mut self) -> Option<Point2<u32>> {
+        if self.x < (self.max.x - 1) {
+            self.x += 1;
+        } else {
+            self.x = self.min.x;
+            self.y += 1;
+            if self.y >= self.max.y {
+                return None;
+            }
+        }
+        return Some(Point2::new(self.x, self.y));
     }
 }
