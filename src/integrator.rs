@@ -115,7 +115,7 @@ impl<S, C> IntegratorLocal<S, C> where S: 'static + Sampler, C: 'static + Camera
             }
         }
 
-        let film = self.film.lock().unwrap();
+        let mut film = self.film.lock().unwrap();
         film.merge_film_tile(&self.tile);
     }
 

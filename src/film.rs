@@ -33,8 +33,16 @@ impl Film {
         return FilmTile::new(bbox);
     }
 
-    pub fn merge_film_tile(&self, tile: &FilmTile) {
-        unimplemented!()
+    fn pixel_offset(&self, Point2u { x, y }: Point2u) -> usize {
+        let width = self.resolution.x;
+        return (width * y + x) as usize;
+    }
+
+    pub fn merge_film_tile(&mut self, tile: &FilmTile) {
+        for pixel in tile.bbox.iter() {
+            let p = &tile.pixels[tile.pixel_offset(pixel)];
+            self.pixels[self.pixel_offset(pixel)].merge(p);
+        }
     }
 
     /// Write an image file in plain ppm format.
@@ -105,6 +113,17 @@ impl Pixel {
     fn add_sample(&mut self, sample: Spectrum) {
         self.n_samples += 1;
         self.color += (sample - self.color) / self.n_samples as f32;
+    }
+
+    fn merge(&mut self, pixel: &Pixel) {
+        if self.n_samples == 0 {
+            self.n_samples = pixel.n_samples;
+            self.color = pixel.color;
+        } else {
+            self.color = (self.color * self.n_samples as f32) + (pixel.color * pixel.n_samples as f32)
+                       / (self.n_samples + pixel.n_samples) as f32;
+            self.n_samples += pixel.n_samples;
+        }
     }
 }
 
