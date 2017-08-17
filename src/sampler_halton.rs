@@ -8,6 +8,7 @@ const K_MAX_RESOLUTION: u32 = 128;
 // (x, y, u, v, (u, v)...)
 const ARRAY_START_DIM: usize = 4;
 
+#[derive(Clone)]
 pub struct HaltonSampler {
     // General sampler
     samples_per_pixel: usize,

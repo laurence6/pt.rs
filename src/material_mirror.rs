@@ -1,4 +1,4 @@
-use std::rc::Rc;
+use std::sync::Arc;
 
 use bxdf_specular_reflection::SpecularReflectionBRDF;
 use common::INFINITY;
@@ -9,11 +9,11 @@ use reflection::BSDF;
 use texture::Texture;
 
 pub struct MirrorMaterial {
-    kr: Rc<Texture>,
+    kr: Arc<Texture>,
 }
 
 impl MirrorMaterial {
-    pub fn new(kr: Rc<Texture>) -> MirrorMaterial {
+    pub fn new(kr: Arc<Texture>) -> MirrorMaterial {
         MirrorMaterial { kr }
     }
 }

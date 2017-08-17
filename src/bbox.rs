@@ -1,5 +1,5 @@
 use std::ops;
-use std::rc::Rc;
+use std::sync::Arc;
 use std::mem::swap;
 
 use axis::Axis;
@@ -22,7 +22,7 @@ impl BBox3f {
         }
     }
 
-    pub fn bbox_of_shapes(shapes: &Box<[Rc<Shape>]>) -> BBox3f {
+    pub fn bbox_of_shapes(shapes: &Box<[Arc<Shape>]>) -> BBox3f {
         let mut bbox = shapes[0].bbox();
         for s in shapes[1..].iter() {
             bbox = bbox.union(&s.bbox());

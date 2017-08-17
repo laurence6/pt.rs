@@ -8,11 +8,12 @@ pub struct CameraSample {
     pub p_film: Point2f,
 }
 
-pub trait Camera {
+pub trait Camera : Clone + Send {
     /// Generate the world space ray corresponding to a sample position on the film plane.
     fn generate_ray(&self, &CameraSample) -> Ray;
 }
 
+#[derive(Clone)]
 pub struct PerspectiveCamera {
     camera_to_world: Transform,
 

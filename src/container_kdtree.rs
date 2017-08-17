@@ -1,5 +1,5 @@
 use std::cmp::Ordering;
-use std::rc::Rc;
+use std::sync::Arc;
 
 use axis::Axis;
 use bbox::BBox3f;
@@ -23,13 +23,13 @@ pub struct Tree {
 enum Node {
     Split(Axis, f32, usize), // split axis, split point, the index of the upper child node
     Empty,
-    Shape(Rc<Shape>),
-    Shapes(Box<[Rc<Shape>]>),
+    Shape(Arc<Shape>),
+    Shapes(Box<[Arc<Shape>]>),
 }
 
 impl Tree {
     /// If max_depth is None, max_depth will be calculated based on the number of shapes.
-    pub fn new(shapes: Box<[Rc<Shape>]>, max_depth: Option<u32>) -> Tree {
+    pub fn new(shapes: Box<[Arc<Shape>]>, max_depth: Option<u32>) -> Tree {
         let mut tree = Tree {
             bbox: BBox3f::bbox_of_shapes(&shapes),
             nodes: Vec::new(),
@@ -46,16 +46,16 @@ impl Tree {
     // Recursive construction
     //   Decide if the node should be an interior node or leaf
     //   Update the data structures appropriately
-    fn build(&mut self, shapes: Box<[Rc<Shape>]>, node_bbox: BBox3f, mut bad_refines: u8, depth: u32) {
+    fn build(&mut self, shapes: Box<[Arc<Shape>]>, node_bbox: BBox3f, mut bad_refines: u8, depth: u32) {
         // Bounding edge
         struct BEdge {
             edge_type: BEdgeType,
             t: f32,
-            shape: Rc<Shape>,
+            shape: Arc<Shape>,
         }
 
         impl BEdge {
-            fn new(edge_type: BEdgeType, t: f32, shape: Rc<Shape>) -> BEdge {
+            fn new(edge_type: BEdgeType, t: f32, shape: Arc<Shape>) -> BEdge {
                 BEdge { edge_type, t, shape }
             }
         }
@@ -370,7 +370,7 @@ impl Container for Tree {
 }
 
 impl Node {
-    fn new_leaf(shapes: Box<[Rc<Shape>]>) -> Node {
+    fn new_leaf(shapes: Box<[Arc<Shape>]>) -> Node {
         match shapes.len() {
             0 => Node::Empty,
             1 => Node::Shape(shapes[0].clone()),

@@ -1,7 +1,7 @@
 use camera::CameraSample;
 use vector::{Point2u, Point2f};
 
-pub trait Sampler {
+pub trait Sampler : Clone + Send {
     /// Set current pixel. Reset sample number.
     fn start_pixel(&mut self, p: Point2u);
 
@@ -39,7 +39,7 @@ pub trait Sampler {
     }
 }
 
-pub trait GlobalSampler: Sampler {
+pub trait GlobalSampler : Sampler {
     /// Return index to the sample in the overall set of samples based on current pixel and sample index.
     fn get_index_for_sample(&mut self, usize) -> usize;
 

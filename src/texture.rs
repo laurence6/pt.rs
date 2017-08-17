@@ -1,7 +1,7 @@
 use interaction::Interaction;
 use spectrum::Spectrum;
 
-pub trait Texture {
+pub trait Texture : Sync + Send {
     fn evaluate(&self, i: &Interaction) -> Spectrum;
 }
 

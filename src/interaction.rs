@@ -1,4 +1,4 @@
-use std::rc::Rc;
+use std::sync::Arc;
 
 use common::{INFINITY, ONE_MINUS_EPSILON, next_float_down, next_float_up};
 use ray::Ray;
@@ -16,7 +16,7 @@ pub struct Interaction {
     pub dpdv: Vector3f,
 
     pub wo: Vector3f,
-    pub shape: Option<Rc<Shape>>,
+    pub shape: Option<Arc<Shape>>,
 }
 
 impl Interaction {

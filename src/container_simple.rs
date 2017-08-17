@@ -1,4 +1,4 @@
-use std::rc::Rc;
+use std::sync::Arc;
 
 use bbox::BBox3f;
 use container::Container;
@@ -7,12 +7,12 @@ use ray::Ray;
 use shape::{Shape, intersect};
 
 pub struct Simple {
-    shapes: Box<[Rc<Shape>]>,
+    shapes: Box<[Arc<Shape>]>,
     bbox: BBox3f,
 }
 
 impl Simple {
-    pub fn new(shapes: Box<[Rc<Shape>]>) -> Simple {
+    pub fn new(shapes: Box<[Arc<Shape>]>) -> Simple {
         let bbox = BBox3f::bbox_of_shapes(&shapes);
         return Simple { shapes, bbox };
     }

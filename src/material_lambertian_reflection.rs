@@ -1,4 +1,4 @@
-use std::rc::Rc;
+use std::sync::Arc;
 
 use bxdf_lambertian_reflection::LambertianReflectionBRDF;
 use common::INFINITY;
@@ -8,11 +8,11 @@ use reflection::BSDF;
 use texture::Texture;
 
 pub struct LambertianReflectionMaterial {
-    kd: Rc<Texture>,
+    kd: Arc<Texture>,
 }
 
 impl LambertianReflectionMaterial {
-    pub fn new(kd: Rc<Texture>) -> LambertianReflectionMaterial {
+    pub fn new(kd: Arc<Texture>) -> LambertianReflectionMaterial {
         LambertianReflectionMaterial { kd }
     }
 }

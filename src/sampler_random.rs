@@ -1,9 +1,10 @@
 extern crate rand;
-use self::rand::{Rng, ThreadRng};
+use self::rand::{Rng, StdRng};
 
 use sampler::Sampler;
 use vector::{Point2u, Point2f};
 
+#[derive(Clone)]
 pub struct RandomSampler {
     // General sampler
     samples_per_pixel: usize,
@@ -19,7 +20,7 @@ pub struct RandomSampler {
     array_2d_offset: usize,
 
     // Random sampler
-    rng: ThreadRng,
+    rng: StdRng,
 }
 
 impl RandomSampler {
@@ -35,7 +36,7 @@ impl RandomSampler {
             array_1d_offset: 0,
             array_2d_offset: 0,
 
-            rng: rand::thread_rng(),
+            rng: StdRng::new().unwrap(),
         }
     }
 }

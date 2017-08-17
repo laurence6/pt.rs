@@ -1,4 +1,4 @@
-use std::rc::Rc;
+use std::sync::Arc;
 
 use bbox::BBox3f;
 use common::{PI, gamma, quadratic};
@@ -11,11 +11,11 @@ use vector::{Vector3f, Normal3f, Point3f};
 pub struct Sphere {
     center: Point3f,
     radius: f32,
-    material: Rc<Material>,
+    material: Arc<Material>,
 }
 
 impl Sphere {
-    pub fn new(center: Point3f, radius: f32, material: Rc<Material>) -> Sphere {
+    pub fn new(center: Point3f, radius: f32, material: Arc<Material>) -> Sphere {
         Sphere { center, radius, material }
     }
 
@@ -125,14 +125,14 @@ impl Shape for Sphere {
         );
     }
 
-    fn material(&self) -> Rc<Material> {
+    fn material(&self) -> Arc<Material> {
         self.material.clone()
     }
 }
 
 #[cfg(test)]
 mod test {
-    use std::rc::Rc;
+    use std::sync::Arc;
 
     use interaction::Interaction;
     use material::Material;
@@ -151,7 +151,7 @@ mod test {
             }
         }
 
-        let sphere = Sphere::new(Point3f::new(2., 2., 2.), 1., Rc::new(M {}));
+        let sphere = Sphere::new(Point3f::new(2., 2., 2.), 1., Arc::new(M {}));
 
         let ray = Ray {
             origin: Point3f::new(2., 0., 2.),

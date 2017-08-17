@@ -1,4 +1,4 @@
-use std::rc::Rc;
+use std::sync::Arc;
 
 use bbox::BBox3f;
 use common::{EPSILON, gamma};
@@ -12,11 +12,11 @@ pub struct Triangle {
     vertices: [Point3f; 3],
     reverse_orientation: bool,
 
-    material: Rc<Material>,
+    material: Arc<Material>,
 }
 
 impl Triangle {
-    pub fn new(vertices: [Point3f; 3], reverse_orientation: bool, material: Rc<Material>) -> Triangle {
+    pub fn new(vertices: [Point3f; 3], reverse_orientation: bool, material: Arc<Material>) -> Triangle {
         Triangle { vertices, reverse_orientation, material }
     }
 
@@ -132,7 +132,7 @@ impl Shape for Triangle {
         ));
     }
 
-    fn material(&self) -> Rc<Material> {
+    fn material(&self) -> Arc<Material> {
         self.material.clone()
     }
 }

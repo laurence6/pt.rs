@@ -4,7 +4,7 @@ use scene::Scene;
 use spectrum::Spectrum;
 use vector::{Vector3f, Point3f, Point2f};
 
-pub trait Light {
+pub trait Light : Sync + Send {
     fn pre_process(&mut self, &Scene) {}
 
     fn le(&self, ray: &Ray) -> Spectrum {
