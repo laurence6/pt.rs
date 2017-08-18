@@ -171,6 +171,7 @@ pub struct BBox2uIter {
     max: Point2<u32>,
     x: u32,
     y: u32,
+    next_none: bool,
 }
 
 impl BBox2uIter {
@@ -180,6 +181,7 @@ impl BBox2uIter {
             max,
             x: min.x,
             y: min.y,
+            next_none: false,
         }
     }
 }
@@ -187,15 +189,45 @@ impl BBox2uIter {
 impl Iterator for BBox2uIter {
     type Item = Point2<u32>;
     fn next(&mut self) -> Option<Point2<u32>> {
-        if self.x < (self.max.x - 1) {
-            self.x += 1;
-        } else {
+        if self.next_none {
+            return None;
+        }
+
+        let p = Some(Point2::new(self.x, self.y));
+
+        self.x += 1;
+        if self.x >= self.max.x {
             self.x = self.min.x;
             self.y += 1;
             if self.y >= self.max.y {
-                return None;
+                self.next_none = true;
             }
         }
-        return Some(Point2::new(self.x, self.y));
+
+        return p;
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use bbox::BBox2u;
+    use vector::Point2;
+
+    #[test]
+    fn test_bbox2u_iter() {
+        let bbox = BBox2u::new(Point2::new(2, 2), Point2::new(5, 5));
+        let ps = [
+            Point2 { x: 2, y: 2 }, Point2 { x: 3, y: 2 }, Point2 { x: 4, y: 2 },
+            Point2 { x: 2, y: 3 }, Point2 { x: 3, y: 3 }, Point2 { x: 4, y: 3 },
+            Point2 { x: 2, y: 4 }, Point2 { x: 3, y: 4 }, Point2 { x: 4, y: 4 },
+        ];
+
+        let mut n = 0;
+        for p in bbox.iter() {
+            assert_eq!(p, ps[n]);
+            n += 1;
+        }
+
+        assert_eq!(n as u32, bbox.area());
     }
 }
