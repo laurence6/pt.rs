@@ -4,7 +4,6 @@ use std::io::BufWriter;
 use std::sync::{Arc, Mutex};
 use std::thread::spawn;
 
-use bbox::BBox2u;
 use camera::Camera;
 use film::{Film, FilmTile};
 use interaction::Interaction;
@@ -13,14 +12,14 @@ use reflection::{SPECULAR, BSDF};
 use sampler::Sampler;
 use scene::Scene;
 use spectrum::Spectrum;
-use vector::{Vector3f, Point2u};
+use vector::Vector3f;
 
 /// Path Integrator.
 pub struct Integrator<S, C> where S: 'static + Sampler, C: 'static + Camera {
     scene: Arc<Scene>,
     sampler: S,
     camera: C,
-    film: Arc<Mutex<Film>>,
+    film: Arc<Film>,
 }
 
 impl<S, C> Integrator<S, C> where S: 'static + Sampler, C: 'static + Camera {
@@ -29,54 +28,45 @@ impl<S, C> Integrator<S, C> where S: 'static + Sampler, C: 'static + Camera {
             scene: Arc::new(scene),
             sampler,
             camera,
-            film: Arc::new(Mutex::new(film)),
+            film: Arc::new(film),
         }
     }
 
-    pub fn render(&self) {
-        const TILE_SIZE: u32 = 16;
+    pub fn render(&self, max_threads: u8) {
+        let film_tile_iter = Arc::new(Mutex::new(Film::iter(self.film.clone())));
 
         let mut handles = Vec::new();
-        {
-            let film = self.film.lock().unwrap();
-            let res = film.resolution;
-            let n_tiles = (res + TILE_SIZE - 1) / TILE_SIZE;
+        for _ in 0..max_threads {
+            let scene = self.scene.clone();
+            let sampler = self.sampler.clone();
+            let camera = self.camera.clone();
+            let film = self.film.clone();
+            let film_tile_iter = film_tile_iter.clone();
 
-            for y in 0..n_tiles.y {
-                for x in 0..n_tiles.x {
-                    let min = Point2u::new(
-                        x * TILE_SIZE,
-                        y * TILE_SIZE,
-                    );
-                    let max = (min + TILE_SIZE).min(res);
-                    let tile = film.get_film_tile(BBox2u::new(min, max));
+            let handle = spawn(move || {
+                let mut integrator = IntegratorLocal {
+                    scene,
+                    sampler,
+                    camera,
+                    film,
+                };
 
-                    let scene = self.scene.clone();
-                    let sampler = self.sampler.clone();
-                    let camera = self.camera.clone();
-                    let film = self.film.clone();
+                while let Some(tile) = {
+                    let mut iter = film_tile_iter.lock().unwrap();
+                    iter.next()
+                } {
+                    integrator.render(tile);
 
-                    let handle = spawn(|| {
-                        let mut integrator = IntegratorLocal {
-                            scene,
-                            sampler,
-                            camera,
-                            film,
-                            tile,
-                        };
-
-                        integrator.render();
-                    });
-                    handles.push(handle);
+                    integrator.sampler = integrator.sampler.clone();
                 }
-            }
+            });
+            handles.push(handle);
         }
 
         for handle in handles.into_iter() {
             handle.join().unwrap();
         }
 
-        let film = self.film.lock().unwrap();
         let mut file = BufWriter::new(
             OpenOptions::new()
                 .write(true)
@@ -84,7 +74,7 @@ impl<S, C> Integrator<S, C> where S: 'static + Sampler, C: 'static + Camera {
                 .open("output.ppm")
                 .unwrap()
         );
-        film.write_image_ppm(&mut file);
+        self.film.write_image_ppm(&mut file);
     }
 }
 
@@ -92,22 +82,21 @@ struct IntegratorLocal<S, C> where S: 'static + Sampler, C: 'static + Camera {
     scene: Arc<Scene>,
     sampler: S,
     camera: C,
-    film: Arc<Mutex<Film>>,
-    tile: FilmTile,
+    film: Arc<Film>,
 }
 
 impl<S, C> IntegratorLocal<S, C> where S: 'static + Sampler, C: 'static + Camera {
     /// Sampler generates a sequence of sample, point on image. Camera turns a sample into ray.
     /// Call li() to compute the radiance along the ray arriving at the film.
-    fn render(&mut self) {
-        for pixel in self.tile.bbox.iter() {
+    fn render(&mut self, mut tile: FilmTile) {
+        for pixel in tile.bbox.iter() {
             self.sampler.start_pixel(pixel);
 
             loop {
                 let camera_sample = self.sampler.get_camera_sample(pixel);
                 let ray = self.camera.generate_ray(&camera_sample);
                 let l = self.li(ray);
-                self.tile.add_sample(camera_sample.p_film, l);
+                tile.add_sample(camera_sample.p_film, l);
 
                 if !self.sampler.start_next_sample() {
                     break;
@@ -115,8 +104,7 @@ impl<S, C> IntegratorLocal<S, C> where S: 'static + Sampler, C: 'static + Camera
             }
         }
 
-        let mut film = self.film.lock().unwrap();
-        film.merge_film_tile(&self.tile);
+        self.film.merge_film_tile(tile);
     }
 
     fn estimate_direct(&mut self, light: usize, i: &Interaction, bsdf: &BSDF) -> Spectrum {
