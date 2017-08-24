@@ -37,7 +37,7 @@ impl DistantLight {
     pub fn new(l: Spectrum, w_light: Vector3f) -> DistantLight {
         DistantLight {
             l,
-            w_light,
+            w_light: w_light.normalize(),
             world_center: Point3f::default(),
             world_radius: f32::default(),
         }
