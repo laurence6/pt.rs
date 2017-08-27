@@ -15,19 +15,19 @@ use spectrum::Spectrum;
 use vector::Vector3f;
 
 /// Path Integrator.
-pub struct Integrator<S, C> where S: 'static + Sampler, C: 'static + Camera {
+pub struct Integrator<C, S> where C: 'static + Camera, S: 'static + Sampler {
     scene: Arc<Scene>,
-    sampler: S,
     camera: C,
+    sampler: S,
     film: Arc<Film>,
 }
 
-impl<S, C> Integrator<S, C> where S: 'static + Sampler, C: 'static + Camera {
-    pub fn new(scene: Scene, sampler: S, camera: C, film: Film) -> Integrator<S, C> {
+impl<C, S> Integrator<C, S> where C: 'static + Camera, S: 'static + Sampler {
+    pub fn new(scene: Scene, sampler: S, camera: C, film: Film) -> Integrator<C, S> {
         Integrator {
             scene: Arc::new(scene),
-            sampler,
             camera,
+            sampler,
             film: Arc::new(film),
         }
     }
@@ -44,20 +44,20 @@ impl<S, C> Integrator<S, C> where S: 'static + Sampler, C: 'static + Camera {
             let film_tile_iter = film_tile_iter.clone();
 
             let handle = spawn(move || {
-                let mut integrator = IntegratorLocal {
+                let integrator = IntegratorLocal {
                     scene,
-                    sampler,
                     camera,
                     film,
                 };
+                let mut sampler = sampler;
 
                 while let Some(tile) = {
                     let mut iter = film_tile_iter.lock().unwrap();
                     iter.next()
                 } {
-                    integrator.render(tile);
+                    integrator.render(&mut sampler, tile);
 
-                    integrator.sampler = integrator.sampler.clone();
+                    sampler = sampler.clone();
                 }
             });
             handles.push(handle);
@@ -78,27 +78,26 @@ impl<S, C> Integrator<S, C> where S: 'static + Sampler, C: 'static + Camera {
     }
 }
 
-struct IntegratorLocal<S, C> where S: 'static + Sampler, C: 'static + Camera {
+struct IntegratorLocal<C> where C: 'static + Camera {
     scene: Arc<Scene>,
-    sampler: S,
     camera: C,
     film: Arc<Film>,
 }
 
-impl<S, C> IntegratorLocal<S, C> where S: 'static + Sampler, C: 'static + Camera {
+impl<C> IntegratorLocal<C> where C: 'static + Camera {
     /// Sampler generates a sequence of sample, point on image. Camera turns a sample into ray.
     /// Call li() to compute the radiance along the ray arriving at the film.
-    fn render(&mut self, mut tile: FilmTile) {
+    fn render<S>(&self, sampler: &mut S, mut tile: FilmTile) where S: Sampler {
         for pixel in tile.bbox.iter() {
-            self.sampler.start_pixel(pixel);
+            sampler.start_pixel(pixel);
 
             loop {
-                let camera_sample = self.sampler.get_camera_sample(pixel);
+                let camera_sample = sampler.get_camera_sample(pixel);
                 let ray = self.camera.generate_ray(&camera_sample);
-                let l = self.li(ray);
+                let l = self.li(sampler, ray);
                 tile.add_sample(camera_sample.p_film, l);
 
-                if !self.sampler.start_next_sample() {
+                if !sampler.start_next_sample() {
                     break;
                 }
             }
@@ -107,9 +106,9 @@ impl<S, C> IntegratorLocal<S, C> where S: 'static + Sampler, C: 'static + Camera
         self.film.merge_film_tile(tile);
     }
 
-    fn estimate_direct(&mut self, light: usize, i: &Interaction, bsdf: &BSDF) -> Spectrum {
+    fn estimate_direct<S>(&self, sampler: &mut S, light: usize, i: &Interaction, bsdf: &BSDF) -> Spectrum where S: Sampler {
         let mut ld = Spectrum::default();
-        let (wi, li, pdf, visibility) = self.scene.lights()[light].sample_li(i, self.sampler.get_2d());
+        let (wi, li, pdf, visibility) = self.scene.lights()[light].sample_li(i, sampler.get_2d());
         if pdf > 0. && !li.is_black() {
             let f = bsdf.f(i.wo, wi) * (Vector3f::from(i.n).dot(wi).abs());
             if !f.is_black() {
@@ -121,19 +120,19 @@ impl<S, C> IntegratorLocal<S, C> where S: 'static + Sampler, C: 'static + Camera
         return ld;
     }
 
-    fn uniform_sample_one_light(&mut self, i: &Interaction, bsdf: &BSDF) -> Spectrum {
+    fn uniform_sample_one_light<S>(&self, sampler: &mut S, i: &Interaction, bsdf: &BSDF) -> Spectrum where S: Sampler {
         let n_lights = self.scene.lights().len();
         if n_lights == 0 {
             return Spectrum::default();
         }
         let light_i = min(
-            (n_lights as f32 * self.sampler.get_1d()) as usize,
+            (n_lights as f32 * sampler.get_1d()) as usize,
             n_lights - 1,
         );
-        return self.estimate_direct(light_i, i, bsdf) * n_lights as f32;
+        return self.estimate_direct(sampler, light_i, i, bsdf) * n_lights as f32;
     }
 
-    fn li(&mut self, mut ray: Ray) -> Spectrum {
+    fn li<S>(&self, sampler: &mut S, mut ray: Ray) -> Spectrum where S: Sampler {
         let mut l = Spectrum::default();
         let mut beta = Spectrum::new(1., 1., 1.);
         let mut specular_bounce = false;
@@ -157,9 +156,9 @@ impl<S, C> IntegratorLocal<S, C> where S: 'static + Sampler, C: 'static + Camera
             let i = i.unwrap();
             let bsdf = i.compute_scattering();
 
-            l += beta * self.uniform_sample_one_light(&i, &bsdf);
+            l += beta * self.uniform_sample_one_light(sampler, &i, &bsdf);
 
-            let (wi, f, pdf, bxdf_flag) = bsdf.sample_f(i.wo, self.sampler.get_2d());
+            let (wi, f, pdf, bxdf_flag) = bsdf.sample_f(i.wo, sampler.get_2d());
             if pdf == 0. || f.is_black() {
                 break;
             }
@@ -170,7 +169,7 @@ impl<S, C> IntegratorLocal<S, C> where S: 'static + Sampler, C: 'static + Camera
             bounces += 1;
             if bounces > 3 {
                 let q = beta.y().min(0.95);
-                if self.sampler.get_1d() > q {
+                if sampler.get_1d() > q {
                     break;
                 }
                 beta /= q;
