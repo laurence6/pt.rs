@@ -22,7 +22,7 @@ impl Scene {
         return scene;
     }
 
-    pub fn lights(&self) -> &Box<[Box<Light>]> {
+    pub fn lights(&self) -> &[Box<Light>] {
         &self.lights
     }
 
