@@ -1,3 +1,4 @@
+use bbox::BBox3f;
 use interaction::Interaction;
 use ray::Ray;
 use scene::Scene;
@@ -5,7 +6,7 @@ use spectrum::Spectrum;
 use vector::{Vector3f, Point3f, Point2f};
 
 pub trait Light : Sync + Send {
-    fn pre_process(&mut self, &Scene) {}
+    fn pre_process(&mut self, scene_bbox: BBox3f) {}
 
     fn le(&self, ray: &Ray) -> Spectrum {
         Spectrum::default()
@@ -45,8 +46,8 @@ impl DistantLight {
 }
 
 impl Light for DistantLight {
-    fn pre_process(&mut self, scene: &Scene) {
-        let (center, radius) = scene.bbox().bounding_sphere();
+    fn pre_process(&mut self, scene_bbox: BBox3f) {
+        let (center, radius) = scene_bbox.bounding_sphere();
         self.world_center = center;
         self.world_radius = radius;
     }
