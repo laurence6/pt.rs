@@ -1,4 +1,5 @@
 use bbox::BBox3f;
+use container::Container;
 use interaction::Interaction;
 use ray::Ray;
 use scene::Scene;
@@ -22,7 +23,7 @@ pub struct VisibilityTester {
 }
 
 impl VisibilityTester {
-    pub fn unoccluded(&self, scene: &Scene) -> bool {
+    pub fn unoccluded<C: Container>(&self, scene: &Scene<C>) -> bool {
         !scene.intersect_p(&self.p0.spawn_ray_to(self.p1.p))
     }
 }

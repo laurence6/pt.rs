@@ -3,13 +3,13 @@ use interaction::Interaction;
 use light::Light;
 use ray::Ray;
 
-pub struct Scene {
+pub struct Scene<C> where C: Container {
     lights: Box<[Box<Light>]>,
-    shapes: Box<Container>,
+    shapes: C,
 }
 
-impl Scene {
-    pub fn new(mut lights: Box<[Box<Light>]>, shapes: Box<Container>) -> Scene {
+impl<C> Scene<C> where C: Container {
+    pub fn new(mut lights: Box<[Box<Light>]>, shapes: C) -> Scene<C> {
         let bbox = shapes.bbox();
         for light in lights.iter_mut() {
             light.pre_process(bbox);

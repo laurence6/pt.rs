@@ -5,6 +5,7 @@ use std::sync::{Arc, Mutex};
 use std::thread::spawn;
 
 use camera::Camera;
+use container::Container;
 use film::{Film, FilmTile};
 use interaction::Interaction;
 use ray::Ray;
@@ -15,15 +16,15 @@ use spectrum::Spectrum;
 use vector::Vector3f;
 
 /// Path Integrator.
-pub struct Integrator<C, S> where C: 'static + Camera, S: 'static + Sampler {
-    scene: Arc<Scene>,
-    camera: C,
+pub struct Integrator<Co, Cam, S> where Co: 'static + Container, Cam: 'static + Camera, S: 'static + Sampler {
+    scene: Arc<Scene<Co>>,
+    camera: Cam,
     sampler: S,
     film: Arc<Film>,
 }
 
-impl<C, S> Integrator<C, S> where C: 'static + Camera, S: 'static + Sampler {
-    pub fn new(scene: Scene, sampler: S, camera: C, film: Film) -> Integrator<C, S> {
+impl<Co, Cam, S> Integrator<Co, Cam, S> where Co: 'static + Container, Cam: 'static + Camera, S: 'static + Sampler {
+    pub fn new(scene: Scene<Co>, sampler: S, camera: Cam, film: Film) -> Integrator<Co, Cam, S> {
         Integrator {
             scene: Arc::new(scene),
             camera,
@@ -78,13 +79,13 @@ impl<C, S> Integrator<C, S> where C: 'static + Camera, S: 'static + Sampler {
     }
 }
 
-struct IntegratorLocal<C> where C: 'static + Camera {
-    scene: Arc<Scene>,
-    camera: C,
+struct IntegratorLocal<Co, Cam> where Co: 'static + Container, Cam: 'static + Camera {
+    scene: Arc<Scene<Co>>,
+    camera: Cam,
     film: Arc<Film>,
 }
 
-impl<C> IntegratorLocal<C> where C: 'static + Camera {
+impl<Co, Cam> IntegratorLocal<Co, Cam> where Co: 'static + Container, Cam: 'static + Camera {
     /// Sampler generates a sequence of sample, point on image. Camera turns a sample into ray.
     /// Call li() to compute the radiance along the ray arriving at the film.
     fn render<S>(&self, sampler: &mut S, mut tile: FilmTile) where S: Sampler {
