@@ -84,10 +84,28 @@ impl Shape for Triangle {
             return None;
         }
 
+        // barycentric coordinates
         let b0 = e0 / det;
         let b1 = e1 / det;
         let b2 = e2 / det;
+
         let t = t_scaled / det;
+
+        // ensure t > 0
+        let max_x = Vector3f::new(vs[0].x, vs[1].x, vs[2].x).abs().max_component();
+        let max_y = Vector3f::new(vs[0].y, vs[1].y, vs[2].y).abs().max_component();
+        let max_z = Vector3f::new(vs[0].z, vs[1].z, vs[2].z).abs().max_component();
+        let delta_x = max_x * gamma(5.);
+        let delta_y = max_y * gamma(5.);
+        let delta_z = max_z * gamma(3.);
+        let delat_e = (gamma(2.) * max_x * max_y + max_x * delta_y + max_y * delta_x) * 2.;
+        let max_e = Vector3f::new(e0, e1, e2).abs().max_component();
+        let delta_t = 3.
+                    * (gamma(3.) * max_e * max_z + max_z * delat_e + max_e * delta_z)
+                    / det.abs();
+        if t <= delta_t {
+            return None;
+        }
 
         let p = vs_o[0] * b0
               + vs_o[1] * b1

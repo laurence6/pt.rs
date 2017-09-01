@@ -46,6 +46,10 @@ impl Vector3f {
         }
     }
 
+    pub fn max_component(&self) -> f32 {
+        (self.x).max(self.y).max(self.z)
+    }
+
     pub fn permute(&self, x: Axis, y: Axis, z: Axis) -> Point3f {
         Point3f::new(
             self[x],
