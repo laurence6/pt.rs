@@ -6,7 +6,7 @@ use interaction::Interaction;
 use material::Material;
 use ray::Ray;
 use shape::Shape;
-use vector::{Vector3f, Normal3f, Point3f};
+use vector::{Vector3f, Normal3f, Point3f, Point2f};
 
 pub struct Sphere {
     center: Point3f,
@@ -109,6 +109,10 @@ impl Shape for Sphere {
         return BBox3f::new(min, max);
     }
 
+    fn area(&self) -> f32 {
+        unimplemented!()
+    }
+
     fn intersect_p(&self, ray: &Ray) -> bool {
         let mut ray = ray.clone();
         ray.origin = self.world_to_local(ray.origin);
@@ -127,6 +131,10 @@ impl Shape for Sphere {
 
     fn material(&self) -> Arc<Material> {
         self.material.clone()
+    }
+
+    fn sample(&self, sample: Point2f) -> Interaction {
+        unimplemented!()
     }
 }
 

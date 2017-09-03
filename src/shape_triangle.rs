@@ -35,6 +35,10 @@ impl Shape for Triangle {
             .union_point(self.vertices[2])
     }
 
+    fn area(&self) -> f32 {
+        unimplemented!()
+    }
+
     fn intersect_p(&self, ray: &Ray) -> bool {
         unimplemented!()
     }
@@ -152,5 +156,9 @@ impl Shape for Triangle {
 
     fn material(&self) -> Arc<Material> {
         self.material.clone()
+    }
+
+    fn sample(&self, sample: Point2f) -> Interaction {
+        unimplemented!()
     }
 }
