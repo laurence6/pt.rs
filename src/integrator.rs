@@ -143,10 +143,6 @@ impl<Co, Cam> IntegratorLocal<Co, Cam> where Co: 'static + Container, Cam: 'stat
 
             if bounces == 0 || specular_bounce {
                 if let Some(ref i) = i {
-                } else {
-                    for light in self.scene.lights().iter() {
-                        l += beta * light.le(&ray);
-                    }
                 }
             }
 

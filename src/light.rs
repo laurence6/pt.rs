@@ -1,17 +1,12 @@
 use bbox::BBox3f;
 use container::Container;
 use interaction::Interaction;
-use ray::Ray;
 use scene::Scene;
 use spectrum::Spectrum;
 use vector::{Vector3f, Point3f, Point2f};
 
 pub trait Light : Sync + Send {
     fn pre_process(&mut self, scene_bbox: BBox3f) {}
-
-    fn le(&self, ray: &Ray) -> Spectrum {
-        Spectrum::default()
-    }
 
     /// sample_li takes a world space point and returns incident direction (direction radiance is arriving from), the radiance arriving at that point, pdf, and VisibilityTester.
     fn sample_li(&self, i: &Interaction, sample: Point2f) -> (Vector3f, Spectrum, f32, VisibilityTester);
