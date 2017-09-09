@@ -143,6 +143,7 @@ impl<Co, Cam> IntegratorLocal<Co, Cam> where Co: 'static + Container, Cam: 'stat
 
             if bounces == 0 || specular_bounce {
                 if let Some(ref i) = i {
+                    l += beta * i.le(-ray.direction);
                 }
             }
 

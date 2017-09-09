@@ -4,6 +4,7 @@ use common::{INFINITY, ONE_MINUS_EPSILON, next_float_down, next_float_up};
 use ray::Ray;
 use reflection::BSDF;
 use shape::Shape;
+use spectrum::Spectrum;
 use vector::{Vector3f, Normal3f, Point3f};
 
 #[derive(Default, Clone)]
@@ -58,6 +59,18 @@ impl Interaction {
     pub fn compute_scattering(&self) -> BSDF {
         if let Some(shape) = self.shape.clone() {
             shape.compute_scattering(self)
+        } else {
+            panic!("shape is None")
+        }
+    }
+
+    pub fn le(&self, w: Vector3f) -> Spectrum {
+        if let Some(shape) = self.shape.clone() {
+            if shape.is_light() {
+                shape.l(self, w)
+            } else {
+                Spectrum::default()
+            }
         } else {
             panic!("shape is None")
         }
