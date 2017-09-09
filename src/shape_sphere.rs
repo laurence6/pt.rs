@@ -110,7 +110,7 @@ impl Shape for Sphere {
     }
 
     fn area(&self) -> f32 {
-        unimplemented!()
+        4. * PI * self.radius * self.radius
     }
 
     fn intersect_p(&self, ray: &Ray) -> bool {
