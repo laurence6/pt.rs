@@ -109,6 +109,14 @@ impl_vector3f_index_axis!(Point3f, x, y, z);
 impl_vector3f_from!(Vector3f, Point3f);
 
 impl Point3f {
+    pub fn abs(&self) -> Vector3f {
+        Vector3f::new(
+            self.x.abs(),
+            self.y.abs(),
+            self.z.abs(),
+        )
+    }
+
     pub fn permute(&self, x: Axis, y: Axis, z: Axis) -> Point3f {
         Point3f::new(
             self[x],

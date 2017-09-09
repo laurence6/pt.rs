@@ -36,7 +36,7 @@ impl Shape for Triangle {
     }
 
     fn area(&self) -> f32 {
-        unimplemented!()
+        0.5 * (self.vertices[1] - self.vertices[0]).cross(self.vertices[2] - self.vertices[0]).length()
     }
 
     fn intersect_p(&self, ray: &Ray) -> bool {
@@ -114,10 +114,10 @@ impl Shape for Triangle {
         let p = vs_o[0] * b0
               + vs_o[1] * b1
               + vs_o[2] * b2;
-        let x_abs_sum = (b0 * vs_o[0].x).abs() + (b1 * vs_o[1].x).abs() + (b2 * vs_o[2].x).abs();
-        let y_abs_sum = (b0 * vs_o[0].y).abs() + (b1 * vs_o[1].y).abs() + (b2 * vs_o[2].y).abs();
-        let z_abs_sum = (b0 * vs_o[0].z).abs() + (b1 * vs_o[1].z).abs() + (b2 * vs_o[2].z).abs();
-        let p_err = Vector3f::new(x_abs_sum, y_abs_sum, z_abs_sum) * gamma(7.);
+        let p_abs_sum = (vs_o[0] * b0).abs()
+                      + (vs_o[1] * b1).abs()
+                      + (vs_o[2] * b2).abs();
+        let p_err = Vector3f::from(p_abs_sum) * gamma(7.);
 
         let uv = self.get_uv();
         let duv02 = uv[0] - uv[2];
@@ -159,6 +159,33 @@ impl Shape for Triangle {
     }
 
     fn sample(&self, sample: Point2f) -> Interaction {
-        unimplemented!()
+        let vs_o = self.vertices;
+        let (b0, b1, b2) = {
+            let sample_0 = sample[0].sqrt();
+            let b0 = 1. - sample_0;
+            let b1 = sample[1] * sample_0;
+            let b2 = 1. - b0 - b1;
+            (b0, b1, b2)
+        };
+
+        let p = vs_o[0] * b0
+              + vs_o[1] * b1
+              + vs_o[2] * b2;
+        let p_abs_sum = (vs_o[0] * b0).abs()
+                      + (vs_o[1] * b1).abs()
+                      + (vs_o[2] * b2).abs();
+        let p_err = Vector3f::from(p_abs_sum) * gamma(7.);
+
+        let mut n = Normal3f::from((vs_o[1] - vs_o[0]).cross(vs_o[2] - vs_o[0]).normalize());
+        if self.reverse_orientation {
+            n *= -1.;
+        }
+
+        return Interaction {
+            p,
+            p_err,
+            n,
+            ..Default::default()
+        }
     }
 }
