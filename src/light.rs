@@ -66,18 +66,21 @@ impl Light for DistantLight {
     }
 }
 
-pub struct AreaLight<S> where S: Shape {
+pub struct AreaLight {
     l: Spectrum,
-    shape: S,
+    shape: Box<Shape>,
 }
 
-impl<S> AreaLight<S> where S: Shape {
-    pub fn new(l: Spectrum, shape: S) -> AreaLight<S> {
-        AreaLight::<S> { l, shape }
+impl AreaLight {
+    pub fn new<S>(l: Spectrum, shape: S) -> AreaLight where S: 'static + Shape {
+        AreaLight {
+            l,
+            shape: Box::new(shape),
+        }
     }
 }
 
-impl<S> Shape for AreaLight<S> where S: Shape {
+impl Shape for AreaLight {
     fn bbox(&self) -> BBox3f {
         self.shape.bbox()
     }
@@ -119,7 +122,7 @@ impl<S> Shape for AreaLight<S> where S: Shape {
     }
 }
 
-impl<S> Light for AreaLight<S> where S: Shape {
+impl Light for AreaLight {
     fn sample_li(&self, ref_i: &Interaction, sample: Point2f) -> (Vector3f, Spectrum, f32, VisibilityTester) {
         let p_shape = self.shape.sample_ref(ref_i, sample);
         let wi = (p_shape.p - ref_i.p).normalize();
