@@ -1,26 +1,24 @@
+use std::sync::Arc;
+
 use container::Container;
 use interaction::Interaction;
 use light::Light;
 use ray::Ray;
 
 pub struct Scene<C> where C: Container {
-    lights: Box<[Box<Light>]>,
+    lights: Box<[Arc<Light>]>,
     shapes: C,
 }
 
 impl<C> Scene<C> where C: Container {
-    pub fn new(mut lights: Box<[Box<Light>]>, shapes: C) -> Scene<C> {
-        let bbox = shapes.bbox();
-        for light in lights.iter_mut() {
-            light.pre_process(bbox);
-        }
-        return Scene {
+    pub fn new(lights: Box<[Arc<Light>]>, shapes: C) -> Scene<C> {
+        Scene {
             lights,
             shapes,
-        };
+        }
     }
 
-    pub fn lights(&self) -> &[Box<Light>] {
+    pub fn lights(&self) -> &[Arc<Light>] {
         &self.lights
     }
 
