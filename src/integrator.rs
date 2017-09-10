@@ -8,6 +8,7 @@ use camera::Camera;
 use container::Container;
 use film::{Film, FilmTile};
 use interaction::Interaction;
+use light::Light;
 use ray::Ray;
 use reflection::{SPECULAR, BSDF};
 use sampler::Sampler;
@@ -107,9 +108,9 @@ impl<Co, Cam> IntegratorLocal<Co, Cam> where Co: 'static + Container, Cam: 'stat
         self.film.merge_film_tile(tile);
     }
 
-    fn estimate_direct<S>(&self, sampler: &mut S, light: usize, i: &Interaction, bsdf: &BSDF) -> Spectrum where S: Sampler {
+    fn estimate_direct<S>(&self, sampler: &mut S, light: &Light, i: &Interaction, bsdf: &BSDF) -> Spectrum where S: Sampler {
         let mut ld = Spectrum::default();
-        let (wi, li, pdf, visibility) = self.scene.lights()[light].sample_li(i, sampler.get_2d());
+        let (wi, li, pdf, visibility) = light.sample_li(i, sampler.get_2d());
         if pdf > 0. && !li.is_black() {
             let f = bsdf.f(i.wo, wi) * (Vector3f::from(i.n).dot(wi).abs());
             if !f.is_black() {
@@ -130,7 +131,8 @@ impl<Co, Cam> IntegratorLocal<Co, Cam> where Co: 'static + Container, Cam: 'stat
             (n_lights as f32 * sampler.get_1d()) as usize,
             n_lights - 1,
         );
-        return self.estimate_direct(sampler, light_i, i, bsdf) * n_lights as f32;
+        let light = &*self.scene.lights()[light_i];
+        return self.estimate_direct(sampler, light, i, bsdf) * n_lights as f32;
     }
 
     fn li<S>(&self, sampler: &mut S, mut ray: Ray) -> Spectrum where S: Sampler {
