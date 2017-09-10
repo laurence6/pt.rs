@@ -86,10 +86,6 @@ impl<S> Shape for AreaLight<S> where S: Shape {
         self.shape.area()
     }
 
-    fn is_light(&self) -> bool {
-        true
-    }
-
     fn intersect_p(&self, ray: &Ray) -> bool {
         self.shape.intersect_p(ray)
     }

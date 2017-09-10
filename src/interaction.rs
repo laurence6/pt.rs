@@ -66,11 +66,7 @@ impl Interaction {
 
     pub fn le(&self, w: Vector3f) -> Spectrum {
         if let Some(shape) = self.shape.clone() {
-            if shape.is_light() {
-                shape.l(self, w)
-            } else {
-                Spectrum::default()
-            }
+            shape.l(self, w)
         } else {
             panic!("shape is None")
         }

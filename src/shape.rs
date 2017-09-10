@@ -13,10 +13,6 @@ pub trait Shape : Sync + Send {
 
     fn area(&self) -> f32;
 
-    fn is_light(&self) -> bool {
-        false
-    }
-
     /// intersect_p returns whether or not the ray intersects this shape.
     fn intersect_p(&self, ray: &Ray) -> bool;
 
