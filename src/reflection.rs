@@ -25,15 +25,6 @@ pub trait BxDF {
     /// Return value of distribution function for the given pair of direction.
     fn f(&self, wo: Vector3f, wi: Vector3f) -> Spectrum;
 
-    /// Return pdf for the given pair of direction.
-    fn pdf(&self, wo: Vector3f, wi: Vector3f) -> f32 {
-        if same_hemisphere(wo, wi) {
-            abs_cos_theta(wi) / PI
-        } else {
-            0.
-        }
-    }
-
     /// Return the direction of incident ray, value of distribution function, pdf.
     fn sample_f(&self, wo: Vector3f, sample: Point2f) -> (Vector3f, Spectrum, f32) {
         let mut wi = cosine_sample_hemisphere(sample);
@@ -42,6 +33,15 @@ pub trait BxDF {
             wi.z *= -1.;
         }
         return (wi, self.f(wo, wi), self.pdf(wo, wi));
+    }
+
+    /// Return pdf for the given pair of direction.
+    fn pdf(&self, wo: Vector3f, wi: Vector3f) -> f32 {
+        if same_hemisphere(wo, wi) {
+            abs_cos_theta(wi) / PI
+        } else {
+            0.
+        }
     }
 }
 
@@ -154,6 +154,26 @@ impl BSDF {
         }
 
         return (wi_w, f, pdf, bxdf.flag());
+    }
+
+    pub fn pdf(&self, wo_w: Vector3f, wi_w: Vector3f) -> f32 {
+        let n_bxdfs = self.bxdfs.len();
+        if n_bxdfs == 0 {
+            return 0.;
+        }
+
+        let wo = self.world_to_local(wo_w);
+        let wi = self.world_to_local(wi_w);
+        if wo.z == 0. {
+            return 0.;
+        }
+
+        let mut pdf = 0.;
+        for bxdf in self.bxdfs.iter() {
+            pdf += bxdf.pdf(wo, wi);
+        }
+
+        return pdf / n_bxdfs as f32;
     }
 }
 

@@ -11,10 +11,14 @@ use spectrum::Spectrum;
 use vector::{Vector3f, Point3f, Point2f};
 
 pub trait Light : Sync + Send {
+    fn is_delta(&self) -> bool;
+
     fn pre_process(&mut self, scene_bbox: BBox3f) {}
 
     /// sample_li takes a world space point and returns incident direction (direction radiance is arriving from), the radiance arriving at that point, pdf, and VisibilityTester.
-    fn sample_li(&self, i: &Interaction, sample: Point2f) -> (Vector3f, Spectrum, f32, VisibilityTester);
+    fn sample_li(&self, ref_i: &Interaction, sample: Point2f) -> (Vector3f, Spectrum, f32, VisibilityTester);
+
+    fn pdf_li(&self, ref_i: &Interaction, wi: Vector3f) -> f32;
 }
 
 pub struct VisibilityTester {
@@ -47,22 +51,30 @@ impl DistantLight {
 }
 
 impl Light for DistantLight {
+    fn is_delta(&self) -> bool {
+        true
+    }
+
     fn pre_process(&mut self, scene_bbox: BBox3f) {
         let (center, radius) = scene_bbox.bounding_sphere();
         self.world_center = center;
         self.world_radius = radius;
     }
 
-    fn sample_li(&self, i: &Interaction, sample: Point2f) -> (Vector3f, Spectrum, f32, VisibilityTester) {
+    fn sample_li(&self, ref_i: &Interaction, sample: Point2f) -> (Vector3f, Spectrum, f32, VisibilityTester) {
         let vis = VisibilityTester {
-            p0: i.clone(),
+            p0: ref_i.clone(),
             p1: Interaction {
-                p: i.p + self.w_light * (2. * self.world_radius), // A point outside the scene
+                p: ref_i.p + self.w_light * (2. * self.world_radius), // A point outside the scene
                 ..Default::default()
             },
         };
 
         return (self.w_light, self.l, 1., vis);
+    }
+
+    fn pdf_li(&self, ref_i: &Interaction, wi: Vector3f) -> f32 {
+        0.
     }
 }
 
@@ -123,6 +135,10 @@ impl Shape for AreaLight {
 }
 
 impl Light for AreaLight {
+    fn is_delta(&self) -> bool {
+        false
+    }
+
     fn sample_li(&self, ref_i: &Interaction, sample: Point2f) -> (Vector3f, Spectrum, f32, VisibilityTester) {
         let p_shape = self.shape.sample_ref(ref_i, sample);
         let wi = (p_shape.p - ref_i.p).normalize();
@@ -133,5 +149,9 @@ impl Light for AreaLight {
             p1: p_shape,
         };
         return (wi, l, pdf, vis);
+    }
+
+    fn pdf_li(&self, ref_i: &Interaction, wi: Vector3f) -> f32 {
+        self.shape.pdf(ref_i, wi)
     }
 }

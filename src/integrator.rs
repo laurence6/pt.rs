@@ -5,6 +5,7 @@ use std::sync::{Arc, Mutex};
 use std::thread::spawn;
 
 use camera::Camera;
+use common::same_addr;
 use container::Container;
 use film::{Film, FilmTile};
 use interaction::Interaction;
@@ -12,6 +13,7 @@ use light::Light;
 use ray::Ray;
 use reflection::{SPECULAR, BSDF};
 use sampler::Sampler;
+use sampling::power_heuristic;
 use scene::Scene;
 use spectrum::Spectrum;
 use vector::Vector3f;
@@ -109,16 +111,58 @@ impl<Co, Cam> IntegratorLocal<Co, Cam> where Co: 'static + Container, Cam: 'stat
     }
 
     fn estimate_direct<S>(&self, sampler: &mut S, light: &Light, i: &Interaction, bsdf: &BSDF) -> Spectrum where S: Sampler {
+        let sample0 = sampler.get_2d();
+        let sample1 = sampler.get_2d();
+
         let mut ld = Spectrum::default();
-        let (wi, li, pdf, visibility) = light.sample_li(i, sampler.get_2d());
-        if pdf > 0. && !li.is_black() {
-            let f = bsdf.f(i.wo, wi) * (Vector3f::from(i.n).dot(wi).abs());
-            if !f.is_black() {
-                if visibility.unoccluded(&self.scene) {
-                    ld += f * li / pdf;
+
+        // sample light
+        {
+            let (wi, li, light_pdf, visibility) = light.sample_li(i, sample0);
+            if light_pdf > 0. && !li.is_black() {
+                let f = bsdf.f(i.wo, wi) * (Vector3f::from(i.n).dot(wi).abs());
+                let scattering_pdf = bsdf.pdf(i.wo, wi);
+                if !f.is_black() {
+                    if visibility.unoccluded(&self.scene) {
+                        if light.is_delta() {
+                            ld += f * li / light_pdf;
+                        } else {
+                            let weight = power_heuristic(1, light_pdf, 1, scattering_pdf);
+                            ld += f * li * weight / light_pdf;
+                        }
+                    }
                 }
             }
         }
+
+        // sample BSDF
+        if !light.is_delta() {
+            let (wi, mut f, scattering_pdf, bxdf_flag) = bsdf.sample_f(i.wo, sample1);
+            f *= Vector3f::from(i.n).dot(wi).abs();
+            let sampled_specular = bxdf_flag & SPECULAR != 0;
+            if scattering_pdf > 0. && !f.is_black() {
+                let mut weight = 1.;
+                if !sampled_specular {
+                    let light_pdf = light.pdf_li(i, wi);
+                    if light_pdf == 0. {
+                        return ld;
+                    }
+                    weight = power_heuristic(1, scattering_pdf, 1, light_pdf);
+                }
+
+                let ray = i.spawn_ray(wi);
+                let light_i = self.scene.intersect(&ray);
+                if let Some(light_i) = light_i {
+                    let li = if same_addr(&**light_i.shape.as_ref().unwrap(), light) {
+                        light_i.le(-wi)
+                    } else {
+                        Spectrum::default()
+                    };
+                    ld += f * li * weight / scattering_pdf;
+                }
+            }
+        }
+
         return ld;
     }
 

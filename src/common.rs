@@ -87,3 +87,11 @@ pub fn quadratic(a: f64, b: f64, c: f64) -> Option<(f64, f64)> {
 
     return Some((t0, t1));
 }
+
+fn get_addr<T>(o: &T) -> usize where T: ?Sized {
+    o as *const T as *const () as usize
+}
+
+pub fn same_addr<T, U>(a: &T, b: &U) -> bool where T: ?Sized, U: ?Sized {
+    get_addr(a) == get_addr(b)
+}

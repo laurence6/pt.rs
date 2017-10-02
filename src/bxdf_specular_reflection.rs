@@ -23,14 +23,14 @@ impl BxDF for SpecularReflectionBRDF {
         Spectrum::default()
     }
 
-    fn pdf(&self, wo: Vector3f, wi: Vector3f) -> f32 {
-        0.
-    }
-
     fn sample_f(&self, wo: Vector3f, sample: Point2f) -> (Vector3f, Spectrum, f32) {
         let wi = Vector3f::new(-wo.x, -wo.y, wo.z);
         let pdf = 1.;
         let f = self.fresnel.evaluate(cos_theta(wi)) * self.r / abs_cos_theta(wi);
         return (wi, f, pdf);
+    }
+
+    fn pdf(&self, wo: Vector3f, wi: Vector3f) -> f32 {
+        0.
     }
 }
