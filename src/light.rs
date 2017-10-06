@@ -28,7 +28,7 @@ pub struct VisibilityTester {
 
 impl VisibilityTester {
     pub fn unoccluded<C: Container>(&self, scene: &Scene<C>) -> bool {
-        !scene.intersect_p(&self.p0.spawn_ray_to(self.p1.p))
+        !scene.intersect_p(&self.p0.spawn_ray_to(&self.p1))
     }
 }
 

@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use common::{INFINITY, ONE_MINUS_EPSILON, next_float_down, next_float_up};
+use common::{INFINITY, next_float_down, next_float_up};
 use ray::Ray;
 use reflection::BSDF;
 use shape::Shape;
@@ -47,12 +47,15 @@ impl Interaction {
         }
     }
 
-    pub fn spawn_ray_to(&self, i: Point3f) -> Ray {
-        let direction = i - self.p;
+    pub fn spawn_ray_to(&self, i: &Interaction) -> Ray {
+        let d = i.p - self.p;
+        let origin = self.offset_ray_origin(d);
+        let p = i.offset_ray_origin(-d);
+        let direction = p - origin;
         return Ray {
-            origin: self.offset_ray_origin(direction),
+            origin,
             direction,
-            t_max: ONE_MINUS_EPSILON,
+            t_max: 1. - 0.0001,
         };
     }
 
