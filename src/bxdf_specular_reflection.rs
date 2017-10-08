@@ -3,21 +3,18 @@ use reflection::{BxDF, BxDFFlag, REFLECTION, SPECULAR, cos_theta, abs_cos_theta}
 use spectrum::Spectrum;
 use vector::{Vector3f, Point2f};
 
-pub struct SpecularReflectionBRDF {
+pub struct SpecularReflectionBRDF<T> where T: Fresnel {
     r: Spectrum,
-    fresnel: Box<Fresnel>,
+    fresnel: T,
 }
 
-impl SpecularReflectionBRDF {
-    pub fn new<T>(r: Spectrum, fresnel: T) -> SpecularReflectionBRDF where T: 'static + Fresnel {
-        SpecularReflectionBRDF {
-            r,
-            fresnel: Box::new(fresnel),
-        }
+impl<T> SpecularReflectionBRDF<T> where T: Fresnel {
+    pub fn new(r: Spectrum, fresnel: T) -> SpecularReflectionBRDF<T> {
+        SpecularReflectionBRDF { r, fresnel }
     }
 }
 
-impl BxDF for SpecularReflectionBRDF {
+impl<T> BxDF for SpecularReflectionBRDF<T> where T: Fresnel {
     fn flag(&self) -> BxDFFlag {
         REFLECTION | SPECULAR
     }
