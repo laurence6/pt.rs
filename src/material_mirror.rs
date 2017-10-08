@@ -23,7 +23,7 @@ impl Material for MirrorMaterial {
         let mut bsdf = BSDF::new(1., i);
         let r = self.kr.evaluate(i).clamp(0., INFINITY);
         if !r.is_black() {
-            bsdf.add(Box::new(SpecularReflectionBRDF::new(r, Box::new(FresnelNoOp::new()))));
+            bsdf.add(SpecularReflectionBRDF::new(r, FresnelNoOp::new()));
         }
         return bsdf;
     }

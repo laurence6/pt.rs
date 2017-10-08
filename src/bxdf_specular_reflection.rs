@@ -9,8 +9,11 @@ pub struct SpecularReflectionBRDF {
 }
 
 impl SpecularReflectionBRDF {
-    pub fn new(r: Spectrum, fresnel: Box<Fresnel>) -> SpecularReflectionBRDF {
-        SpecularReflectionBRDF { r, fresnel }
+    pub fn new<T>(r: Spectrum, fresnel: T) -> SpecularReflectionBRDF where T: 'static + Fresnel {
+        SpecularReflectionBRDF {
+            r,
+            fresnel: Box::new(fresnel),
+        }
     }
 }
 

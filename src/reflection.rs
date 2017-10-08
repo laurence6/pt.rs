@@ -69,8 +69,8 @@ impl BSDF {
     }
 
     /// Add a BxDF component.
-    pub fn add(&mut self, bxdf: Box<BxDF>) {
-        self.bxdfs.push(bxdf);
+    pub fn add<T>(&mut self, bxdf: T) where T: 'static + BxDF {
+        self.bxdfs.push(Box::new(bxdf));
     }
 
     fn world_to_local(&self, v: Vector3f) -> Vector3f {
