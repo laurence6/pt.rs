@@ -181,7 +181,7 @@ impl<Co, Cam> IntegratorLocal<Co, Cam> where Co: 'static + Container, Cam: 'stat
 
     fn li<S>(&self, sampler: &mut S, mut ray: Ray) -> Spectrum where S: Sampler {
         let mut l = Spectrum::default();
-        let mut beta = Spectrum::new(1., 1., 1.);
+        let mut beta = Spectrum::from(1.);
         let mut specular_bounce = false;
         let mut bounces = 0;
         loop {

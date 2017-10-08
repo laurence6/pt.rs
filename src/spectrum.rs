@@ -43,3 +43,9 @@ impl Spectrum {
         )
     }
 }
+
+impl From<f32> for Spectrum {
+    fn from(v: f32) -> Spectrum {
+        Spectrum::new(v, v, v)
+    }
+}

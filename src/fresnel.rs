@@ -14,6 +14,6 @@ impl FresnelNoOp {
 
 impl Fresnel for FresnelNoOp {
     fn evaluate(&self, cos_i: f32) -> Spectrum {
-        Spectrum::new(1., 1., 1.)
+        Spectrum::from(1.)
     }
 }
