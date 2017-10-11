@@ -10,6 +10,7 @@ impl_vector3f_new_and_ops!(Spectrum, r, g, b);
 impl_vector3f_add!(Spectrum, Spectrum, Spectrum, r, g, b);
 impl_vector3f_sub!(Spectrum, Spectrum, Spectrum, r, g, b);
 impl_vector3f_mul!(Spectrum, Spectrum, Spectrum, r, g, b);
+impl_vector3f_div!(Spectrum, Spectrum, Spectrum, r, g, b);
 impl_vector3f_index!(Spectrum, r, g, b);
 
 impl Spectrum {
@@ -23,7 +24,7 @@ impl Spectrum {
         + 0.072169 * self.b
     }
 
-    fn sqrt(&self) -> Spectrum {
+    pub fn sqrt(&self) -> Spectrum {
         Spectrum::new(
             self.r.sqrt(),
             self.g.sqrt(),
