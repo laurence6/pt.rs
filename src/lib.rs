@@ -15,6 +15,7 @@
 #[allow(dead_code, unused_variables)] mod light;
 #[allow(dead_code, unused_variables)] mod material;
 #[allow(dead_code, unused_variables)] mod material_lambertian_reflection;
+#[allow(dead_code, unused_variables)] mod material_metal;
 #[allow(dead_code, unused_variables)] mod material_mirror;
 #[allow(dead_code, unused_variables)] mod matrix;
 #[allow(dead_code, unused_variables)] mod ray;
