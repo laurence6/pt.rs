@@ -25,6 +25,10 @@ impl Film {
         return Film { resolution, pixels };
     }
 
+    pub fn sample_bbox(&self) -> BBox2u {
+        BBox2u::new(Point2u::default(), self.resolution)
+    }
+
     pub fn iter(film: Arc<Film>) -> FilmTileIter {
         FilmTileIter::new(film)
     }
