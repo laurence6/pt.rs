@@ -1,50 +1,106 @@
+use std::cmp::min;
+
 use bbox::BBox2u;
 use common::ONE_MINUS_EPSILON;
-use sampler::{Sampler, GlobalSampler};
+use sampler::Sampler;
 use vector::{Point2u, Point2f};
 
-/// Max resoltion of one tile.
+/// Max resolution of one tile.
 const K_MAX_RESOLUTION: u32 = 128;
-// (x, y, u, v, (u, v)...)
-const ARRAY_START_DIM: usize = 4;
 
 #[derive(Clone)]
 pub struct HaltonSampler {
     // General sampler
-    samples_per_pixel: usize,
+    samples_per_pixel: u32,
 
     current_pixel: Point2u,
-    current_pixel_sample_index: usize,
-
-    sample_array_1d: Vec<Box<[f32]>>,
-    sample_array_2d: Vec<Box<[Point2f]>>,
-
-    // Next 1d array to be returned
-    array_1d_offset: usize,
-    // Next 2d array to be returned
-    array_2d_offset: usize,
+    current_pixel_sample_index: u32,
 
     // Global sampler
     // Next dimension
-    dimension: usize,
+    dimension: u32,
     // Index of sample in current pixel
-    interval_sample_index: usize,
-
-    array_end_dim: usize,
+    interval_sample_index: u32,
 
     // Halton sampler
     base_scale: Point2u,
     base_exp: Point2u,
-    sample_stride: usize,
+    sample_stride: u32,
     pixel_for_offset: Point2u,
     // First sample in the current_pixel
-    offset_for_current_pixel: usize,
-    multi_inverse: [usize; 2],
+    offset_for_current_pixel: u32,
+    mul_inverse: [u32; 2],
 }
 
 impl HaltonSampler {
-    pub fn new(samples_per_pixel: usize, sample_bounds: BBox2u) -> HaltonSampler {
-        unimplemented!()
+    pub fn new(samples_per_pixel: u32, sample_bounds: BBox2u) -> HaltonSampler {
+        let res = sample_bounds.diagonal();
+        let mut base_scale = Point2u::default();
+        let mut base_exp = Point2u::default();
+        for i in 0..2 {
+            let base = if i == 0 { 2 } else { 3 };
+            let mut scale = 1;
+            let mut exp = 0;
+            while scale < min(res[i], K_MAX_RESOLUTION) {
+                scale *= base;
+                exp += 1;
+            }
+            base_scale[i] = scale;
+            base_exp[i] = exp;
+        }
+        let sample_stride = base_scale[0] * base_scale[1];
+        let mul_inverse = [
+            multiplicative_inverse(base_scale[1], base_scale[0]),
+            multiplicative_inverse(base_scale[0], base_scale[1]),
+        ];
+        return HaltonSampler {
+            samples_per_pixel,
+
+            current_pixel: Point2u::default(),
+            current_pixel_sample_index: 0,
+
+            dimension: 0,
+            interval_sample_index: 0,
+
+            base_scale,
+            base_exp,
+            sample_stride,
+            pixel_for_offset: Point2u::default(),
+            offset_for_current_pixel: 0,
+            mul_inverse,
+        };
+    }
+
+    /// Return index to the sample in the overall set of samples based on current pixel and sample index.
+    fn get_index_for_sample(&mut self) -> u32 {
+        if self.pixel_for_offset != self.current_pixel {
+            self.offset_for_current_pixel = 0;
+            if self.sample_stride > 1 {
+                let pm = Point2u::new(
+                    self.current_pixel.x % K_MAX_RESOLUTION,
+                    self.current_pixel.y % K_MAX_RESOLUTION,
+                );
+                for i in 0..2 {
+                    let base = if i == 0 { 2 } else { 3 };
+                    let dim_offset = inverse_radical_inverse(base, pm[i], self.base_exp[i]);
+                    self.offset_for_current_pixel +=
+                        dim_offset * (self.sample_stride / self.base_scale[i]) * self.mul_inverse[i];
+                }
+                self.offset_for_current_pixel %= self.sample_stride;
+            }
+
+            self.pixel_for_offset = self.current_pixel;
+        }
+        return self.offset_for_current_pixel + self.current_pixel_sample_index * self.sample_stride;
+    }
+
+    /// Return sample value for the given dimension of the indexth sample in the overall set of samples.
+    fn sample_dimension(&self, index: u32, d: u32) -> f32 {
+        match d {
+            0 => radical_inverse_prime(0, index >> self.base_exp.x),
+            1 => radical_inverse_prime(1, index / self.base_scale.y),
+            _ => radical_inverse_prime(d, index),
+        }
     }
 }
 
@@ -53,156 +109,35 @@ impl Sampler for HaltonSampler {
         // General sampler
         self.current_pixel = p;
         self.current_pixel_sample_index = 0;
-        self.array_1d_offset = 0;
-        self.array_2d_offset = 0;
-
-        // Compute 1D array samples
-        for i in 0..self.sample_array_1d.len() {
-            for j in 0..self.sample_array_1d[i].len() {
-                let index = self.get_index_for_sample(j);
-                self.sample_array_1d[i][j] = self.sample_dimension(index, ARRAY_START_DIM + i);
-            }
-        }
-
-        // Compute 2D array samples
-        let mut dim = ARRAY_START_DIM + self.sample_array_1d.len();
-        for i in 0..self.sample_array_2d.len() {
-            for j in 0..self.sample_array_2d[i].len() {
-                let index = self.get_index_for_sample(j);
-                self.sample_array_2d[i][j].x = self.sample_dimension(index, dim);
-                self.sample_array_2d[i][j].y = self.sample_dimension(index, dim + 1);
-            }
-            dim += 2;
-        }
 
         // Global sampler
         self.dimension = 0;
-        self.interval_sample_index = self.get_index_for_sample(0);
-        self.array_end_dim = ARRAY_START_DIM
-            + self.sample_array_1d.len()
-            + self.sample_array_2d.len() * 2;
-
-        debug_assert_eq!(dim, self.array_end_dim);
+        self.interval_sample_index = self.get_index_for_sample();
     }
 
     fn start_next_sample(&mut self) -> bool {
         self.current_pixel_sample_index += 1;
-        self.array_1d_offset = 0;
-        self.array_2d_offset = 0;
 
         self.dimension = 0;
-        self.interval_sample_index = {
-            let next_pixel_sample_index = self.current_pixel_sample_index + 1;
-            self.get_index_for_sample(next_pixel_sample_index)
-        };
+        self.interval_sample_index = self.get_index_for_sample();
 
         return self.current_pixel_sample_index < self.samples_per_pixel;
     }
 
     fn get_1d(&mut self) -> f32 {
-        if ARRAY_START_DIM <= self.dimension && self.dimension <= self.array_end_dim {
-            self.dimension = self.array_end_dim;
-        }
+        let sample =
+            self.sample_dimension(self.interval_sample_index, self.dimension);
         self.dimension += 1;
-        return self.sample_dimension(self.interval_sample_index, self.dimension);
+        return sample;
     }
 
     fn get_2d(&mut self) -> Point2f {
-        if ARRAY_START_DIM <= self.dimension + 1 && self.dimension + 1 <= self.array_end_dim {
-            self.dimension = self.array_end_dim;
-        }
-        let p = Point2f::new(
+        let sample = Point2f::new(
             self.sample_dimension(self.interval_sample_index, self.dimension),
             self.sample_dimension(self.interval_sample_index, self.dimension + 1),
         );
         self.dimension += 2;
-        return p;
-    }
-
-    fn req_1d_array(&mut self, n: usize) {
-        debug_assert_eq!(self.round_count(n), n);
-        self.sample_array_1d.push(
-            vec![0.; n * self.samples_per_pixel]
-            .into_boxed_slice()
-        );
-    }
-
-    fn req_2d_array(&mut self, n: usize) {
-        debug_assert_eq!(self.round_count(n), n);
-        self.sample_array_2d.push(
-            vec![Point2f::new(0., 0.); n * self.samples_per_pixel]
-            .into_boxed_slice()
-        );
-    }
-
-    fn get_1d_array(&mut self, n: usize) -> Option<&[f32]> {
-        if self.array_1d_offset == self.sample_array_1d.len() {
-            return None;
-        }
-
-        debug_assert_eq!(self.sample_array_1d[self.array_1d_offset].len(), n * self.samples_per_pixel);
-        debug_assert!(self.current_pixel_sample_index < self.samples_per_pixel);
-
-        let i0 = self.current_pixel_sample_index * n;
-        let i1 = i0 + n;
-        let ret = Some(&self.sample_array_1d[self.array_1d_offset][i0..i1]);
-
-        self.array_1d_offset += 1;
-
-        return ret;
-    }
-
-    fn get_2d_array(&mut self, n: usize) -> Option<&[Point2f]> {
-        if self.array_2d_offset == self.sample_array_2d.len() {
-            return None;
-        }
-
-        debug_assert_eq!(self.sample_array_2d[self.array_2d_offset].len(), n * self.samples_per_pixel);
-        debug_assert!(self.current_pixel_sample_index < self.samples_per_pixel);
-
-        let i0 = self.current_pixel_sample_index * n;
-        let i1 = i0 + n;
-        let ret = Some(&self.sample_array_2d[self.array_2d_offset][i0..i1]);
-
-        self.array_2d_offset += 1;
-
-        return ret;
-    }
-}
-
-impl GlobalSampler for HaltonSampler {
-    fn get_index_for_sample(&mut self, sample_num: usize) -> usize {
-        if self.pixel_for_offset != self.current_pixel {
-            self.offset_for_current_pixel = 0;
-            if self.sample_stride > 1 {
-                let pm = Point2u {
-                    x: self.current_pixel.x % K_MAX_RESOLUTION,
-                    y: self.current_pixel.y % K_MAX_RESOLUTION,
-                };
-
-                self.offset_for_current_pixel += {
-                    let dim_offset = inverse_radical_inverse(2, pm.x, self.base_exp.x);
-                    dim_offset * (self.sample_stride / self.base_exp.x as usize) * self.multi_inverse[0]
-                };
-                self.offset_for_current_pixel += {
-                    let dim_offset = inverse_radical_inverse(3, pm.y, self.base_exp.y);
-                    dim_offset * (self.sample_stride / self.base_exp.y as usize) * self.multi_inverse[1]
-                };
-                self.offset_for_current_pixel %= self.sample_stride;
-            }
-            self.pixel_for_offset = self.current_pixel;
-        }
-        return self.offset_for_current_pixel + sample_num * self.sample_stride;
-    }
-
-    fn sample_dimension(&self, index: usize, d: usize) -> f32 {
-        let index = index as u32;
-        let d = d as u32;
-        match d {
-            0 => radical_inverse_prime(0, index >> self.base_exp.x),
-            1 => radical_inverse_prime(1, index / self.base_scale.y),
-            _ => radical_inverse_prime(d, index),
-        }
+        return sample;
     }
 }
 
@@ -219,16 +154,16 @@ fn radical_inverse(base: u32, mut a: u32) -> f32 {
 
 fn radical_inverse_prime(base_index: u32, a: u32) -> f32 {
     match base_index {
-        0 => radical_inverse(2, a),
-        1 => radical_inverse(3, a),
-        2 => radical_inverse(5, a),
-        3 => radical_inverse(7, a),
-        4 => radical_inverse(11, a),
-        5 => radical_inverse(13, a),
-        6 => radical_inverse(17, a),
-        7 => radical_inverse(19, a),
-        8 => radical_inverse(23, a),
-        9 => radical_inverse(29, a),
+        00 => radical_inverse(2, a),
+        01 => radical_inverse(3, a),
+        02 => radical_inverse(5, a),
+        03 => radical_inverse(7, a),
+        04 => radical_inverse(11, a),
+        05 => radical_inverse(13, a),
+        06 => radical_inverse(17, a),
+        07 => radical_inverse(19, a),
+        08 => radical_inverse(23, a),
+        09 => radical_inverse(29, a),
         10 => radical_inverse(31, a),
         11 => radical_inverse(37, a),
         12 => radical_inverse(41, a),
@@ -1247,14 +1182,32 @@ fn radical_inverse_prime(base_index: u32, a: u32) -> f32 {
     }
 }
 
-fn inverse_radical_inverse(base: u32, mut a: u32, n_digits: u32) -> usize {
+fn inverse_radical_inverse(base: u32, mut a: u32, n_digits: u32) -> u32 {
     let mut x = 0;
     for _ in 0..n_digits {
         let digit = a % base;
         a /= base;
         x = x * base + digit;
     }
-    return x as usize;
+    return x;
+}
+
+fn multiplicative_inverse(a: u32, n: u32) -> u32 {
+    let (x, _) = extended_gcd(a, n);
+    return x.abs() as u32 % n;
+}
+
+// Extended Euclidean algorithm
+// extended_gcd(a, b) -> (x, y) where
+// GCD(a, b) = xa + yb
+fn extended_gcd(a: u32, b: u32) -> (i64, i64) {
+    if b == 0 {
+        return (1, 0);
+    } else {
+        let d = (a / b) as i64;
+        let (xp, yp) = extended_gcd(b, a % b);
+        return (yp, xp - (d * yp));
+    }
 }
 
 #[cfg(test)]
