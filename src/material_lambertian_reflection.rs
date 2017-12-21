@@ -5,14 +5,14 @@ use common::INFINITY;
 use interaction::Interaction;
 use material::Material;
 use reflection::BSDF;
-use texture::Texture;
+use texture::TextureSpectrum;
 
 pub struct LambertianReflectionMaterial {
-    kd: Arc<Texture>,
+    kd: Arc<TextureSpectrum>,
 }
 
 impl LambertianReflectionMaterial {
-    pub fn new(kd: Arc<Texture>) -> LambertianReflectionMaterial {
+    pub fn new(kd: Arc<TextureSpectrum>) -> LambertianReflectionMaterial {
         LambertianReflectionMaterial { kd }
     }
 }

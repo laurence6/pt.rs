@@ -6,14 +6,14 @@ use fresnel::FresnelNoOp;
 use interaction::Interaction;
 use material::Material;
 use reflection::BSDF;
-use texture::Texture;
+use texture::TextureSpectrum;
 
 pub struct MirrorMaterial {
-    kr: Arc<Texture>,
+    kr: Arc<TextureSpectrum>,
 }
 
 impl MirrorMaterial {
-    pub fn new(kr: Arc<Texture>) -> MirrorMaterial {
+    pub fn new(kr: Arc<TextureSpectrum>) -> MirrorMaterial {
         MirrorMaterial { kr }
     }
 }

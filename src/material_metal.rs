@@ -6,16 +6,16 @@ use interaction::Interaction;
 use material::Material;
 use reflection::BSDF;
 use spectrum::Spectrum;
-use texture::Texture;
+use texture::TextureSpectrum;
 
 pub struct MetalMaterial {
-    r: Arc<Texture>,
-    eta: Arc<Texture>,
-    k: Arc<Texture>,
+    r: Arc<TextureSpectrum>,
+    eta: Arc<TextureSpectrum>,
+    k: Arc<TextureSpectrum>,
 }
 
 impl MetalMaterial {
-    pub fn new(r: Arc<Texture>, eta: Arc<Texture>, k: Arc<Texture>) -> MetalMaterial {
+    pub fn new(r: Arc<TextureSpectrum>, eta: Arc<TextureSpectrum>, k: Arc<TextureSpectrum>) -> MetalMaterial {
         MetalMaterial { r, eta, k }
     }
 }
