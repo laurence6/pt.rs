@@ -1,6 +1,5 @@
-use common::{PI, clamp};
+use common::clamp;
 use interaction::Interaction;
-use sampling::cosine_sample_hemisphere;
 use spectrum::Spectrum;
 use vector::{Vector3f, Point2f};
 
@@ -26,23 +25,10 @@ pub trait BxDF {
     fn f(&self, wo: Vector3f, wi: Vector3f) -> Spectrum;
 
     /// Return the direction of incident ray, value of distribution function, pdf.
-    fn sample_f(&self, wo: Vector3f, sample: Point2f) -> (Vector3f, Spectrum, f32) {
-        let mut wi = cosine_sample_hemisphere(sample);
-        // flip wi to make sure that wi and wo are in the same hemisphere
-        if wo.z < 0. {
-            wi.z *= -1.;
-        }
-        return (wi, self.f(wo, wi), self.pdf(wo, wi));
-    }
+    fn sample_f(&self, wo: Vector3f, sample: Point2f) -> (Vector3f, Spectrum, f32);
 
     /// Return pdf for the given pair of direction.
-    fn pdf(&self, wo: Vector3f, wi: Vector3f) -> f32 {
-        if same_hemisphere(wo, wi) {
-            abs_cos_theta(wi) / PI
-        } else {
-            0.
-        }
-    }
+    fn pdf(&self, wo: Vector3f, wi: Vector3f) -> f32;
 }
 
 pub struct BSDF {
@@ -231,17 +217,13 @@ pub fn sin_2_phi(w: Vector3f) -> f32 {
     sin_phi(w).powi(2)
 }
 
-fn same_hemisphere(w1: Vector3f, w2: Vector3f) -> bool {
-    w1.z * w2.z > 0.
-}
-
 #[cfg(test)]
 mod test {
     use common::EPSILON;
     use interaction::Interaction;
     use reflection::{BxDF, BSDF, BxDFFlag, REFLECTION, TRANSMISSION, DIFFUSE, GLOSSY, SPECULAR};
     use spectrum::Spectrum;
-    use vector::{Vector3f, Normal3f, Point3f};
+    use vector::{Vector3f, Normal3f, Point3f, Point2f};
 
     #[test]
     fn test_has_type() {
@@ -252,6 +234,14 @@ mod test {
             }
 
             fn f(&self, wo: Vector3f, wi: Vector3f) -> Spectrum {
+                unimplemented!()
+            }
+
+            fn sample_f(&self, wo: Vector3f, sample: Point2f) -> (Vector3f, Spectrum, f32) {
+                unimplemented!()
+            }
+
+            fn pdf(&self, wo: Vector3f, wi: Vector3f) -> f32 {
                 unimplemented!()
             }
         }
