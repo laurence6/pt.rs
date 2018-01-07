@@ -1,4 +1,4 @@
-use common::PI;
+use common::{PI, clamp};
 use interaction::Interaction;
 use sampling::cosine_sample_hemisphere;
 use spectrum::Spectrum;
@@ -181,8 +181,54 @@ pub fn cos_theta(w: Vector3f) -> f32 {
     w.z
 }
 
+pub fn cos_2_theta(w: Vector3f) -> f32 {
+    w.z * w.z
+}
+
 pub fn abs_cos_theta(w: Vector3f) -> f32 {
     w.z.abs()
+}
+
+pub fn sin_theta(w: Vector3f) -> f32 {
+    sin_2_theta(w).sqrt()
+}
+
+pub fn sin_2_theta(w: Vector3f) -> f32 {
+    (1. - cos_2_theta(w)).max(0.)
+}
+
+pub fn tan_theta(w: Vector3f) -> f32 {
+    sin_theta(w) / cos_theta(w)
+}
+
+pub fn tan_2_theta(w: Vector3f) -> f32 {
+    sin_2_theta(w) / cos_2_theta(w)
+}
+
+pub fn cos_phi(w: Vector3f) -> f32 {
+    let sin_theta = sin_theta(w);
+    if sin_theta == 0. {
+        return 1.
+    } else {
+        return clamp(w.x / sin_theta, -1., 1.);
+    }
+}
+
+pub fn sin_phi(w: Vector3f) -> f32 {
+    let sin_theta = sin_theta(w);
+    if sin_theta == 0. {
+        return 0.
+    } else {
+        return clamp(w.y / sin_theta, -1., 1.);
+    }
+}
+
+pub fn cos_2_phi(w: Vector3f) -> f32 {
+    cos_phi(w).powi(2)
+}
+
+pub fn sin_2_phi(w: Vector3f) -> f32 {
+    sin_phi(w).powi(2)
 }
 
 fn same_hemisphere(w1: Vector3f, w2: Vector3f) -> bool {

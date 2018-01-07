@@ -18,6 +18,7 @@
 #[allow(dead_code, unused_variables)] mod material_metal;
 #[allow(dead_code, unused_variables)] mod material_mirror;
 #[allow(dead_code, unused_variables)] mod matrix;
+#[allow(dead_code, unused_variables)] mod microfacet;
 #[allow(dead_code, unused_variables)] mod ray;
 #[allow(dead_code, unused_variables)] mod reflection;
 #[allow(dead_code, unused_variables)] mod sampler;
