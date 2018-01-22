@@ -26,7 +26,7 @@ impl<T> BxDF for SpecularReflectionBRDF<T> where T: Fresnel {
     fn sample_f(&self, wo: Vector3f, sample: Point2f) -> (Vector3f, Spectrum, f32) {
         let wi = Vector3f::new(-wo.x, -wo.y, wo.z);
         let pdf = 1.;
-        let f = self.fresnel.evaluate(cos_theta(wi)) * self.r / abs_cos_theta(wi);
+        let f = self.r * self.fresnel.evaluate(cos_theta(wi)) / abs_cos_theta(wi);
         return (wi, f, pdf);
     }
 
