@@ -9,6 +9,10 @@ pub struct MicrofacetDistribution {
 }
 
 impl MicrofacetDistribution {
+    pub fn new(alpha_x: f32, alpha_y: f32) -> MicrofacetDistribution {
+        MicrofacetDistribution { alpha_x, alpha_y }
+    }
+
     pub fn d(&self, wh: Vector3f) -> f32 {
         let tan_2_theta = tan_2_theta(wh);
         if tan_2_theta.is_infinite() {
