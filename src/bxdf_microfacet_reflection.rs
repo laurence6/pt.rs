@@ -1,6 +1,6 @@
 use fresnel::Fresnel;
 use microfacet::MicrofacetDistribution;
-use reflection::{BxDF, BxDFFlag, REFLECTION, GLOSSY, abs_cos_theta};
+use reflection::{BxDF, BxDFFlag, REFLECTION, GLOSSY, abs_cos_theta, same_hemisphere, reflect};
 use spectrum::Spectrum;
 use vector::{Vector3f, Point2f};
 
@@ -44,10 +44,27 @@ impl<T> BxDF for MicrofacetReflectionBRDF<T> where T: Fresnel {
     }
 
     fn sample_f(&self, wo: Vector3f, sample: Point2f) -> (Vector3f, Spectrum, f32) {
-        unimplemented!()
+        if wo.z == 0. {
+            return Default::default();
+        }
+
+        let wh = self.distribution.sample_wh(wo, sample);
+        let wi = reflect(wo, wh);
+        if !same_hemisphere(wo, wi) {
+            return Default::default();
+        }
+
+        let f = self.f(wo, wi);
+        let pdf = self.distribution.pdf(wo, wh) / (wh.dot(wo) * 4.);
+
+        return (wi, f, pdf);
     }
 
     fn pdf(&self, wo: Vector3f, wi: Vector3f) -> f32 {
-        unimplemented!()
+        if !same_hemisphere(wo, wi) {
+            return 0.;
+        }
+        let wh = (wo + wi).normalize();
+        return self.distribution.pdf(wo, wh) / (wh.dot(wo) * 4.);
     }
 }

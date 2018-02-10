@@ -217,6 +217,14 @@ pub fn sin_2_phi(w: Vector3f) -> f32 {
     sin_phi(w).powi(2)
 }
 
+pub fn same_hemisphere(w1: Vector3f, w2: Vector3f) -> bool {
+    w1.z * w2.z > 0.
+}
+
+pub fn reflect(w: Vector3f, n: Vector3f) -> Vector3f {
+    -w + n * w.dot(n) * 2.
+}
+
 #[cfg(test)]
 mod test {
     use common::EPSILON;

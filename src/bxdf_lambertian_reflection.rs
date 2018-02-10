@@ -1,5 +1,5 @@
 use common::PI;
-use reflection::{BxDF, BxDFFlag, REFLECTION, DIFFUSE, abs_cos_theta};
+use reflection::{BxDF, BxDFFlag, REFLECTION, DIFFUSE, abs_cos_theta, same_hemisphere};
 use sampling::cosine_sample_hemisphere;
 use spectrum::Spectrum;
 use vector::{Vector3f, Point2f};
@@ -40,8 +40,4 @@ impl BxDF for LambertianReflectionBRDF {
             0.
         }
     }
-}
-
-fn same_hemisphere(w1: Vector3f, w2: Vector3f) -> bool {
-    w1.z * w2.z > 0.
 }

@@ -1,6 +1,6 @@
 use common::PI;
-use reflection::{cos_2_theta, tan_theta, tan_2_theta, cos_2_phi, sin_2_phi};
-use vector::Vector3f;
+use reflection::{cos_2_theta, abs_cos_theta, tan_theta, tan_2_theta, cos_2_phi, sin_2_phi};
+use vector::{Vector3f, Point2f};
 
 /// GGX(Trowbridge–Reitz) Microfacet Distribution.
 pub struct MicrofacetDistribution {
@@ -36,7 +36,19 @@ impl MicrofacetDistribution {
         return (-1. + (1. + alpha_2_tan_2_theta).sqrt()) * 0.5;
     }
 
+    pub fn g1(&self, w: Vector3f) -> f32 {
+        1. / (1. + self.lambda(w))
+    }
+
     pub fn g(&self, wo: Vector3f, wi: Vector3f) -> f32 {
         1. / (1. + self.lambda(wo) + self.lambda(wi))
+    }
+
+    pub fn sample_wh(&self, wo: Vector3f, sample: Point2f) -> Vector3f {
+        unimplemented!()
+    }
+
+    pub fn pdf(&self, wo: Vector3f, wh: Vector3f) -> f32 {
+        self.d(wh) / abs_cos_theta(wh)
     }
 }
