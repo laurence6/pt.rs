@@ -1,5 +1,5 @@
 use common::PI;
-use reflection::{cos_2_theta, abs_cos_theta, tan_theta, tan_2_theta, cos_2_phi, sin_2_phi};
+use reflection::{cos_2_theta, abs_cos_theta, tan_theta, tan_2_theta, cos_2_phi, sin_2_phi, same_hemisphere};
 use vector::{Vector3f, Point2f};
 
 /// GGX(Trowbridge–Reitz) Microfacet Distribution.
@@ -45,7 +45,33 @@ impl MicrofacetDistribution {
     }
 
     pub fn sample_wh(&self, wo: Vector3f, sample: Point2f) -> Vector3f {
-        unimplemented!()
+        let cos_theta;
+        let mut phi = PI * 2. * sample[1];
+        if self.alpha_x == self.alpha_y {
+            let tan_theta_2 = self.alpha_x * self.alpha_x * sample[0] / (1. - sample[0]);
+            cos_theta = 1. / (1. + tan_theta_2).sqrt();
+        } else {
+            phi = (self.alpha_y / self.alpha_x * (2. * PI * sample[1] + 0.5 * PI).tan()).atan();
+            if sample[1] > 0.5 {
+                phi += PI;
+            }
+            let sin_phi = phi.sin();
+            let cos_phi = phi.cos();
+            let alpha_x_2 = self.alpha_x * self.alpha_x;
+            let alpha_y_2 = self.alpha_y * self.alpha_y;
+            let alpha_2 = 1. / (cos_phi * cos_phi / alpha_x_2 + sin_phi * sin_phi / alpha_y_2);
+            let tan_theta_2 = alpha_2 * sample[0] / (1. - sample[0]);
+            cos_theta = 1. / (1. + tan_theta_2).sqrt();
+        }
+
+        let sin_theta = (1. - cos_theta * cos_theta).max(0.).sqrt();
+
+        let mut wh = Vector3f::from_spherical_direction(sin_theta, cos_theta, phi);
+        if !same_hemisphere(wo, wh) {
+            wh *= -1.;
+        }
+
+        return wh;
     }
 
     pub fn pdf(&self, wo: Vector3f, wh: Vector3f) -> f32 {

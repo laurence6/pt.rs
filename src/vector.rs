@@ -15,6 +15,14 @@ impl_vector3f_from!(Point3f, Vector3f);
 impl_vector3f_from!(Normal3f, Vector3f);
 
 impl Vector3f {
+    pub fn from_spherical_direction(sin_theta: f32, cos_theta: f32, phi: f32) -> Vector3f {
+        Vector3f::new(
+            sin_theta * phi.cos(),
+            sin_theta * phi.sin(),
+            cos_theta,
+        )
+    }
+
     pub fn length(&self) -> f32 {
         (self.x * self.x + self.y * self.y + self.z * self.z).sqrt()
     }
