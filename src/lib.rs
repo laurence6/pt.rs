@@ -10,6 +10,7 @@
 #[allow(dead_code, unused_variables)] mod container_kdtree;
 #[allow(dead_code, unused_variables)] mod container_simple;
 #[allow(dead_code, unused_variables)] mod film;
+#[allow(dead_code, unused_variables)] mod filter;
 #[allow(dead_code, unused_variables)] mod fresnel;
 #[allow(dead_code, unused_variables)] mod integrator;
 #[allow(dead_code, unused_variables)] mod interaction;
