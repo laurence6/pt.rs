@@ -18,6 +18,8 @@ use scene::Scene;
 use spectrum::Spectrum;
 use vector::Vector3f;
 
+const MAX_BOUNCES: u16 = 64;
+
 /// Path Integrator.
 pub struct Integrator<Co, Cam, S> where Co: 'static + Container, Cam: 'static + Camera, S: 'static + Sampler {
     scene: Arc<Scene<Co>>,
@@ -193,7 +195,7 @@ impl<Co, Cam> IntegratorLocal<Co, Cam> where Co: 'static + Container, Cam: 'stat
                 }
             }
 
-            if i.is_none() {
+            if i.is_none() || bounces > MAX_BOUNCES {
                 break;
             }
 
