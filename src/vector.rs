@@ -174,8 +174,8 @@ pub struct Point2<T> where T: PartialOrd {
 }
 impl_vector2_new_and_ops!(Point2, x, y);
 impl_vector2_add!(Point2, Point2, Point2, x, y);
-impl_vector2_sub!(Point2, Point2, Vector2, x, y);
 impl_vector2_add!(Point2, Vector2, Point2, x, y);
+impl_vector2_sub!(Point2, Point2, Vector2, x, y);
 impl_vector2_sub!(Point2, Vector2, Point2, x, y);
 impl_vector2_index!(Point2);
 impl_vector2_from!(Vector2, Point2);

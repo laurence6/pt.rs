@@ -1,18 +1,41 @@
+use std::cmp;
 use std::io::Write;
 use std::sync::{Arc, Mutex};
 
 use bbox::{BBox2u, BBox2f};
 use common::clamp;
+use filter::Filter;
 use spectrum::Spectrum;
-use vector::{Vector2u, Vector2f, Point2u, Point2f};
+use vector::{Vector2f, Point2u, Point2f};
+
+const FILTER_TABLE_WIDTH: usize = 16;
+type FilterTable = [[f32; FILTER_TABLE_WIDTH]; FILTER_TABLE_WIDTH];
+
+const TILE_SIZE: u32 = 16;
+
+const HALF_PIXEL: Vector2f = Vector2f { x: 0.5, y: 0.5 };
 
 pub struct Film {
     pub resolution: Point2u,
+    filter_radius: f32,
+    filter_table: FilterTable,
     pixels: Mutex<Box<[Pixel]>>,
 }
 
 impl Film {
-    pub fn new(resolution: Point2u) -> Film {
+    pub fn new<T>(resolution: Point2u, filter: T) -> Film where T: Filter {
+        let mut filter_table = [[0.; FILTER_TABLE_WIDTH]; FILTER_TABLE_WIDTH];
+        let filter_radius = filter.radius();
+        for y in 0..FILTER_TABLE_WIDTH {
+            for x in 0..FILTER_TABLE_WIDTH {
+                let p = Point2f::new(
+                    (x as f32 + 0.5) * filter_radius / FILTER_TABLE_WIDTH as f32,
+                    (y as f32 + 0.5) * filter_radius / FILTER_TABLE_WIDTH as f32,
+                );
+                filter_table[y][x] = filter.evaluate(p);
+            }
+        }
+
         let area = (resolution.x * resolution.y) as usize;
         let pixels = {
             let mut pixels = Vec::with_capacity(area);
@@ -22,11 +45,14 @@ impl Film {
             Mutex::new(pixels.into_boxed_slice())
         };
 
-        return Film { resolution, pixels };
+        return Film { resolution, filter_radius, filter_table, pixels };
     }
 
     pub fn sample_bbox(&self) -> BBox2u {
-        BBox2u::new(Point2u::default(), self.resolution)
+        BBox2u::new(
+            Point2u::from((Point2f::default()             + HALF_PIXEL - self.filter_radius).floor()),
+            Point2u::from((Point2f::from(self.resolution) - HALF_PIXEL + self.filter_radius).ceil()),
+        )
     }
 
     pub fn iter(film: Arc<Film>) -> FilmTileIter {
@@ -35,11 +61,10 @@ impl Film {
 
     fn get_film_tile(&self, bbox: BBox2u) -> FilmTile {
         let bbox = BBox2f::from(bbox);
-        let half_pixel = Vector2f::new(0.5, 0.5);
-        let min = (bbox.min - half_pixel).ceil();
-        let max = (bbox.max + half_pixel).floor();
+        let min = (bbox.min - HALF_PIXEL - self.filter_radius).ceil();
+        let max = (bbox.max + HALF_PIXEL + self.filter_radius).floor();
         let bbox = BBox2u::from(BBox2f::new(min, max));
-        return FilmTile::new(bbox);
+        return FilmTile::new(bbox, self.filter_radius, self.filter_table);
     }
 
     fn pixel_offset(&self, Point2u { x, y }: Point2u) -> usize {
@@ -50,13 +75,13 @@ impl Film {
     pub fn merge_film_tile(&self, tile: FilmTile) {
         let mut pixels = self.pixels.lock().unwrap();
         for pixel in tile.bbox.iter() {
-            let p = &tile.pixels[tile.pixel_offset(pixel)];
+            let p = &tile.pixels[tile.pixel_offset(pixel.x, pixel.y)];
             (*pixels)[self.pixel_offset(pixel)].merge(p);
         }
     }
 
     /// Write an image file in plain ppm format.
-    pub fn write_image_ppm<T>(&self, file: &mut T) where T: Write {
+    pub fn write_image_ppm<F>(&self, file: &mut F) where F: Write {
         let pixels = self.pixels.lock().unwrap();
 
         let header = format!("P3\n{} {}\n255\n", self.resolution.x, self.resolution.y);
@@ -80,11 +105,13 @@ impl Film {
 
 pub struct FilmTile {
     pub bbox: BBox2u,
+    filter_radius: f32,
+    filter_table: FilterTable,
     pixels: Box<[Pixel]>,
 }
 
 impl FilmTile {
-    fn new(bbox: BBox2u) -> FilmTile {
+    fn new(bbox: BBox2u, filter_radius: f32, filter_table: FilterTable) -> FilmTile {
         let area = bbox.area() as usize;
         let pixels = {
             let mut pixels = Vec::with_capacity(area);
@@ -94,28 +121,44 @@ impl FilmTile {
             pixels.into_boxed_slice()
         };
 
-        return FilmTile { bbox, pixels };
+        return FilmTile { bbox, filter_radius, filter_table, pixels };
     }
 
-    fn pixel_offset(&self, p_film: Point2u) -> usize {
-        let Vector2u { x, y } = p_film - self.bbox.min;
+    fn pixel_offset(&self, mut x: u32, mut y: u32) -> usize {
+        x -= self.bbox.min.x;
+        y -= self.bbox.min.y;
         let width = self.bbox.max.x - self.bbox.min.x;
         return (width * y + x) as usize;
     }
 
     pub fn add_sample(&mut self, p_film: Point2f, sample: Spectrum) {
-        let mut p_film = Point2u::from(p_film.floor());
+        let p_film = p_film - HALF_PIXEL;
+        let min = Point2u::from((p_film - self.filter_radius).ceil());
+        let max = Point2u::from((p_film + self.filter_radius).floor()) + 1;
+        let min = min.max(self.bbox.min);
+        let max = max.min(self.bbox.max);
+
+        // filter table offsets
+        let len = (self.filter_radius * 2.).ceil() as usize;
+        let mut indices = [Vec::with_capacity(len), Vec::with_capacity(len)];
         for i in 0..2 {
-            if p_film[i] >= self.bbox.max[i] {
-                p_film[i] -= 1;
+            for p in min[i]..max[i] {
+                let fi = ((p as f32 - p_film[i]) / self.filter_radius * FILTER_TABLE_WIDTH as f32).abs().floor() as usize;
+                indices[i].push(cmp::min(fi, FILTER_TABLE_WIDTH - 1));
             }
         }
-        let pixel_offset = self.pixel_offset(p_film);
-        self.pixels[pixel_offset].add_sample(sample);
+        let indices = indices;
+
+        for y in min.y..max.y {
+            for x in min.x..max.x {
+                let weight = self.filter_table
+                    [indices[1][(y - min.y) as usize]]
+                    [indices[0][(x - min.x) as usize]];
+                self.pixels[self.pixel_offset(x, y)].add_sample(sample, weight);
+            }
+        }
     }
 }
-
-const TILE_SIZE: u32 = 16;
 
 pub struct FilmTileIter {
     film: Arc<Film>,
@@ -166,25 +209,19 @@ impl Iterator for FilmTileIter {
 
 #[derive(Default)]
 struct Pixel {
-    n_samples: u32,
     color: Spectrum,
+    filter_weight_sum: f32,
 }
 
 impl Pixel {
-    fn add_sample(&mut self, sample: Spectrum) {
-        self.n_samples += 1;
-        self.color += (sample - self.color) / self.n_samples as f32;
+    fn add_sample(&mut self, sample: Spectrum, filter_weight: f32) {
+        self.color += sample * filter_weight;
+        self.filter_weight_sum += filter_weight;
     }
 
     fn merge(&mut self, pixel: &Pixel) {
-        if self.n_samples == 0 {
-            self.n_samples = pixel.n_samples;
-            self.color = pixel.color;
-        } else {
-            self.color = (self.color * self.n_samples as f32) + (pixel.color * pixel.n_samples as f32)
-                       / (self.n_samples + pixel.n_samples) as f32;
-            self.n_samples += pixel.n_samples;
-        }
+        self.color += pixel.color;
+        self.filter_weight_sum += pixel.filter_weight_sum;
     }
 }
 
