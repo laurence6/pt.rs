@@ -1,19 +1,19 @@
 use std::cmp::min;
 
-use bbox::BBox2u;
+use bbox::BBox2i;
 use common::ONE_MINUS_EPSILON;
 use sampler::Sampler;
-use vector::{Point2u, Point2f};
+use vector::{Point2u, Point2i, Point2f};
 
 /// Max resolution of one tile.
-const K_MAX_RESOLUTION: u32 = 128;
+const K_MAX_RESOLUTION: i32 = 128;
 
 #[derive(Clone)]
 pub struct HaltonSampler {
     // General sampler
     samples_per_pixel: u32,
 
-    current_pixel: Point2u,
+    current_pixel: Point2i,
     current_pixel_sample_index: u32,
 
     // Global sampler
@@ -26,22 +26,22 @@ pub struct HaltonSampler {
     base_scale: Point2u,
     base_exp: Point2u,
     sample_stride: u32,
-    pixel_for_offset: Point2u,
+    pixel_for_offset: Point2i,
     // First sample in the current_pixel
     offset_for_current_pixel: u32,
     mul_inverse: [u32; 2],
 }
 
 impl HaltonSampler {
-    pub fn new(samples_per_pixel: u32, sample_bounds: BBox2u) -> HaltonSampler {
-        let res = sample_bounds.diagonal();
+    pub fn new(samples_per_pixel: u32, sample_bbox: BBox2i) -> HaltonSampler {
+        let res = sample_bbox.diagonal();
         let mut base_scale = Point2u::default();
         let mut base_exp = Point2u::default();
         for i in 0..2 {
             let base = if i == 0 { 2 } else { 3 };
             let mut scale = 1;
             let mut exp = 0;
-            while scale < min(res[i], K_MAX_RESOLUTION) {
+            while scale < min(res[i], K_MAX_RESOLUTION) as u32 {
                 scale *= base;
                 exp += 1;
             }
@@ -56,7 +56,7 @@ impl HaltonSampler {
         return HaltonSampler {
             samples_per_pixel,
 
-            current_pixel: Point2u::default(),
+            current_pixel: Point2i::default(),
             current_pixel_sample_index: 0,
 
             dimension: 0,
@@ -65,7 +65,7 @@ impl HaltonSampler {
             base_scale,
             base_exp,
             sample_stride,
-            pixel_for_offset: Point2u::default(),
+            pixel_for_offset: Point2i::default(),
             offset_for_current_pixel: 0,
             mul_inverse,
         };
@@ -77,8 +77,8 @@ impl HaltonSampler {
             self.offset_for_current_pixel = 0;
             if self.sample_stride > 1 {
                 let pm = Point2u::new(
-                    self.current_pixel.x % K_MAX_RESOLUTION,
-                    self.current_pixel.y % K_MAX_RESOLUTION,
+                    pos_mod(self.current_pixel.x, K_MAX_RESOLUTION),
+                    pos_mod(self.current_pixel.y, K_MAX_RESOLUTION),
                 );
                 for i in 0..2 {
                     let base = if i == 0 { 2 } else { 3 };
@@ -105,7 +105,7 @@ impl HaltonSampler {
 }
 
 impl Sampler for HaltonSampler {
-    fn start_pixel(&mut self, p: Point2u) {
+    fn start_pixel(&mut self, p: Point2i) {
         // General sampler
         self.current_pixel = p;
         self.current_pixel_sample_index = 0;
@@ -1207,6 +1207,15 @@ fn extended_gcd(a: u32, b: u32) -> (i64, i64) {
         let d = (a / b) as i64;
         let (xp, yp) = extended_gcd(b, a % b);
         return (yp, xp - (d * yp));
+    }
+}
+
+fn pos_mod(a: i32, b: i32) -> u32 {
+    let m = a % b;
+    if m < 0 {
+        return (m + b) as u32;
+    } else {
+        return m as u32;
     }
 }
 

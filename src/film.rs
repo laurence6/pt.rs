@@ -1,22 +1,22 @@
 use std::cmp;
 use std::io::Write;
-use std::sync::{Arc, Mutex};
+use std::sync::{Mutex};
 
-use bbox::{BBox2u, BBox2f};
+use bbox::{BBox2i, BBox2f};
 use common::clamp;
 use filter::Filter;
 use spectrum::Spectrum;
-use vector::{Vector2f, Point2u, Point2f};
+use vector::{Vector2i, Vector2f, Point2u, Point2i, Point2f};
 
 const FILTER_TABLE_WIDTH: usize = 16;
 type FilterTable = [[f32; FILTER_TABLE_WIDTH]; FILTER_TABLE_WIDTH];
 
-const TILE_SIZE: u32 = 16;
+const TILE_SIZE: i32 = 16;
 
 const HALF_PIXEL: Vector2f = Vector2f { x: 0.5, y: 0.5 };
 
 pub struct Film {
-    pub resolution: Point2u,
+    pub resolution: Point2i,
     filter_radius: f32,
     filter_table: FilterTable,
     pixels: Mutex<Box<[Pixel]>>,
@@ -24,6 +24,8 @@ pub struct Film {
 
 impl Film {
     pub fn new<T>(resolution: Point2u, filter: T) -> Film where T: Filter {
+        let resolution = Point2i::from(resolution);
+
         let mut filter_table = [[0.; FILTER_TABLE_WIDTH]; FILTER_TABLE_WIDTH];
         let filter_radius = filter.radius();
         for y in 0..FILTER_TABLE_WIDTH {
@@ -48,26 +50,28 @@ impl Film {
         return Film { resolution, filter_radius, filter_table, pixels };
     }
 
-    pub fn sample_bbox(&self) -> BBox2u {
-        BBox2u::new(
-            Point2u::from((Point2f::default()             + HALF_PIXEL - self.filter_radius).floor()),
-            Point2u::from((Point2f::from(self.resolution) - HALF_PIXEL + self.filter_radius).ceil()),
+    pub fn sample_bbox(&self) -> BBox2i {
+        BBox2i::new(
+            Point2i::from((Point2f::default()             + HALF_PIXEL - self.filter_radius).floor()),
+            Point2i::from((Point2f::from(self.resolution) - HALF_PIXEL + self.filter_radius).ceil()),
         )
     }
 
-    pub fn iter(film: Arc<Film>) -> FilmTileIter {
-        FilmTileIter::new(film)
+    pub fn iter(&self) -> FilmTileIter {
+        FilmTileIter::new(self.sample_bbox())
     }
 
-    fn get_film_tile(&self, bbox: BBox2u) -> FilmTile {
+    pub fn get_film_tile(&self, bbox: BBox2i) -> FilmTile {
         let bbox = BBox2f::from(bbox);
-        let min = (bbox.min - HALF_PIXEL - self.filter_radius).ceil();
-        let max = (bbox.max + HALF_PIXEL + self.filter_radius).floor();
-        let bbox = BBox2u::from(BBox2f::new(min, max));
+        let min = Point2i::from((bbox.min - HALF_PIXEL - self.filter_radius).ceil());
+        let max = Point2i::from((bbox.max + HALF_PIXEL + self.filter_radius).floor());
+        let min = min.max(Point2i::default());
+        let max = max.min(self.resolution);
+        let bbox = BBox2i::new(min, max);
         return FilmTile::new(bbox, self.filter_radius, self.filter_table);
     }
 
-    fn pixel_offset(&self, Point2u { x, y }: Point2u) -> usize {
+    fn pixel_offset(&self, Point2i { x, y }: Point2i) -> usize {
         let width = self.resolution.x;
         return (width * y + x) as usize;
     }
@@ -90,7 +94,7 @@ impl Film {
         for p in pixels.iter() {
             let mut color = p.color;
             for i in 0..3 {
-                color[i] = clamp(gamma_correct(color[i]) * 255. + 0.5, 0., 255.).round();
+                color[i] = clamp(gamma_correct(color[i] / p.filter_weight_sum) * 255. + 0.5, 0., 255.).round();
             }
             let Spectrum { r, g, b } = color;
             file.write_all(format!(
@@ -104,14 +108,14 @@ impl Film {
 }
 
 pub struct FilmTile {
-    pub bbox: BBox2u,
+    bbox: BBox2i,
     filter_radius: f32,
     filter_table: FilterTable,
     pixels: Box<[Pixel]>,
 }
 
 impl FilmTile {
-    fn new(bbox: BBox2u, filter_radius: f32, filter_table: FilterTable) -> FilmTile {
+    fn new(bbox: BBox2i, filter_radius: f32, filter_table: FilterTable) -> FilmTile {
         let area = bbox.area() as usize;
         let pixels = {
             let mut pixels = Vec::with_capacity(area);
@@ -124,7 +128,7 @@ impl FilmTile {
         return FilmTile { bbox, filter_radius, filter_table, pixels };
     }
 
-    fn pixel_offset(&self, mut x: u32, mut y: u32) -> usize {
+    fn pixel_offset(&self, mut x: i32, mut y: i32) -> usize {
         x -= self.bbox.min.x;
         y -= self.bbox.min.y;
         let width = self.bbox.max.x - self.bbox.min.x;
@@ -133,8 +137,8 @@ impl FilmTile {
 
     pub fn add_sample(&mut self, p_film: Point2f, sample: Spectrum) {
         let p_film = p_film - HALF_PIXEL;
-        let min = Point2u::from((p_film - self.filter_radius).ceil());
-        let max = Point2u::from((p_film + self.filter_radius).floor()) + 1;
+        let min = Point2i::from((p_film - self.filter_radius).ceil());
+        let max = Point2i::from((p_film + self.filter_radius).floor()) + 1;
         let min = min.max(self.bbox.min);
         let max = max.min(self.bbox.max);
 
@@ -147,7 +151,6 @@ impl FilmTile {
                 indices[i].push(cmp::min(fi, FILTER_TABLE_WIDTH - 1));
             }
         }
-        let indices = indices;
 
         for y in min.y..max.y {
             for x in min.x..max.x {
@@ -161,49 +164,39 @@ impl FilmTile {
 }
 
 pub struct FilmTileIter {
-    film: Arc<Film>,
-    n_tiles: Point2u,
-    x: u32,
-    y: u32,
-    next_none: bool,
+    bbox: BBox2i,
+    n_tiles: Vector2i,
+    i: Point2i,
 }
 
 impl FilmTileIter {
-    fn new(film: Arc<Film>) -> FilmTileIter {
-        let n_tiles = (film.resolution + TILE_SIZE - 1) / TILE_SIZE;
+    fn new(sample_bbox: BBox2i) -> FilmTileIter {
+        let n_tiles = (sample_bbox.diagonal() + TILE_SIZE - 1) / TILE_SIZE;
         return FilmTileIter {
-            film,
+            bbox: sample_bbox,
             n_tiles,
-            x: 0,
-            y: 0,
-            next_none: n_tiles.x == 0 || n_tiles.y == 0,
+            i: Point2i::default(),
         };
     }
 }
 
 impl Iterator for FilmTileIter {
-    type Item = FilmTile;
-    fn next(&mut self) -> Option<FilmTile> {
-        if self.next_none {
-            return None;
-        }
-
-        let min = Point2u::new(
-            self.x * TILE_SIZE,
-            self.y * TILE_SIZE,
-        );
-        let max = (min + TILE_SIZE).min(self.film.resolution);
-
-        self.x += 1;
-        if self.x >= self.n_tiles.x {
-            self.x = 0;
-            self.y += 1;
-            if self.y >= self.n_tiles.y {
-                self.next_none = true;
+    type Item = BBox2i;
+    fn next(&mut self) -> Option<BBox2i> {
+        loop {
+            if self.i.y >= self.n_tiles.y {
+                return None;
+            } else if self.i.x >= self.n_tiles.x {
+                self.i.x = 0;
+                self.i.y += 1;
+            } else {
+                let min = self.bbox.min + self.i * TILE_SIZE;
+                let max = (min + TILE_SIZE).min(self.bbox.max);
+                let tile = Some(BBox2i::new(min, max));
+                self.i.x += 1;
+                return tile;
             }
         }
-
-        return Some(self.film.get_film_tile(BBox2u::new(min, max)));
     }
 }
 
@@ -235,25 +228,37 @@ fn gamma_correct(v: f32) -> f32 {
 
 #[cfg(test)]
 mod test {
-    use std::sync::Arc;
-
-    use bbox::BBox2u;
+    use bbox::BBox2;
     use film::Film;
-    use vector::Point2u;
+    use filter::GaussianFilter;
+    use vector::Point2;
 
     #[test]
     fn test_film_tile_iter() {
-        let film = Arc::new(Film::new(Point2u::new(40, 40)));
-        let iter = Film::iter(film);
+        let film = Film::new(Point2::new(0, 40), GaussianFilter::new(0., 0.));
+        let mut n = 0;
+        for tile in film.iter() {
+            n += 1;
+        }
+        assert_eq!(n, 0);
+
+        let film = Film::new(Point2::new(40, 0), GaussianFilter::new(0., 0.));
+        let mut n = 0;
+        for tile in film.iter() {
+            n += 1;
+        }
+        assert_eq!(n, 0);
+
+        let film = Film::new(Point2::new(40, 40), GaussianFilter::new(0., 0.));
         let tiles = [
-            BBox2u { min: Point2u { x: 0, y: 0 }, max: Point2u { x: 16, y: 16 } }, BBox2u { min: Point2u { x: 16, y: 0 }, max: Point2u { x: 32, y: 16 } }, BBox2u { min: Point2u { x: 32, y: 0 }, max: Point2u { x: 40, y: 16 } },
-            BBox2u { min: Point2u { x: 0, y: 16 }, max: Point2u { x: 16, y: 32 } }, BBox2u { min: Point2u { x: 16, y: 16 }, max: Point2u { x: 32, y: 32 } }, BBox2u { min: Point2u { x: 32, y: 16 }, max: Point2u { x: 40, y: 32 } },
-            BBox2u { min: Point2u { x: 0, y: 32 }, max: Point2u { x: 16, y: 40 } }, BBox2u { min: Point2u { x: 16, y: 32 }, max: Point2u { x: 32, y: 40 } }, BBox2u { min: Point2u { x: 32, y: 32 }, max: Point2u { x: 40, y: 40 } },
+            BBox2 { min: Point2 { x: 0, y: 0 }, max: Point2 { x: 16, y: 16 } }, BBox2 { min: Point2 { x: 16, y: 0 }, max: Point2 { x: 32, y: 16 } }, BBox2 { min: Point2 { x: 32, y: 0 }, max: Point2 { x: 40, y: 16 } },
+            BBox2 { min: Point2 { x: 0, y: 16 }, max: Point2 { x: 16, y: 32 } }, BBox2 { min: Point2 { x: 16, y: 16 }, max: Point2 { x: 32, y: 32 } }, BBox2 { min: Point2 { x: 32, y: 16 }, max: Point2 { x: 40, y: 32 } },
+            BBox2 { min: Point2 { x: 0, y: 32 }, max: Point2 { x: 16, y: 40 } }, BBox2 { min: Point2 { x: 16, y: 32 }, max: Point2 { x: 32, y: 40 } }, BBox2 { min: Point2 { x: 32, y: 32 }, max: Point2 { x: 40, y: 40 } },
         ];
         let mut n = 0;
-        for tile in iter {
-            assert_eq!(tile.bbox.min, tiles[n].min);
-            assert_eq!(tile.bbox.max, tiles[n].max);
+        for tile in film.iter() {
+            assert_eq!(tile.min, tiles[n].min);
+            assert_eq!(tile.max, tiles[n].max);
             n += 1;
         }
         assert_eq!(n, tiles.len());

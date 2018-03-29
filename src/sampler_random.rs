@@ -2,7 +2,7 @@ extern crate rand;
 use self::rand::{Rng, StdRng};
 
 use sampler::Sampler;
-use vector::{Point2u, Point2f};
+use vector::{Point2i, Point2f};
 
 #[derive(Clone)]
 pub struct RandomSampler {
@@ -24,7 +24,7 @@ impl RandomSampler {
 }
 
 impl Sampler for RandomSampler {
-    fn start_pixel(&mut self, _: Point2u) {
+    fn start_pixel(&mut self, _: Point2i) {
         self.current_pixel_sample_index = 0;
     }
 

@@ -165,6 +165,7 @@ impl_vector2_sub!(Vector2, Vector2, Vector2, x, y);
 impl_vector2_index!(Vector2);
 
 pub type Vector2u = Vector2<u32>;
+pub type Vector2i = Vector2<i32>;
 pub type Vector2f = Vector2<f32>;
 
 #[derive(Default, Clone, Copy, Debug, PartialEq)]
@@ -181,6 +182,7 @@ impl_vector2_index!(Point2);
 impl_vector2_from!(Vector2, Point2);
 
 pub type Point2u = Point2<u32>;
+pub type Point2i = Point2<i32>;
 pub type Point2f = Point2<f32>;
 
 impl<T> Point2<T> where T: Copy + PartialOrd {
@@ -215,18 +217,57 @@ impl Point2f {
     }
 }
 
-impl From<Point2f> for Point2u {
-    fn from(Point2f { x, y }: Point2f) -> Point2u {
-        Point2u::new(
+impl From<Point2i> for Point2u {
+    fn from(Point2 { x, y }: Point2i) -> Point2u {
+        debug_assert!(x >= 0, "x = {} is less than 0", x);
+        debug_assert!(y >= 0, "y = {} is less than 0", y);
+
+        Point2::new(
             x as u32,
             y as u32,
         )
     }
 }
 
+impl From<Point2f> for Point2u {
+    fn from(Point2 { x, y }: Point2f) -> Point2u {
+        Point2::new(
+            x as u32,
+            y as u32,
+        )
+    }
+}
+
+impl From<Point2u> for Point2i {
+    fn from(Point2 { x, y }: Point2u) -> Point2i {
+        Point2::new(
+            x as i32,
+            y as i32,
+        )
+    }
+}
+
+impl From<Point2f> for Point2i {
+    fn from(Point2 { x, y }: Point2f) -> Point2i {
+        Point2::new(
+            x as i32,
+            y as i32,
+        )
+    }
+}
+
 impl From<Point2u> for Point2f {
-    fn from(Point2u { x, y }: Point2u) -> Point2f {
-        Point2f::new(
+    fn from(Point2 { x, y }: Point2u) -> Point2f {
+        Point2::new(
+            x as f32,
+            y as f32,
+        )
+    }
+}
+
+impl From<Point2i> for Point2f {
+    fn from(Point2 { x, y }: Point2i) -> Point2f {
+        Point2::new(
             x as f32,
             y as f32,
         )

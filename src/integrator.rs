@@ -4,10 +4,11 @@ use std::io::BufWriter;
 use std::sync::{Arc, Mutex};
 use std::thread::spawn;
 
+use bbox::BBox2i;
 use camera::Camera;
 use common::same_addr;
 use container::Container;
-use film::{Film, FilmTile};
+use film::Film;
 use interaction::Interaction;
 use light::Light;
 use ray::Ray;
@@ -39,7 +40,7 @@ impl<Co, Cam, S> Integrator<Co, Cam, S> where Co: 'static + Container, Cam: 'sta
     }
 
     pub fn render(&self, max_threads: u8) {
-        let film_tile_iter = Arc::new(Mutex::new(Film::iter(self.film.clone())));
+        let film_tile_iter = Arc::new(Mutex::new(self.film.iter()));
 
         let mut handles = Vec::new();
         for _ in 0..max_threads {
@@ -57,11 +58,11 @@ impl<Co, Cam, S> Integrator<Co, Cam, S> where Co: 'static + Container, Cam: 'sta
                 };
                 let mut sampler = sampler;
 
-                while let Some(tile) = {
+                while let Some(tile_bbox) = {
                     let mut iter = film_tile_iter.lock().unwrap();
                     iter.next()
                 } {
-                    integrator.render(&mut sampler, tile);
+                    integrator.render(&mut sampler, tile_bbox);
 
                     sampler = sampler.clone();
                 }
@@ -93,8 +94,10 @@ struct IntegratorLocal<Co, Cam> where Co: 'static + Container, Cam: 'static + Ca
 impl<Co, Cam> IntegratorLocal<Co, Cam> where Co: 'static + Container, Cam: 'static + Camera {
     /// Sampler generates a sequence of sample, point on image. Camera turns a sample into ray.
     /// Call li() to compute the radiance along the ray arriving at the film.
-    fn render<S>(&self, sampler: &mut S, mut tile: FilmTile) where S: Sampler {
-        for pixel in tile.bbox.iter() {
+    fn render<S>(&self, sampler: &mut S, tile_bbox: BBox2i) where S: Sampler {
+        let mut tile = self.film.get_film_tile(tile_bbox);
+
+        for pixel in tile_bbox.iter() {
             sampler.start_pixel(pixel);
 
             loop {

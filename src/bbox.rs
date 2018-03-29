@@ -6,7 +6,7 @@ use axis::Axis;
 use common::gamma;
 use ray::Ray;
 use shape::Shape;
-use vector::{Vector3f, Point3f, Vector2, Point2, Point2u, Point2f};
+use vector::{Vector3f, Point3f, Vector2, Point2};
 
 #[derive(Clone, Copy)]
 pub struct BBox3f {
@@ -140,43 +140,45 @@ impl<T> BBox2<T> where T: Copy + PartialOrd + ops::Sub<Output = T> + ops::Mul<Ou
 }
 
 pub type BBox2u = BBox2<u32>;
+pub type BBox2i = BBox2<i32>;
 pub type BBox2f = BBox2<f32>;
 
-impl BBox2u {
-    pub fn iter(&self) -> BBox2uIter {
-        BBox2uIter::new(self.min, self.max)
+impl BBox2i {
+    pub fn iter(&self) -> BBox2iIter {
+        BBox2iIter::new(self.min, self.max)
     }
 }
 
-impl From<BBox2f> for BBox2u {
-    fn from(BBox2f { min, max }: BBox2f) -> BBox2u {
-        BBox2u {
-            min: Point2u::from(min),
-            max: Point2u::from(max),
+macro_rules! impl_bbox2_from {
+    ($from: ident, $to: ident) => (
+        impl From<$from> for $to {
+            fn from(BBox2 { min, max }: $from) -> $to {
+                BBox2 {
+                    min: Point2::from(min),
+                    max: Point2::from(max),
+                }
+            }
         }
-    }
+    );
 }
 
-impl From<BBox2u> for BBox2f {
-    fn from(BBox2u { min, max }: BBox2u) -> BBox2f {
-        BBox2f {
-            min: Point2f::from(min),
-            max: Point2f::from(max),
-        }
-    }
-}
+impl_bbox2_from!(BBox2f, BBox2u);
+impl_bbox2_from!(BBox2i, BBox2u);
+impl_bbox2_from!(BBox2f, BBox2i);
+impl_bbox2_from!(BBox2u, BBox2f);
+impl_bbox2_from!(BBox2i, BBox2f);
 
-pub struct BBox2uIter {
-    min: Point2<u32>,
-    max: Point2<u32>,
-    x: u32,
-    y: u32,
+pub struct BBox2iIter {
+    min: Point2<i32>,
+    max: Point2<i32>,
+    x: i32,
+    y: i32,
     next_none: bool,
 }
 
-impl BBox2uIter {
-    fn new(min: Point2<u32>, max: Point2<u32>) -> BBox2uIter {
-        BBox2uIter {
+impl BBox2iIter {
+    fn new(min: Point2<i32>, max: Point2<i32>) -> BBox2iIter {
+        BBox2iIter {
             min,
             max,
             x: min.x,
@@ -186,9 +188,9 @@ impl BBox2uIter {
     }
 }
 
-impl Iterator for BBox2uIter {
-    type Item = Point2<u32>;
-    fn next(&mut self) -> Option<Point2<u32>> {
+impl Iterator for BBox2iIter {
+    type Item = Point2<i32>;
+    fn next(&mut self) -> Option<Point2<i32>> {
         if self.next_none {
             return None;
         }
@@ -210,12 +212,12 @@ impl Iterator for BBox2uIter {
 
 #[cfg(test)]
 mod test {
-    use bbox::BBox2u;
+    use bbox::BBox2i;
     use vector::Point2;
 
     #[test]
-    fn test_bbox2u_iter() {
-        let bbox = BBox2u::new(Point2::new(2, 2), Point2::new(5, 5));
+    fn test_bbox2i_iter() {
+        let bbox = BBox2i::new(Point2::new(2, 2), Point2::new(5, 5));
         let ps = [
             Point2 { x: 2, y: 2 }, Point2 { x: 3, y: 2 }, Point2 { x: 4, y: 2 },
             Point2 { x: 2, y: 3 }, Point2 { x: 3, y: 3 }, Point2 { x: 4, y: 3 },
@@ -228,6 +230,6 @@ mod test {
             n += 1;
         }
 
-        assert_eq!(n as u32, bbox.area());
+        assert_eq!(n as i32, bbox.area());
     }
 }
