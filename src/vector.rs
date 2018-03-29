@@ -231,6 +231,9 @@ impl From<Point2i> for Point2u {
 
 impl From<Point2f> for Point2u {
     fn from(Point2 { x, y }: Point2f) -> Point2u {
+        debug_assert!(x >= 0., "x = {} is less than 0", x);
+        debug_assert!(y >= 0., "y = {} is less than 0", y);
+
         Point2::new(
             x as u32,
             y as u32,
