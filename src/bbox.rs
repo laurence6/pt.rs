@@ -169,21 +169,19 @@ impl_bbox2_from!(BBox2u, BBox2f);
 impl_bbox2_from!(BBox2i, BBox2f);
 
 pub struct BBox2iIter {
-    min: Point2<i32>,
     max: Point2<i32>,
+    min_x: i32,
     x: i32,
     y: i32,
-    next_none: bool,
 }
 
 impl BBox2iIter {
     fn new(min: Point2<i32>, max: Point2<i32>) -> BBox2iIter {
         BBox2iIter {
-            min,
             max,
+            min_x: min.x,
             x: min.x,
             y: min.y,
-            next_none: false,
         }
     }
 }
@@ -191,22 +189,18 @@ impl BBox2iIter {
 impl Iterator for BBox2iIter {
     type Item = Point2<i32>;
     fn next(&mut self) -> Option<Point2<i32>> {
-        if self.next_none {
-            return None;
-        }
-
-        let p = Some(Point2::new(self.x, self.y));
-
-        self.x += 1;
-        if self.x >= self.max.x {
-            self.x = self.min.x;
-            self.y += 1;
+        loop {
             if self.y >= self.max.y {
-                self.next_none = true;
+                return None;
+            } else if self.x >= self.max.x {
+                self.x = self.min_x;
+                self.y += 1;
+            } else {
+                let p = Some(Point2::new(self.x, self.y));
+                self.x += 1;
+                return p;
             }
         }
-
-        return p;
     }
 }
 
@@ -217,19 +211,42 @@ mod test {
 
     #[test]
     fn test_bbox2i_iter() {
+        let bbox = BBox2i::new(Point2::new(2, 2), Point2::new(2, 2));
+        let mut n = 0;
+        for p in bbox.iter() {
+            n += 1;
+        }
+        assert_eq!(n, 0);
+
+        let bbox = BBox2i::new(Point2::new(2, 2), Point2::new(5, 2));
+        let mut n = 0;
+        for p in bbox.iter() {
+            n += 1;
+        }
+        assert_eq!(n, 0);
+
+        let bbox = BBox2i::new(Point2::new(2, 2), Point2::new(2, 5));
+        let mut n = 0;
+        for p in bbox.iter() {
+            eprintln!("{:?}", p);
+            n += 1;
+        }
+        assert_eq!(n, 0);
+
         let bbox = BBox2i::new(Point2::new(2, 2), Point2::new(5, 5));
         let ps = [
             Point2 { x: 2, y: 2 }, Point2 { x: 3, y: 2 }, Point2 { x: 4, y: 2 },
             Point2 { x: 2, y: 3 }, Point2 { x: 3, y: 3 }, Point2 { x: 4, y: 3 },
             Point2 { x: 2, y: 4 }, Point2 { x: 3, y: 4 }, Point2 { x: 4, y: 4 },
         ];
-
         let mut n = 0;
         for p in bbox.iter() {
             assert_eq!(p, ps[n]);
             n += 1;
         }
-
         assert_eq!(n as i32, bbox.area());
+
+        use std::mem::size_of;
+        eprintln!("{}", size_of::<super::BBox2iIter>());
     }
 }
