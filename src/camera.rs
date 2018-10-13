@@ -24,9 +24,7 @@ pub struct PerspectiveCamera {
 }
 
 impl PerspectiveCamera {
-    pub fn new(camera_to_world: Transform, screen_window: BBox2f, film_res: Point2u, fov: f32) -> PerspectiveCamera {
-        let camera_to_screen = Transform::perspective(fov, 0.01, 1000.);
-
+    pub fn new(camera_to_world: Transform, camera_to_screen: Transform, screen_window: BBox2f, film_res: Point2u) -> PerspectiveCamera {
         let screen_to_raster = Transform::scale(
                                    film_res.x as f32,
                                    film_res.y as f32,
