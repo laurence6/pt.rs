@@ -45,7 +45,7 @@ impl Shape for Triangle {
 
         // transform to ray coordinate system
         // ray.origin is at (0, 0, 0) & direction is (0, 0, 1)
-        let max_axis = ray.direction.max_axis();
+        let max_axis = ray.direction.max_abs_axis();
         let (px, py, pz) = (max_axis.prev(), max_axis.next(), max_axis);
         let d = ray.direction.permute(px, py, pz);
 
@@ -111,7 +111,7 @@ impl Shape for Triangle {
 
         // transform to ray coordinate system
         // ray.origin is at (0, 0, 0) & direction is (0, 0, 1)
-        let max_axis = ray.direction.max_axis();
+        let max_axis = ray.direction.max_abs_axis();
         let (px, py, pz) = (max_axis.prev(), max_axis.next(), max_axis);
         let d = ray.direction.permute(px, py, pz);
 

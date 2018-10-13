@@ -44,7 +44,7 @@ impl Vector3f {
         )
     }
 
-    pub fn max_axis(&self) -> Axis {
+    pub fn max_abs_axis(&self) -> Axis {
         let Vector3f { x, y, z } = self.abs();
         match (x >= y, x >= z, y >= z) {
             ( true,  true,     _) => Axis::X,
