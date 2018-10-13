@@ -40,7 +40,69 @@ impl Shape for Triangle {
     }
 
     fn intersect_p(&self, ray: &Ray) -> bool {
-        unimplemented!()
+        let vs_o = self.vertices;
+        let mut vs = vs_o.clone();
+
+        // transform to ray coordinate system
+        // ray.origin is at (0, 0, 0) & direction is (0, 0, 1)
+        let max_axis = ray.direction.max_axis();
+        let (px, py, pz) = (max_axis.prev(), max_axis.next(), max_axis);
+        let d = ray.direction.permute(px, py, pz);
+
+        let (sx, sy, sz) = (-d.x/d.z, -d.y/d.z, 1./d.z);
+
+        for p in vs.iter_mut() {
+            *p -= Vector3f::from(ray.origin);
+            *p = p.permute(px, py, pz);
+            p.x += p.z * sx;
+            p.y += p.z * sy;
+        }
+
+        // use edge function to test if (0, 0, _) is in the triangle
+        let e0 = vs[1].x * vs[2].y - vs[1].y * vs[2].x;
+        let e1 = vs[2].x * vs[0].y - vs[2].y * vs[0].x;
+        let e2 = vs[0].x * vs[1].y - vs[0].y * vs[1].x;
+        if e0 == 0. || e1 == 0. || e2 == 0. {
+            // TODO: compute using f64
+        }
+
+        if (e0 < 0. || e1 < 0. || e2 < 0.) && (e0 > 0. || e1 > 0. || e2 > 0.) {
+            return false;
+        }
+        let det = e0 + e1 + e2;
+        if det == 0. {
+            return false;
+        }
+
+        for p in vs.iter_mut() {
+            p.z *= sz;
+        }
+        let t_scaled = vs[0].z * e0 + vs[1].z * e1 + vs[2].z * e2;
+        if (det < 0. && (t_scaled < ray.t_max * det || 0. <= t_scaled))
+            || (det > 0. && (t_scaled <= 0. || ray.t_max * det < t_scaled))
+        {
+            return false;
+        }
+
+        let t = t_scaled / det;
+
+        // ensure t > 0
+        let max_x = Vector3f::new(vs[0].x, vs[1].x, vs[2].x).abs().max_component();
+        let max_y = Vector3f::new(vs[0].y, vs[1].y, vs[2].y).abs().max_component();
+        let max_z = Vector3f::new(vs[0].z, vs[1].z, vs[2].z).abs().max_component();
+        let delta_x = max_x * gamma(5.);
+        let delta_y = max_y * gamma(5.);
+        let delta_z = max_z * gamma(3.);
+        let delat_e = (gamma(2.) * max_x * max_y + max_x * delta_y + max_y * delta_x) * 2.;
+        let max_e = Vector3f::new(e0, e1, e2).abs().max_component();
+        let delta_t = 3.
+                    * (gamma(3.) * max_e * max_z + max_z * delat_e + max_e * delta_z)
+                    / det.abs();
+        if t <= delta_t {
+            return false;
+        }
+
+        return true;
     }
 
     fn intersect(&self, ray: &Ray) -> Option<(Interaction, f32)> {
