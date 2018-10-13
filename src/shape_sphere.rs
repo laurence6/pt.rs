@@ -72,13 +72,13 @@ impl Sphere {
 
     fn compute_interaction(&self, ray: &Ray, t: f32) -> (Interaction, f32) {
         let mut p = ray.position(t);
-        p *= self.radius / Vector3f::from(p).length();
+        p *= self.radius / p.length();
 
         let p_err = Vector3f::from(p).abs() * gamma(5.);
 
         let n = {
-            let n = Normal3f::from(Vector3f::from(p).normalize());
-            if Vector3f::from(ray.origin).length() < self.radius {
+            let n = Normal3f::from(p.normalize());
+            if ray.origin.length() < self.radius {
                 -n
             } else {
                 n

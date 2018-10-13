@@ -126,7 +126,7 @@ impl Shape for AreaLight {
     }
 
     fn l(&self, i: &Interaction, w: Vector3f) -> Spectrum {
-        if Vector3f::from(i.n).dot(w) > 0. {
+        if w.dot_n(i.n) > 0. {
             self.l
         } else {
             Spectrum::default()

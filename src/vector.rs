@@ -23,27 +23,6 @@ impl Vector3f {
         )
     }
 
-    pub fn length(&self) -> f32 {
-        (self.x * self.x + self.y * self.y + self.z * self.z).sqrt()
-    }
-
-    pub fn abs(&self) -> Vector3f {
-        Vector3f::new(
-            self.x.abs(),
-            self.y.abs(),
-            self.z.abs(),
-        )
-    }
-
-    pub fn normalize(&self) -> Vector3f {
-        let l = self.length();
-        Vector3f::new(
-            self.x / l,
-            self.y / l,
-            self.z / l,
-        )
-    }
-
     pub fn max_abs_axis(&self) -> Axis {
         let Vector3f { x, y, z } = self.abs();
         match (x >= y, x >= z, y >= z) {
@@ -58,8 +37,8 @@ impl Vector3f {
         (self.x).max(self.y).max(self.z)
     }
 
-    pub fn permute(&self, x: Axis, y: Axis, z: Axis) -> Point3f {
-        Point3f::new(
+    pub fn permute(&self, x: Axis, y: Axis, z: Axis) -> Vector3f {
+        Vector3f::new(
             self[x],
             self[y],
             self[z],
@@ -83,6 +62,12 @@ impl Vector3f {
         + self.z * v.z
     }
 
+    pub fn dot_n(&self, n: Normal3f) -> f32 {
+          self.x * n.x
+        + self.y * n.y
+        + self.z * n.z
+    }
+
     pub fn cross(&self, v: Vector3f) -> Vector3f {
         Vector3f::new(
             self.y * v.z - self.z * v.y,
@@ -99,7 +84,17 @@ pub struct Normal3f {
     pub z: f32,
 }
 impl_vector3f_new_and_ops!(Normal3f, x, y, z);
+impl_vector3f_add!(Normal3f, Normal3f, Normal3f, x, y, z);
 impl_vector3f_from!(Vector3f, Normal3f);
+impl_vector3f_from!(Point3f, Normal3f);
+
+impl Normal3f {
+    pub fn dot(&self, n: Normal3f) -> f32 {
+          self.x * n.x
+        + self.y * n.y
+        + self.z * n.z
+    }
+}
 
 #[derive(Default, Clone, Copy, Debug, PartialEq)]
 pub struct Point3f {
@@ -117,14 +112,6 @@ impl_vector3f_index_axis!(Point3f, x, y, z);
 impl_vector3f_from!(Vector3f, Point3f);
 
 impl Point3f {
-    pub fn abs(&self) -> Vector3f {
-        Vector3f::new(
-            self.x.abs(),
-            self.y.abs(),
-            self.z.abs(),
-        )
-    }
-
     pub fn permute(&self, x: Axis, y: Axis, z: Axis) -> Point3f {
         Point3f::new(
             self[x],

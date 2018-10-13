@@ -52,7 +52,7 @@ impl Shape for Triangle {
         let (sx, sy, sz) = (-d.x/d.z, -d.y/d.z, 1./d.z);
 
         for p in vs.iter_mut() {
-            *p -= Vector3f::from(ray.origin);
+            *p += -ray.origin;
             *p = p.permute(px, py, pz);
             p.x += p.z * sx;
             p.y += p.z * sy;
@@ -118,7 +118,7 @@ impl Shape for Triangle {
         let (sx, sy, sz) = (-d.x/d.z, -d.y/d.z, 1./d.z);
 
         for p in vs.iter_mut() {
-            *p -= Vector3f::from(ray.origin);
+            *p += -ray.origin;
             *p = p.permute(px, py, pz);
             p.x += p.z * sx;
             p.y += p.z * sy;

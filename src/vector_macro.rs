@@ -4,6 +4,27 @@ macro_rules! impl_vector3f_new_and_ops {
             pub fn new($x: f32, $y: f32, $z: f32) -> $vector3f {
                 $vector3f { $x, $y, $z }
             }
+
+            pub fn length(&self) -> f32 {
+                (self.$x * self.$x + self.$y * self.$y + self.$z * self.$z).sqrt()
+            }
+
+            pub fn abs(&self) -> $vector3f {
+                $vector3f::new(
+                    self.$x.abs(),
+                    self.$y.abs(),
+                    self.$z.abs(),
+                )
+            }
+
+            pub fn normalize(&self) -> $vector3f {
+                let l = self.length();
+                $vector3f::new(
+                    self.$x / l,
+                    self.$y / l,
+                    self.$z / l,
+                )
+            }
         }
 
         impl ::std::ops::Neg for $vector3f {

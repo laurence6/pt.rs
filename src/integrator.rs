@@ -17,7 +17,6 @@ use sampler::Sampler;
 use sampling::power_heuristic;
 use scene::Scene;
 use spectrum::Spectrum;
-use vector::Vector3f;
 
 const MAX_BOUNCES: u16 = 64;
 
@@ -130,7 +129,7 @@ impl<Co, Cam> IntegratorLocal<Co, Cam> where Co: 'static + Container, Cam: 'stat
         {
             let (wi, li, light_pdf, visibility) = light.sample_li(i, sample0);
             if light_pdf > 0. && !li.is_black() {
-                let f = bsdf.f(i.wo, wi) * (Vector3f::from(i.n).dot(wi).abs());
+                let f = bsdf.f(i.wo, wi) * (wi.dot_n(i.n).abs());
                 let scattering_pdf = bsdf.pdf(i.wo, wi);
                 if !f.is_black() {
                     if visibility.unoccluded(&self.scene) {
@@ -148,7 +147,7 @@ impl<Co, Cam> IntegratorLocal<Co, Cam> where Co: 'static + Container, Cam: 'stat
         // sample BSDF
         if !light.is_delta() {
             let (wi, mut f, scattering_pdf, bxdf_flag) = bsdf.sample_f(i.wo, sample1);
-            f *= Vector3f::from(i.n).dot(wi).abs();
+            f *= wi.dot_n(i.n).abs();
             let sampled_specular = bxdf_flag & SPECULAR != 0;
             if scattering_pdf > 0. && !f.is_black() {
                 let mut weight = 1.;
@@ -216,7 +215,7 @@ impl<Co, Cam> IntegratorLocal<Co, Cam> where Co: 'static + Container, Cam: 'stat
             if pdf == 0. || f.is_black() {
                 break;
             }
-            beta *= f * Vector3f::from(i.n).dot(wi).abs() / pdf;
+            beta *= f * wi.dot_n(i.n).abs() / pdf;
             specular_bounce = bxdf_flag & SPECULAR != 0;
             ray = i.spawn_ray(wi);
 
