@@ -76,14 +76,7 @@ impl Sphere {
 
         let p_err = Vector3f::from(p).abs() * gamma(5.);
 
-        let n = {
-            let n = Normal3f::from(p.normalize());
-            if ray.origin.length() < self.radius {
-                -n
-            } else {
-                n
-            }
-        };
+        let n = Normal3f::from(p.normalize());
 
         let (dpdu, dpdv) = self.compute_partial_derivative(p);
 
@@ -187,7 +180,7 @@ mod test {
         };
         let (interaction, _) = sphere.intersect(&ray).unwrap();
         assert_eq!(interaction.p, Point3f::new(2., 3., 2.));
-        assert_eq!(interaction.n, Normal3f::new(0., -1., 0.));
+        assert_eq!(interaction.n, Normal3f::new(0., 1., 0.));
 
         let ray = Ray {
             origin: Point3f::new(0., 0., 2.),
