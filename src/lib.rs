@@ -17,6 +17,7 @@
 #[allow(dead_code, unused_variables)] mod interaction;
 #[allow(dead_code, unused_variables)] mod light;
 #[allow(dead_code, unused_variables)] mod material;
+#[allow(dead_code, unused_variables)] mod material_glass;
 #[allow(dead_code, unused_variables)] mod material_lambertian_reflection;
 #[allow(dead_code, unused_variables)] mod material_metal;
 #[allow(dead_code, unused_variables)] mod material_mirror;
