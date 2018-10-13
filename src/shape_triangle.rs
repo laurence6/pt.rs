@@ -217,7 +217,7 @@ impl Shape for Triangle {
         let dp02 = vs_o[0] - vs_o[2];
         let dp12 = vs_o[1] - vs_o[2];
         let det = duv02[0] * duv12[1] - duv02[1] * duv12[0];
-        let (dpdu, dpdv) = if det.abs() < EPSILON {
+        let (mut dpdu, mut dpdv) = if det.abs() < EPSILON {
             (vs_o[2] - vs_o[0]).cross(vs_o[1] - vs_o[0])
                 .normalize()
                 .construct_coordinate_system()
@@ -236,21 +236,30 @@ impl Shape for Triangle {
             let len = sn.length();
             if len >= 0. {
                 sn /= len;
-
-                if n.dot(sn) < 0. {
-                    n *= -1.;
-                }
             } else {
-                if self.reverse_orientation {
-                    n *= -1.;
-                }
                 sn = n;
             }
-        } else {
-            if self.reverse_orientation {
-                n *= -1.;
+
+            dpdu = dpdu.normalize();
+            dpdv = dpdu.cross(Vector3f::from(sn));
+            let len = dpdv.length();
+            if len > 0. {
+                dpdv /= len;
+                dpdu = dpdv.cross(Vector3f::from(sn));
+            } else {
+                let (_dpdu, _dpdv) = Vector3f::from(sn).construct_coordinate_system();
+                dpdu = _dpdu;
+                dpdv = _dpdv;
             }
+        } else {
             sn = n;
+        }
+
+        if self.reverse_orientation {
+            sn *= -1.;
+        }
+        if n.dot(sn) < 0. {
+            n *= -1.;
         }
 
         return Some((
