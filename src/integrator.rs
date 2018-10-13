@@ -104,7 +104,12 @@ impl<Co, Cam> IntegratorLocal<Co, Cam> where Co: 'static + Container, Cam: 'stat
                 let camera_sample = sampler.get_camera_sample(pixel);
                 let ray = self.camera.generate_ray(&camera_sample);
                 let l = self.li(sampler, ray);
-                tile.add_sample(camera_sample.p_film, l);
+
+                if !(0..3).any(|i| l[i].is_nan() || l[i].is_infinite() || l[i] < 0.) {
+                    tile.add_sample(camera_sample.p_film, l);
+                } else {
+                    eprintln!("Invalid radiance {:?} in pixel {:?}", l, pixel);
+                }
 
                 if !sampler.start_next_sample() {
                     break;
