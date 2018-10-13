@@ -21,6 +21,35 @@ impl Triangle {
         Triangle { vertices, vertex_normals, reverse_orientation, material }
     }
 
+    pub fn new_triangle_mesh(vertices: Box<[Point3f]>, indices: Box<[[usize; 3]]>, vertex_normals: Option<Box<[Normal3f]>>, vertex_normal_indices: Option<Box<[[usize; 3]]>>, material: Arc<Material>) -> Vec<Triangle> {
+        let vertex_normals = vertex_normals.unwrap_or(Box::new([]));
+        let vertex_normal_indices = vertex_normal_indices.unwrap_or(Box::new([]));
+        let has_vertex_normals = vertex_normal_indices.len() >= indices.len();
+
+        let mut triangles = Vec::new();
+        for i in 0..indices.len() {
+            let vi = indices[i];
+            let vertices = [
+                vertices[vi[0]],
+                vertices[vi[1]],
+                vertices[vi[2]],
+            ];
+            let vertex_normals = if has_vertex_normals {
+                let vni = vertex_normal_indices[i];
+                Some([
+                    vertex_normals[vni[0]],
+                    vertex_normals[vni[1]],
+                    vertex_normals[vni[2]],
+                ])
+            } else {
+                None
+            };
+            triangles.push(Triangle::new(vertices, vertex_normals, false, material.clone()));
+        }
+
+        return triangles;
+    }
+
     fn get_uv(&self) -> [Point2f; 3] {
         [
             Point2f::new(0., 0.),
