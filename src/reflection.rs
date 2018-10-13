@@ -34,7 +34,8 @@ pub trait BxDF {
 pub struct BSDF {
     bxdfs: Vec<Box<BxDF>>,
     eta: f32,
-    n: Vector3f,
+    gn: Vector3f, // geometric normal
+    sn: Vector3f, // shading normal
     s: Vector3f,
     t: Vector3f,
 }
@@ -42,13 +43,15 @@ pub struct BSDF {
 impl BSDF {
     /// Relative index of refraction.
     pub fn new(eta: f32, i: &Interaction) -> BSDF {
-        let n = Vector3f::from(i.n);
+        let gn = Vector3f::from(i.n);
+        let sn = Vector3f::from(i.sn);
         let s = i.dpdu.normalize();
-        let t = n.cross(s);
+        let t = sn.cross(s);
         return BSDF {
             bxdfs: Vec::new(),
             eta,
-            n,
+            gn,
+            sn,
             s,
             t,
         };
@@ -63,15 +66,15 @@ impl BSDF {
         Vector3f::new(
             v.dot(self.s),
             v.dot(self.t),
-            v.dot(self.n),
+            v.dot(self.sn),
         )
     }
 
     fn local_to_world(&self, v: Vector3f) -> Vector3f {
         Vector3f::new(
-            self.s.x * v.x + self.t.x * v.y + self.n.x * v.z,
-            self.s.y * v.x + self.t.y * v.y + self.n.y * v.z,
-            self.s.z * v.x + self.t.z * v.y + self.n.z * v.z,
+            self.s.x * v.x + self.t.x * v.y + self.sn.x * v.z,
+            self.s.y * v.x + self.t.y * v.y + self.sn.y * v.z,
+            self.s.z * v.x + self.t.z * v.y + self.sn.z * v.z,
         )
     }
 
@@ -82,7 +85,7 @@ impl BSDF {
         }
         let wi = self.world_to_local(wi_w);
 
-        let reflect = wi_w.dot(self.n) * wo_w.dot(self.n) > 0.;
+        let reflect = wi_w.dot(self.gn) * wo_w.dot(self.gn) > 0.;
 
         let mut f = Spectrum::default();
         for bxdf in self.bxdfs.iter() {
@@ -126,7 +129,7 @@ impl BSDF {
                 }
             }
 
-            let reflect = wi_w.dot(self.n) * wo_w.dot(self.n) > 0.;
+            let reflect = wi_w.dot(self.gn) * wo_w.dot(self.gn) > 0.;
             f = Spectrum::default();
             for bxdf in self.bxdfs.iter() {
                 if (reflect && bxdf.has_flag(REFLECTION))
@@ -269,6 +272,7 @@ mod test {
             &Interaction {
                 p: Point3f::new(1., 1., 1.),
                 n: Normal3f::new(-1., 0., 0.),
+                sn: Normal3f::new(-1., 0., 0.),
                 dpdu: Vector3f::new(0., -1., 0.),
                 ..Default::default()
             },

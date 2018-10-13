@@ -92,6 +92,7 @@ impl Sphere {
                 p: self.local_to_world(p),
                 p_err,
                 n,
+                sn: n,
                 dpdu,
                 dpdv,
                 wo: -ray.direction,

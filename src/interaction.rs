@@ -13,6 +13,7 @@ pub struct Interaction {
     pub p_err: Vector3f,
 
     pub n: Normal3f,
+    pub sn: Normal3f, // shading normal
     pub dpdu: Vector3f,
     pub dpdv: Vector3f,
 

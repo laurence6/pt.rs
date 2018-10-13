@@ -10,14 +10,15 @@ use vector::{Vector3f, Normal3f, Point3f, Point2f};
 
 pub struct Triangle {
     vertices: [Point3f; 3],
+    vertex_normals: Option<[Normal3f; 3]>,
     reverse_orientation: bool,
 
     material: Arc<Material>,
 }
 
 impl Triangle {
-    pub fn new(vertices: [Point3f; 3], reverse_orientation: bool, material: Arc<Material>) -> Triangle {
-        Triangle { vertices, reverse_orientation, material }
+    pub fn new(vertices: [Point3f; 3], vertex_normals: Option<[Normal3f; 3]>, reverse_orientation: bool, material: Arc<Material>) -> Triangle {
+        Triangle { vertices, vertex_normals, reverse_orientation, material }
     }
 
     fn get_uv(&self) -> [Point2f; 3] {
@@ -198,8 +199,29 @@ impl Shape for Triangle {
         };
 
         let mut n = Normal3f::from(dp02.cross(dp12).normalize());
-        if self.reverse_orientation {
-            n *= -1.;
+        let mut sn;
+        if let Some(vertex_normals) = self.vertex_normals {
+            sn = vertex_normals[0] * b0
+               + vertex_normals[1] * b1
+               + vertex_normals[2] * b2;
+            let len = sn.length();
+            if len >= 0. {
+                sn /= len;
+
+                if n.dot(sn) < 0. {
+                    n *= -1.;
+                }
+            } else {
+                if self.reverse_orientation {
+                    n *= -1.;
+                }
+                sn = n;
+            }
+        } else {
+            if self.reverse_orientation {
+                n *= -1.;
+            }
+            sn = n;
         }
 
         return Some((
@@ -207,6 +229,7 @@ impl Shape for Triangle {
                 p,
                 p_err,
                 n,
+                sn,
                 dpdu,
                 dpdv,
                 wo: -ray.direction,
