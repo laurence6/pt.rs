@@ -65,13 +65,13 @@ fn fr_dielectric(mut cos_theta_i: f32, mut eta_i: f32, mut eta_t: f32) -> f32 {
         cos_theta_i *= -1.;
     }
 
-    let sin_theta_i = (1. - cos_theta_i * cos_theta_i).sqrt();
+    let sin_theta_i = (1. - cos_theta_i * cos_theta_i).max(0.).sqrt();
 
     let sin_theta_t = eta_i / eta_t * sin_theta_i;
     if sin_theta_t >= 1. { // total internal reflection
         return 1.;
     }
-    let cos_theta_t = (1. - sin_theta_t * sin_theta_t).sqrt();
+    let cos_theta_t = (1. - sin_theta_t * sin_theta_t).max(0.).sqrt();
 
     let r_parl = (eta_t * cos_theta_i - eta_i * cos_theta_t)
                / (eta_t * cos_theta_i + eta_i * cos_theta_t);

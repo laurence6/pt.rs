@@ -228,6 +228,21 @@ pub fn reflect(w: Vector3f, n: Vector3f) -> Vector3f {
     -w + n * w.dot(n) * 2.
 }
 
+pub fn refract(wi: Vector3f, n: Vector3f, eta: f32) -> Option<Vector3f> {
+    let cos_theta_i = wi.dot(n);
+
+    let sin_2_theta_i = (1. - cos_theta_i * cos_theta_i).max(0.);
+    let sin_2_theta_t = eta * eta * sin_2_theta_i;
+
+    if sin_2_theta_t >= 1. { // total internal reflection
+        return None;
+    }
+
+    let cos_theta_t = (1. - sin_2_theta_t).sqrt();
+    let wt = -wi * eta + n * (cos_theta_i * eta - cos_theta_t);
+    return Some(wt);
+}
+
 #[cfg(test)]
 mod test {
     use common::EPSILON;
