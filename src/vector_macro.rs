@@ -251,13 +251,13 @@ macro_rules! impl_vector3f_from {
 
 macro_rules! impl_vector2_new_and_ops {
     ($vector2: ident, $x: ident, $y: ident) => (
-        impl<T> $vector2<T> where T: PartialOrd {
+        impl<T> $vector2<T> {
             pub fn new($x: T, $y: T) -> $vector2<T> {
                 $vector2 { $x, $y }
             }
         }
 
-        impl<T> ::std::ops::Neg for $vector2<T> where T: PartialOrd + ::std::ops::Neg<Output = T> {
+        impl<T> ::std::ops::Neg for $vector2<T> where T: ::std::ops::Neg<Output = T> {
             type Output = $vector2<T>;
             fn neg(self) -> $vector2<T> {
                 $vector2::new(
@@ -267,7 +267,7 @@ macro_rules! impl_vector2_new_and_ops {
             }
         }
 
-        impl<T> ::std::ops::Add<T> for $vector2<T> where T: Copy + PartialOrd + ::std::ops::Add<Output = T> {
+        impl<T> ::std::ops::Add<T> for $vector2<T> where T: Copy + ::std::ops::Add<Output = T> {
             type Output = $vector2<T>;
             fn add(self, n: T) -> $vector2<T> {
                 $vector2::new(
@@ -277,14 +277,14 @@ macro_rules! impl_vector2_new_and_ops {
             }
         }
 
-        impl<T> ::std::ops::AddAssign<T> for $vector2<T> where T: Copy + PartialOrd + ::std::ops::AddAssign<T> {
+        impl<T> ::std::ops::AddAssign<T> for $vector2<T> where T: Copy + ::std::ops::AddAssign<T> {
             fn add_assign(&mut self, n: T) {
                 self.$x += n;
                 self.$y += n;
             }
         }
 
-        impl<T> ::std::ops::Sub<T> for $vector2<T> where T: Copy + PartialOrd + ::std::ops::Sub<Output = T> {
+        impl<T> ::std::ops::Sub<T> for $vector2<T> where T: Copy + ::std::ops::Sub<Output = T> {
             type Output = $vector2<T>;
             fn sub(self, n: T) -> $vector2<T> {
                 $vector2::new(
@@ -294,14 +294,14 @@ macro_rules! impl_vector2_new_and_ops {
             }
         }
 
-        impl<T> ::std::ops::SubAssign<T> for $vector2<T> where T: Copy + PartialOrd + ::std::ops::SubAssign<T> {
+        impl<T> ::std::ops::SubAssign<T> for $vector2<T> where T: Copy + ::std::ops::SubAssign<T> {
             fn sub_assign(&mut self, n: T) {
                 self.$x -= n;
                 self.$y -= n;
             }
         }
 
-        impl<T> ::std::ops::Mul<T> for $vector2<T> where T: Copy + PartialOrd + ::std::ops::Mul<Output = T> {
+        impl<T> ::std::ops::Mul<T> for $vector2<T> where T: Copy + ::std::ops::Mul<Output = T> {
             type Output = $vector2<T>;
             fn mul(self, n: T) -> $vector2<T> {
                 $vector2::new(
@@ -311,14 +311,14 @@ macro_rules! impl_vector2_new_and_ops {
             }
         }
 
-        impl<T> ::std::ops::MulAssign<T> for $vector2<T> where T: Copy + PartialOrd + ::std::ops::MulAssign<T> {
+        impl<T> ::std::ops::MulAssign<T> for $vector2<T> where T: Copy + ::std::ops::MulAssign<T> {
             fn mul_assign(&mut self, n: T) {
                 self.$x *= n;
                 self.$y *= n;
             }
         }
 
-        impl<T> ::std::ops::Div<T> for $vector2<T> where T: Copy + PartialOrd + ::std::ops::Div<Output = T> {
+        impl<T> ::std::ops::Div<T> for $vector2<T> where T: Copy + ::std::ops::Div<Output = T> {
             type Output = $vector2<T>;
             fn div(self, n: T) -> $vector2<T> {
                 $vector2::new(
@@ -328,7 +328,7 @@ macro_rules! impl_vector2_new_and_ops {
             }
         }
 
-        impl<T> ::std::ops::DivAssign<T> for $vector2<T> where T: Copy + PartialOrd + ::std::ops::DivAssign<T> {
+        impl<T> ::std::ops::DivAssign<T> for $vector2<T> where T: Copy + ::std::ops::DivAssign<T> {
             fn div_assign(&mut self, n: T) {
                 self.$x /= n;
                 self.$y /= n;
@@ -339,7 +339,7 @@ macro_rules! impl_vector2_new_and_ops {
 
 macro_rules! impl_vector2_add {
     ($vector2: ident, $vector2_other: ident, $vector2_output: ident, $x: ident, $y: ident) => (
-        impl<T> ::std::ops::Add<$vector2_other<T>> for $vector2<T> where T: PartialOrd + ::std::ops::Add<Output = T> {
+        impl<T> ::std::ops::Add<$vector2_other<T>> for $vector2<T> where T: ::std::ops::Add<Output = T> {
             type Output = $vector2_output<T>;
             fn add(self, v: $vector2_other<T>) -> $vector2_output<T> {
                 $vector2_output::new(
@@ -349,7 +349,7 @@ macro_rules! impl_vector2_add {
             }
         }
 
-        impl<T> ::std::ops::AddAssign<$vector2_other<T>> for $vector2<T> where T: PartialOrd + ::std::ops::AddAssign<T> {
+        impl<T> ::std::ops::AddAssign<$vector2_other<T>> for $vector2<T> where T: ::std::ops::AddAssign<T> {
             fn add_assign(&mut self, v: $vector2_other<T>) {
                 self.$x += v.$x;
                 self.$y += v.$y;
@@ -360,7 +360,7 @@ macro_rules! impl_vector2_add {
 
 macro_rules! impl_vector2_sub {
     ($vector2: ident, $vector2_other: ident, $vector2_output: ident, $x: ident, $y: ident) => (
-        impl<T> ::std::ops::Sub<$vector2_other<T>> for $vector2<T> where T: PartialOrd + ::std::ops::Sub<Output = T> {
+        impl<T> ::std::ops::Sub<$vector2_other<T>> for $vector2<T> where T: ::std::ops::Sub<Output = T> {
             type Output = $vector2_output<T>;
             fn sub(self, v: $vector2_other<T>) -> $vector2_output<T> {
                 $vector2_output::new(
@@ -370,7 +370,7 @@ macro_rules! impl_vector2_sub {
             }
         }
 
-        impl<T> ::std::ops::SubAssign<$vector2_other<T>> for $vector2<T> where T: PartialOrd + ::std::ops::SubAssign<T> {
+        impl<T> ::std::ops::SubAssign<$vector2_other<T>> for $vector2<T> where T: ::std::ops::SubAssign<T> {
             fn sub_assign(&mut self, v: $vector2_other<T>) {
                 self.$x -= v.$x;
                 self.$y -= v.$y;
@@ -381,7 +381,7 @@ macro_rules! impl_vector2_sub {
 
 macro_rules! impl_vector2_index {
     ($vector2: ident) => (
-        impl<T> ::std::ops::Index<usize> for $vector2<T> where T: PartialOrd {
+        impl<T> ::std::ops::Index<usize> for $vector2<T> {
             type Output = T;
             fn index(&self, i: usize) -> &T {
                 match i {
@@ -392,7 +392,7 @@ macro_rules! impl_vector2_index {
             }
         }
 
-        impl<T> ::std::ops::IndexMut<usize> for $vector2<T> where T: PartialOrd {
+        impl<T> ::std::ops::IndexMut<usize> for $vector2<T> {
             fn index_mut(&mut self, i: usize) -> &mut T {
                 match i {
                     0 => &mut self.x,
@@ -406,7 +406,7 @@ macro_rules! impl_vector2_index {
 
 macro_rules! impl_vector2_from {
     ($vector2_from: ident, $vector2_to: ident) => (
-        impl<T> From<$vector2_from<T>> for $vector2_to<T> where T: PartialOrd {
+        impl<T> From<$vector2_from<T>> for $vector2_to<T> {
             fn from($vector2_from { x, y }: $vector2_from<T>) -> $vector2_to<T> {
                 $vector2_to::new(x, y)
             }

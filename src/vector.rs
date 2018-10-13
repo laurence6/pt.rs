@@ -169,7 +169,7 @@ pub type Vector2i = Vector2<i32>;
 pub type Vector2f = Vector2<f32>;
 
 #[derive(Default, Clone, Copy, Debug, PartialEq)]
-pub struct Point2<T> where T: PartialOrd {
+pub struct Point2<T> {
     pub x: T,
     pub y: T,
 }

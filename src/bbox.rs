@@ -114,7 +114,7 @@ impl BBox3f {
 }
 
 #[derive(Clone, Copy)]
-pub struct BBox2<T> where T: PartialOrd {
+pub struct BBox2<T> where T: Copy + PartialOrd {
     pub min: Point2<T>,
     pub max: Point2<T>,
 }
