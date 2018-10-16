@@ -25,11 +25,11 @@ impl<T> BxDF for MicrofacetReflectionBRDF<T> where T: Fresnel {
     fn f(&self, wo: Vector3f, wi: Vector3f) -> Spectrum {
         let cos_theta_o = abs_cos_theta(wo);
         let cos_theta_i = abs_cos_theta(wi);
-        let wh = wo + wi;
-
         if cos_theta_o == 0. || cos_theta_i == 0. {
             return Spectrum::default();
         }
+
+        let wh = wo + wi;
         if wh.x == 0. && wh.y == 0. && wh.z == 0. {
             return Spectrum::default();
         }
