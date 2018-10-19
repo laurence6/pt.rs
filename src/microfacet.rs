@@ -3,6 +3,7 @@ use reflection::{cos_2_theta, abs_cos_theta, tan_theta, tan_2_theta, cos_2_phi, 
 use vector::{Vector3f, Point2f};
 
 /// GGX(Trowbridge–Reitz) Microfacet Distribution.
+#[derive(Clone, Copy)]
 pub struct MicrofacetDistribution {
     alpha_x: f32,
     alpha_y: f32,
