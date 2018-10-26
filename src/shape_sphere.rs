@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use bbox::BBox3f;
-use common::{PI, gamma, quadratic};
+use common::{PI, clamp, gamma, quadratic};
 use interaction::Interaction;
 use material::Material;
 use ray::Ray;
@@ -76,6 +76,20 @@ impl Sphere {
 
         let p_err = Vector3f::from(p).abs() * gamma(5.);
 
+        let phi = {
+            let mut p = p;
+            if p.x == 0. && p.y == 0. {
+                p.x = 1e-5 * self.radius;
+            }
+            let mut phi = p.y.atan2(p.x);
+            if phi < 0. {
+                phi += PI * 2.;
+            }
+            phi
+        };
+        let theta = clamp(p.z / self.radius, -1., 1.).acos();
+        let uv = Point2f::new(phi, theta);
+
         let n = Normal3f::from(p.normalize());
 
         let (dpdu, dpdv) = self.compute_partial_derivative(p);
@@ -84,6 +98,7 @@ impl Sphere {
             Interaction {
                 p: self.local_to_world(p),
                 p_err,
+                uv,
                 n,
                 sn: n,
                 dpdu,

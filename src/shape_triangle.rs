@@ -227,6 +227,10 @@ impl Shape for Triangle {
             (dpdu, dpdv)
         };
 
+        let uv = uv[0] * b0
+               + uv[1] * b1
+               + uv[2] * b2;
+
         let mut n = Normal3f::from(dp02.cross(dp12).normalize());
         let mut sn;
         if let Some(vertex_normals) = self.vertex_normals {
@@ -266,6 +270,7 @@ impl Shape for Triangle {
             Interaction {
                 p,
                 p_err,
+                uv,
                 n,
                 sn,
                 dpdu,

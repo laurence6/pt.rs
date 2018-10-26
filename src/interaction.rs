@@ -5,14 +5,15 @@ use ray::Ray;
 use reflection::BSDF;
 use shape::Shape;
 use spectrum::Spectrum;
-use vector::{Vector3f, Normal3f, Point3f};
+use vector::{Vector3f, Normal3f, Point3f, Point2f};
 
 #[derive(Default, Clone)]
 pub struct Interaction {
     pub p: Point3f,
     pub p_err: Vector3f,
-
+    pub uv: Point2f,
     pub n: Normal3f,
+
     pub sn: Normal3f, // shading normal
     pub dpdu: Vector3f,
     pub dpdv: Vector3f,

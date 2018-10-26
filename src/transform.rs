@@ -253,6 +253,7 @@ impl Transformable for Interaction {
         Interaction {
             p: self.p._transform(m, m_inv),
             p_err: self.p_err._transform(m, m_inv),
+            uv: self.uv,
             n: self.n._transform(m, m_inv),
             sn: self.sn._transform(m, m_inv),
             dpdu: self.dpdu._transform(m, m_inv),
