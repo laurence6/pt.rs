@@ -33,7 +33,6 @@ pub trait BxDF {
 
 pub struct BSDF {
     bxdfs: Vec<Box<BxDF>>,
-    eta: f32,
     gn: Vector3f, // geometric normal
     sn: Vector3f, // shading normal
     s: Vector3f,
@@ -41,15 +40,13 @@ pub struct BSDF {
 }
 
 impl BSDF {
-    /// Relative index of refraction.
-    pub fn new(eta: f32, i: &Interaction) -> BSDF {
+    pub fn new(i: &Interaction) -> BSDF {
         let gn = Vector3f::from(i.n);
         let sn = Vector3f::from(i.sn);
         let s = i.dpdu.normalize();
         let t = sn.cross(s);
         return BSDF {
             bxdfs: Vec::new(),
-            eta,
             gn,
             sn,
             s,
@@ -283,7 +280,6 @@ mod test {
     #[test]
     fn test_bsdf_world_loacl() {
         let bsdf = BSDF::new(
-            1.,
             &Interaction {
                 p: Point3f::new(1., 1., 1.),
                 n: Normal3f::new(-1., 0., 0.),

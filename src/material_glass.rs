@@ -28,9 +28,9 @@ impl GlassMaterial {
 
 impl Material for GlassMaterial {
     fn compute_scattering(&self, i: &Interaction) -> BSDF {
-        let eta = self.eta.evaluate(i);
-        let mut bsdf = BSDF::new(eta, i);
+        let mut bsdf = BSDF::new(i);
 
+        let eta = self.eta.evaluate(i);
         let r = self.kr.evaluate(i).clamp(0., INFINITY);
         let t = self.kt.evaluate(i).clamp(0., INFINITY);
         let rough_u = self.roughness_u.evaluate(i);

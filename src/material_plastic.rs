@@ -25,7 +25,7 @@ impl PlasticMaterial {
 
 impl Material for PlasticMaterial {
     fn compute_scattering(&self, i: &Interaction) -> BSDF {
-        let mut bsdf = BSDF::new(1., i);
+        let mut bsdf = BSDF::new(i);
 
         let d = self.kd.evaluate(i).clamp(0., INFINITY);
         let s = self.ks.evaluate(i).clamp(0., INFINITY);

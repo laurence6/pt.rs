@@ -20,7 +20,7 @@ impl MirrorMaterial {
 
 impl Material for MirrorMaterial {
     fn compute_scattering(&self, i: &Interaction) -> BSDF {
-        let mut bsdf = BSDF::new(1., i);
+        let mut bsdf = BSDF::new(i);
         let r = self.kr.evaluate(i).clamp(0., INFINITY);
         if !r.is_black() {
             bsdf.add(SpecularReflectionBRDF::new(r, FresnelNoOp::new()));

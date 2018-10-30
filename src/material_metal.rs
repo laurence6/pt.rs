@@ -27,7 +27,7 @@ impl MetalMaterial {
 
 impl Material for MetalMaterial {
     fn compute_scattering(&self, i: &Interaction) -> BSDF {
-        let mut bsdf = BSDF::new(1., i);
+        let mut bsdf = BSDF::new(i);
 
         let r = self.r.evaluate(i).clamp(0., INFINITY);
         let eta = self.eta.evaluate(i);

@@ -19,7 +19,7 @@ impl LambertianReflectionMaterial {
 
 impl Material for LambertianReflectionMaterial {
     fn compute_scattering(&self, i: &Interaction) -> BSDF {
-        let mut bsdf = BSDF::new(1., i);
+        let mut bsdf = BSDF::new(i);
         let r = self.kd.evaluate(i).clamp(0., INFINITY);
         if !r.is_black() {
             bsdf.add(LambertianReflectionBRDF::new(r));

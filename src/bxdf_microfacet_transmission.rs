@@ -41,7 +41,7 @@ impl BxDF for MicrofacetTransmissionBTDF {
             return Spectrum::default();
         }
 
-        let eta = if cos_theta(wo) > 0. {
+        let eta = if cos_theta_o > 0. {
             self.eta_b / self.eta_a
         } else {
             self.eta_a / self.eta_b
@@ -54,7 +54,7 @@ impl BxDF for MicrofacetTransmissionBTDF {
         let d = self.distribution.d(wh);
         let g = self.distribution.g(wo, wi);
         let f = self.fresnel.evaluate(wh.dot(wo));
-        return (self.t * d * g * (Spectrum::from(1.) - f) * eta * eta * wi.dot(wh).abs() * wo.dot(wh).abs()
+        return (self.t * d * g * (-f + 1.) * wi.dot(wh).abs() * wo.dot(wh).abs()
             / ((wo.dot(wh) + wi.dot(wh) * eta).powi(2) * cos_theta_o * cos_theta_i)).abs();
     }
 
