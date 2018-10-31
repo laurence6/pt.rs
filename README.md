@@ -1,6 +1,22 @@
 # pt.rs
 
-A path tracing engine written in Rust.
+A physically-based path tracing renderer written in Rust. It is similar to PBRT.
+
+![thumbs](https://i.imgur.com/6LAkuJk.png)
+
+## Features
+
+* Various material
+* Texture
+* Distant light, Area light
+* Physically-based rendering
+* Use k-d tree for intersection acceleration
+* Use halton sequence to generate samples
+* Use all CPU cores in parallel
+
+
+## Example
+
 
 ## License
 
