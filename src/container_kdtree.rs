@@ -15,7 +15,7 @@ const TRAV_COST: f32 = 1.;
 const EMPTY_BONUS: f32 = 0.5;
 
 /// k-d tree.
-pub struct Tree {
+pub struct KdTree {
     bbox: BBox3f,
     nodes: Vec<Node>,
 }
@@ -27,10 +27,10 @@ enum Node {
     Shapes(Box<[Arc<Shape>]>),
 }
 
-impl Tree {
+impl KdTree {
     /// If max_depth is None, max_depth will be calculated based on the number of shapes.
-    pub fn new(shapes: Box<[Arc<Shape>]>, max_depth: Option<u32>) -> Tree {
-        let mut tree = Tree {
+    pub fn new(shapes: Box<[Arc<Shape>]>, max_depth: Option<u32>) -> KdTree {
+        let mut tree = KdTree {
             bbox: BBox3f::bbox_of_shapes(&shapes),
             nodes: Vec::new(),
         };
@@ -198,7 +198,7 @@ impl Tree {
     }
 }
 
-impl Container for Tree {
+impl Container for KdTree {
     fn bbox(&self) -> BBox3f {
         self.bbox
     }
