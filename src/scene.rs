@@ -6,6 +6,7 @@ use interaction::Interaction;
 use light::{Light, AreaLight};
 use ray::Ray;
 use shape::Shape;
+use vector::Point3f;
 
 pub struct Scene<C> where C: Container {
     lights: Box<[Arc<Light>]>,
@@ -61,13 +62,10 @@ impl Builder {
     }
 
     pub fn construct<C, F>(mut self, container: F) -> Scene<C> where C: Container, F: FnOnce(Box<[Arc<Shape>]>) -> C {
-        let bbox = {
-            let mut bbox = BBox3f::bbox_of_shapes(&self.shapes);
-            for area_light in self.area_lights.iter() {
-                bbox = bbox.union(&area_light.bbox());
-            }
-            bbox
-        };
+        let mut bbox = if self.shapes.is_empty() { BBox3f::new(Point3f::default(), Point3f::default()) } else { BBox3f::bbox_of_shapes(&self.shapes) };
+        for area_light in self.area_lights.iter() {
+            bbox = bbox.union(&area_light.bbox());
+        }
 
         for light in self.lights.iter_mut() {
             let light = Arc::get_mut(light).unwrap();
