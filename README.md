@@ -14,9 +14,15 @@ A physically-based path tracing renderer written in Rust. It is similar to PBRT.
 * Use halton sequence to generate samples
 * Use all CPU cores in parallel
 
+## Installation
 
-## Example
+    git clone https://github.com/laurence6/pt.rs.git
 
+## Examples
+
+```
+$ cargo build --release --examples
+```
 
 ## License
 
