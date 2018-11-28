@@ -290,7 +290,7 @@ mod test {
     fn test_transform_point3f() {
         let t = Transform::scale(3., 1.5, 1.)
               * Transform::translate(1., 2., 3.);
-        let p = Point3f::new(0., 0., 0.);
+        let p = Point3f::default();
         assert_eq!(t.apply(&p), Point3f::new(3., 3., 3.));
     }
 
