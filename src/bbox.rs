@@ -23,11 +23,7 @@ impl BBox3f {
     }
 
     pub fn bbox_of_shapes(shapes: &[Arc<Shape>]) -> BBox3f {
-        let mut bbox = shapes[0].bbox();
-        for s in shapes[1..].iter() {
-            bbox = bbox.union(&s.bbox());
-        }
-        return bbox;
+        shapes[1..].iter().fold(shapes[0].bbox(), |bbox, s| bbox.union(&s.bbox()))
     }
 
     pub fn diagonal(&self) -> Vector3f {

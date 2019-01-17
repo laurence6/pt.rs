@@ -1,6 +1,6 @@
 use std::cmp;
 use std::io::Write;
-use std::sync::{Mutex};
+use std::sync::Mutex;
 
 use bbox::{BBox2i, BBox2f};
 use common::clamp;
@@ -79,8 +79,7 @@ impl Film {
     pub fn merge_film_tile(&self, tile: FilmTile) {
         let mut pixels = self.pixels.lock().unwrap();
         for pixel in tile.bbox.iter() {
-            let p = &tile.pixels[tile.pixel_offset(pixel.x, pixel.y)];
-            (*pixels)[self.pixel_offset(pixel)].merge(p);
+            (*pixels)[self.pixel_offset(pixel)].merge(&tile.pixels[tile.pixel_offset(pixel.x, pixel.y)]);
         }
     }
 

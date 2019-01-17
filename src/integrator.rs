@@ -69,9 +69,7 @@ impl<Co, Cam, S> Integrator<Co, Cam, S> where Co: 'static + Container, Cam: 'sta
             handles.push(handle);
         }
 
-        for handle in handles.into_iter() {
-            handle.join().unwrap();
-        }
+        handles.into_iter().for_each(|handle| handle.join().unwrap());
 
         let mut file = BufWriter::new(
             OpenOptions::new()
