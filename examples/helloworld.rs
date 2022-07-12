@@ -42,7 +42,7 @@ fn create_light(builder: &mut Builder) {
     let triangle1 = Triangle::new([Point3f::new(-1., -1., 3.), Point3f::new(1., -1., 3.), Point3f::new(1., 1., 3.)], None, true, material.clone());
     builder.add_area_light(AreaLight::new(Spectrum::from(0.9), triangle1));
 
-    let triangle2 = Triangle::new([Point3f::new(1., 1., 3.), Point3f::new(-1., 1., 3.), Point3f::new(-1., -1., 3.)], None, true, material.clone());
+    let triangle2 = Triangle::new([Point3f::new(1., 1., 3.), Point3f::new(-1., 1., 3.), Point3f::new(-1., -1., 3.)], None, true, material);
     builder.add_area_light(AreaLight::new(Spectrum::from(0.9), triangle2));
 }
 
@@ -60,6 +60,6 @@ fn create_floor(builder: &mut Builder) {
     let triangle1 = Triangle::new([Point3f::new(-10., -10., 0.), Point3f::new(10., -10., 0.), Point3f::new(10., 10., 0.)], None, false, material.clone());
     builder.add_shape(triangle1);
 
-    let triangle2 = Triangle::new([Point3f::new(10., 10., 0.), Point3f::new(-10., 10., 0.), Point3f::new(-10., -10., 0.)], None, false, material.clone());
+    let triangle2 = Triangle::new([Point3f::new(10., 10., 0.), Point3f::new(-10., 10., 0.), Point3f::new(-10., -10., 0.)], None, false, material);
     builder.add_shape(triangle2);
 }
